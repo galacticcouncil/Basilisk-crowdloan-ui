@@ -1,41 +1,55 @@
-import { useCallback, useEffect } from 'react';
-import { useChronicleData, useOwnData } from 'src/hooks/data';
+import { useCallback, useEffect, useState } from 'react';
+import { useChronicleData, useOwnData, useSiblingData } from 'src/hooks/useData';
 import { ActionType, useStoreContext, useIsLoading } from '../containers/store/Store'
 import { Line, defaults } from 'react-chartjs-2';
-import millify from 'millify'
 import BigNumber from 'bignumber.js';
+import config from './../config'
+import { useIncentives } from 'src/hooks/useIncentives';
 
+// TODO: append data to the graph datasets instead, and let it animate
+// however due to the scale of the graph the append-animation might be negligible.
+// But the initial animation would be nice to have
+
+// turn off graph animations
 defaults.animation = false;
 
+/**
+ * Fetch all data required to display the incentive dashboard
+ */
 const useDashboardData = () => {
-    let { state, dispatch } = useStoreContext();
+    let { dispatch } = useStoreContext();
+    // chronicle data
     let { chronicle } = useChronicleData();
-    let { own } = useOwnData()
+    // own data
+    let { own } = useOwnData();
+    let { sibling } = useSiblingData()
+    let incentives = useIncentives()
 
-    const loadDashboardData = () => {
-        [
-            ActionType.LoadChronicle,
-            ActionType.LoadOwnData
-        ].forEach(action => dispatch({
-            type: action
-        }))
-    }
+    /**
+     * Function that triggers loading of a chronicle,
+     * which subsequently triggers loading of all
+     * chronicle-dependent data
+     */
+    const loadChronicle = () => dispatch({
+        type: ActionType.LoadChronicle
+    });
 
-    useEffect(() => loadDashboardData(), [])
+    // on the initial load, load the chronicle
+    useEffect(() => loadChronicle(), []);
 
-    useEffect(() => {
-        console.log('setup interval')
-        const intervalId = setInterval(() => {
-            console.log('loading chronicle')
-            dispatch({
-                type: ActionType.LoadChronicle
-            })
-        }, 4000)
+    /**
+     * Refresh the dashboard data (actually just the chronicle) every `blockTime`.
+     * Data available for the dashboard is limited by the already indexed data, which
+     * is represented by the `curBlockNum` in the chronicle. We still try to fetch the
+     * chronicle every `blockTime`, since the assumption is that it will be 
+     * updated in due time/quickly enough.
+     */
+    // useEffect(() => {
+    //     const intervalId = setInterval(loadChronicle, config.blockTime)
+    //     return () => clearInterval(intervalId)
+    // }, [])
 
-        return () => clearInterval(intervalId)
-    }, [])
-
-    return { chronicle, own };
+    return { chronicle, own, loadChronicle, sibling, incentives };
 }
 
 const divideKSMBy = new BigNumber(10).exponentiatedBy(12)
@@ -44,8 +58,16 @@ const parseChartDataPoint = (chartDataPoint: string) => new BigNumber(chartDataP
     .toFixed(0)
 
 const Dashboard = () => {
+    // TODO: spin the bsx eye if anything is loading?
     const loading = useIsLoading();
-    const { chronicle, own } = useDashboardData();
+    // obtain data required to display the dashboard
+    const { chronicle, own, loadChronicle, sibling, incentives } = useDashboardData();
+
+    // testing chart stuff
+    const [lineChartData, setLineChartData] = useState({
+        labels: [],
+        datasets: []
+    })
 
     const getLineChartData = useCallback(() => {
         const lineChartData = {
@@ -60,23 +82,43 @@ const Dashboard = () => {
                         .concat(own.data.crowdloan ? [
                             parseChartDataPoint(`${own.data.crowdloan?.raised}`)
                         ] : [])
+                },
+                {
+                    label: 'sibling',
+                    data: sibling.data.aggregatedCrowdloanBalances
+                        ?.map(aggregatedCrowdloanBalance => parseChartDataPoint(`${aggregatedCrowdloanBalance.raised}`))
+                        .concat(sibling.data.crowdloan ? [
+                            parseChartDataPoint(`${sibling.data.crowdloan?.raised}`)
+                        ] : [])
                 }
             ]
         }
         return lineChartData;
     }, [
+        own.loading,
         own.data.aggregatedCrowdloanBalances,
-        own.data.crowdloan?.raised,
-        chronicle.data.curBlockNum
+        sibling.loading,
+        sibling.data.aggregatedCrowdloanBalances
     ])
 
-    const getLineChartOptions = () => ({
+    useEffect(() => {
+        if (own.loading || sibling.loading) return;
+        console.log('getLineChartData', sibling.data.aggregatedCrowdloanBalances)
+        const lineChartData = getLineChartData();
+        setLineChartData(lineChartData as any);
+    }, [
+        own.data.aggregatedCrowdloanBalances,
+        sibling.data.aggregatedCrowdloanBalances,
+        sibling.loading,
+        own.loading
+    ])
+
+    const lineChartOptions = {
         pointRadius: 0,
         scales: {
             x: {
                 ticks: {
                    callback: (val: number, index: number) => {
-                       const lineChartData = getLineChartData()
                        const length = lineChartData.labels?.length;
                        
                        return (index == ((length || 0 ) - 1))
@@ -95,34 +137,63 @@ const Dashboard = () => {
                 display: false
             }
         }
-    })
+    }
 
-    return <>
-        <p>Dashboard loading: {loading ? "true" : "false"}</p>
+    const chronicleEl = (<>
+        <button
+            onClick={_ => loadChronicle()}
+        >Load chronicle</button>
         <h1>Chronicle</h1>
         <p>loading: {chronicle.loading ? "true" : "false"}</p>
         <p>curBlockNum: {chronicle.data.curBlockNum}</p>
+        <p>curAuctionId: {chronicle.data.curAuctionId}</p>
+    </>)
 
+    const incentivesEl = (<>
+        <h1>Incentives</h1>
+        <p>HDX Bonus: {incentives.hdxBonus?.toFixed(5) || '-'}</p>
+        <p>BSX Multiplier: {incentives.bsxMultiplier?.toFixed(5) || '-'}</p>
+    </>)
+
+    const ownCrowdloanEl = (<>
         <h1>Own Crowdloan</h1>
         <p>Loading {own.loading ? "true" : "false"}</p>
         <p>id {own.data.crowdloan?.id}</p>
         <p>raised {own.data.crowdloan?.raised}</p>
         <p>cap {own.data.crowdloan?.cap}</p>
         <p>parachainId {own.data.crowdloan?.parachainId}</p>
+        <p>blockNum {own.data.crowdloan?.blockNum}</p>
         <p>aggregated balances</p>
-        
+    </>)
+
+    const siblingCrowdloanEl = (<>
+        <h1>Sibling Crowdloan</h1>
+        <p>Loading {sibling.loading ? "true" : "false"}</p>
+        <p>id {sibling.data.crowdloan?.id}</p>
+        <p>raised {sibling.data.crowdloan?.raised}</p>
+        <p>cap {sibling.data.crowdloan?.cap}</p>
+        <p>parachainId {sibling.data.crowdloan?.parachainId}</p>
+        <p>blockNum {sibling.data.crowdloan?.blockNum}</p>
+        <p>aggregated balances</p>
+
         <div style={{
             padding: '24px'
         }}>
-            {own.loading 
-                ? '-'
-                : (<Line 
-                        data={getLineChartData()}
-                        type="line"
-                        options={getLineChartOptions()}
-                    ></Line>)
-            }
+            <Line
+                id="1"
+                data={lineChartData}
+                type="line"
+                options={lineChartOptions}
+            ></Line>
         </div>
+    </>)
+
+    return <>
+        <p>Dashboard loading: {loading ? "true" : "false"}</p>
+        {chronicleEl}
+        {incentivesEl}
+        {ownCrowdloanEl}
+        {siblingCrowdloanEl}
         
     </>
 };

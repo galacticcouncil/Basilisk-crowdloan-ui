@@ -3,6 +3,11 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+import log from 'loglevel'
+
+// <reference types="simple-linear-scale.d.ts">
+
+log.setLevel('info')
 
 ReactDOM.render(
   <React.StrictMode>

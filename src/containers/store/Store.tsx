@@ -1,16 +1,12 @@
-import React, { useEffect, useMemo } from 'react';
+import { useEffect, useReducer, useState } from 'react';
 import constate from 'constate';
-import { AggregatedCrowdloanBalance, Crowdloan } from 'src/hooks/data';
-import { every, initial } from 'lodash';
-import { ActionType, Action, SetChronicle, SetOwnData } from './Actions';
+import { AggregatedCrowdloanBalance, Crowdloan, Chronicle } from 'src/hooks/useQueries';
+import { ActionType, Action, SetChronicle, SetOwnData, SetSiblingData } from './Actions';
+import log from 'loglevel';
 
 export type ParachainCrowdloanState = {
     crowdloan: null | Crowdloan,
     aggregatedCrowdloanBalances: null | AggregatedCrowdloanBalance[]
-}
-
-export type Chronicle = {
-    curBlockNum: null | number
 }
 
 export type State = {
@@ -32,7 +28,12 @@ const initialState: State = {
     chronicle: {
         loading: false,
         data: {
-            curBlockNum: null,
+            curBlockNum: 0,
+            curAuctionId: 0,
+            curAuction: {
+                closingStart: null,
+                closingEnd: null
+            }
         }
     },
     own: {
@@ -52,55 +53,79 @@ const initialState: State = {
 };
 
 const reducer = (state: State, action: Action) => {
-    switch (action.type) {
-        /**
-         * Chronicle
-         */
-        case ActionType.LoadChronicle:
-            return {
-                ...state,
-                chronicle: {
-                    ...state.chronicle,
-                    loading: true
+    log.debug('Store', 'action', action, state);
+    const newState = (() => {
+        switch (action.type) {
+            /**
+             * Chronicle
+             */
+            case ActionType.LoadChronicle:
+                return {
+                    ...state,
+                    chronicle: {
+                        ...state.chronicle,
+                        loading: true
+                    }
                 }
-            }
-        case ActionType.SetChronicle:
-            return {
-                ...state,
-                chronicle: {
-                    ...state.chronicle,
-                    loading: false,
-                    // TODO: figure out how to use type union without having to type cast
-                    data: (action as SetChronicle).payload
+            case ActionType.SetChronicle:
+                return {
+                    ...state,
+                    chronicle: {
+                        ...state.chronicle,
+                        loading: false,
+                        // TODO: figure out how to use type union without having to type cast
+                        data: (action as SetChronicle).payload
+                    }
                 }
-            }
+    
+            case ActionType.LoadOwnData:
+                return {
+                    ...state,
+                    own: {
+                        ...state.own,
+                        loading: true
+                    }
+                }
+    
+            case ActionType.SetOwnData:
+                return {
+                    ...state,
+                    own: {
+                        ...state.own,
+                        loading: false,
+                        data: (action as SetOwnData).payload
+                    }
+                }
 
-        case ActionType.LoadOwnData:
-            return {
-                ...state,
-                own: {
-                    ...state.own,
-                    loading: true
+            case ActionType.LoadSiblingData:
+                return {
+                    ...state,
+                    sibling: {
+                        ...state.sibling,
+                        loading: true
+                    }
                 }
-            }
 
-        case ActionType.SetOwnData:
-            return {
-                ...state,
-                own: {
-                    ...state.own,
-                    loading: false,
-                    data: (action as SetOwnData).payload
+            case ActionType.SetSiblingData:
+                return {
+                    ...state,
+                    sibling: {
+                        loading: false,
+                        data: (action as SetSiblingData).payload,
+                    }
                 }
-            }
+    
+            default:
+                return initialState;
+        }
+    })()
 
-        default:
-            return initialState;
-    }
+    log.debug('Store', 'newState', newState);
+    return newState;
 };
 
 const useStore = () => {
-    const [state, dispatch] = React.useReducer(reducer, initialState);
+    const [state, dispatch] = useReducer(reducer, initialState);
     return { state, dispatch };
 }
 
@@ -108,19 +133,46 @@ const [StoreProvider, useStoreContext] = constate(useStore);
 
 const useIsLoading = () => {
     const { state } = useStoreContext();
-    
-    return useMemo(() => (
-        state.chronicle.loading
-        || state.own.loading
-    ), [
+    const [loading, setLoading] = useState(false);
+
+    useEffect(() => {
+        log.debug('useIsLoading', state.chronicle.loading, state.own.loading, (
+            state.chronicle.loading
+            || state.own.loading
+        ));
+        setLoading((
+            state.chronicle.loading
+            || state.own.loading
+        ))
+    }, [
         state.chronicle.loading,
         state.own.loading,
     ])
+
+    return loading;
+}
+
+const useChronicle = () => {
+    const { state } = useStoreContext();
+    return state.chronicle;
+}
+
+const useOwn = () => {
+    const { state } = useStoreContext();
+    return state.own;
+}
+
+const useSibling = () => {
+    const { state } = useStoreContext();
+    return state.sibling;
 }
 
 export {
     StoreProvider,
     useStoreContext,
     ActionType,
-    useIsLoading
+    useIsLoading,
+    useChronicle,
+    useOwn,
+    useSibling
 }
