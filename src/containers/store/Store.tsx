@@ -1,15 +1,35 @@
-import { useEffect, useReducer, useState } from 'react';
+import { useReducer } from 'react';
 import constate from 'constate';
-import { AggregatedCrowdloanBalance, Crowdloan, Chronicle } from 'src/hooks/useQueries';
-import { ActionType, Action, SetChronicle, SetOwnData, SetSiblingData } from './Actions';
+import { AggregatedCrowdloanBalance, Crowdloan, Chronicle, Contribution } from 'src/hooks/useQueries';
+import { ActionType, Action, SetChronicle, SetOwnData, SetSiblingData, SetAccountData, SetHistoricalIncentivesData } from './Actions';
 import log from 'loglevel';
 
 export type ParachainCrowdloanState = {
     crowdloan: null | Crowdloan,
     aggregatedCrowdloanBalances: null | AggregatedCrowdloanBalance[]
+};
+
+export type AccountState = {
+    address: null | string,
+    balance: null | string,
+    contributions: Contribution[]
+};
+
+export interface Incentive {
+    hdxBonus: string,
+    blockNum: number,
+    siblingParachainId: string
+}
+
+export interface HistoricalIncentives {
+    [blockNum: number]: Incentive
 }
 
 export type State = {
+    account: {
+        loading: boolean,
+        data: AccountState
+    },
     chronicle: {
         loading: boolean,
         data: Chronicle
@@ -21,10 +41,22 @@ export type State = {
     sibling: {
         loading: boolean,
         data: ParachainCrowdloanState
+    },
+    historicalIncentives: {
+        loading: boolean,
+        data: HistoricalIncentives
     }
-}
+};
 
 const initialState: State = {
+    account: {
+        loading: false,
+        data: {
+            address: null,
+            balance: "0",
+            contributions: []
+        }
+    },
     chronicle: {
         loading: false,
         data: {
@@ -32,7 +64,8 @@ const initialState: State = {
             curAuctionId: 0,
             curAuction: {
                 closingStart: null,
-                closingEnd: null
+                closingEnd: null,
+                blockNum: null
             }
         }
     },
@@ -49,11 +82,15 @@ const initialState: State = {
             crowdloan: null,
             aggregatedCrowdloanBalances: []
         }
+    },
+    historicalIncentives: {
+        loading: false,
+        data: {}
     }
 };
 
 const reducer = (state: State, action: Action) => {
-    log.debug('Store', 'action', action, state);
+    log.debug('Store', 'action', action.type, action.payload, state);
     const newState = (() => {
         switch (action.type) {
             /**
@@ -114,9 +151,48 @@ const reducer = (state: State, action: Action) => {
                         data: (action as SetSiblingData).payload,
                     }
                 }
-    
+
+            case ActionType.ConnectAccount:
+                return {
+                    ...state,
+                    account: {
+                        ...state.account,
+                        loading: true,
+                    }
+                }
+                
+
+            case ActionType.SetAccountData:
+                return {
+                    ...state,
+                    account: {
+                        ...state.account,
+                        loading: false,
+                        data: (action as SetAccountData).payload
+                    }
+                }
+
+            case ActionType.LoadHistoricalIncentivesData:
+                return {
+                    ...state,
+                    historicalIncentives: {
+                        ...state.historicalIncentives,
+                        loading: true
+                    }
+                }
+
+            case ActionType.SetHistoricalIncentivesData:
+                return {
+                    ...state,
+                    historicalIncentives: {
+                        ...state.historicalIncentives,
+                        loading: false,
+                        data: (action as unknown as SetHistoricalIncentivesData).payload
+                    }
+                }
+
             default:
-                return initialState;
+                return state;
         }
     })()
 
@@ -130,27 +206,6 @@ const useStore = () => {
 }
 
 const [StoreProvider, useStoreContext] = constate(useStore);
-
-const useIsLoading = () => {
-    const { state } = useStoreContext();
-    const [loading, setLoading] = useState(false);
-
-    useEffect(() => {
-        log.debug('useIsLoading', state.chronicle.loading, state.own.loading, (
-            state.chronicle.loading
-            || state.own.loading
-        ));
-        setLoading((
-            state.chronicle.loading
-            || state.own.loading
-        ))
-    }, [
-        state.chronicle.loading,
-        state.own.loading,
-    ])
-
-    return loading;
-}
 
 const useChronicle = () => {
     const { state } = useStoreContext();
@@ -167,12 +222,31 @@ const useSibling = () => {
     return state.sibling;
 }
 
+const useAccount = () => {
+    const { state } = useStoreContext();
+    return state.account;
+}
+
+const useContributions = () => {
+    const account = useAccount();
+    return account.data.contributions;
+}
+
+const useHistoricalIncentives = () => {
+    const { state } = useStoreContext();
+    return state.historicalIncentives;
+}
+
 export {
     StoreProvider,
-    useStoreContext,
     ActionType,
-    useIsLoading,
+
+    useStoreContext,
+
     useChronicle,
     useOwn,
-    useSibling
+    useSibling,
+    useAccount,
+    useContributions,
+    useHistoricalIncentives
 }

@@ -9,6 +9,7 @@ export const calculateBsxMultiplier = (
     curAuctionClosingStart: null | number,
     curAuctionClosingEnd: null | number,
 ) => {
+    
     // if we're in targetAuctionId - 1, return full bsx multiplier
     if ((curAuctionId || 0) < config.targetAuctionId) return incentivesConfig.bsx.scale.rewardMultiplier.min;
     // There is no curAuctionId, therefore no closing start/end information either.

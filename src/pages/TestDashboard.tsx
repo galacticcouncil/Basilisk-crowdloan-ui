@@ -1,10 +1,12 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useChronicleData, useOwnData, useSiblingData } from 'src/hooks/useData';
-import { ActionType, useStoreContext, useIsLoading } from '../containers/store/Store'
+import { ActionType, useStoreContext, useContributions, useHistoricalIncentives } from '../containers/store/Store'
 import { Line, defaults } from 'react-chartjs-2';
 import BigNumber from 'bignumber.js';
-import config from './../config'
-import { useIncentives } from 'src/hooks/useIncentives';
+import config from '../config'
+import { useCalculateRewardsReceived, useHistoricalIncentivesData, useIncentives } from 'src/hooks/useIncentives';
+import { useAccountData, useTotalKsmContributed } from 'src/hooks/useAccountData';
+import linearScale from 'simple-linear-scale';
 
 // TODO: append data to the graph datasets instead, and let it animate
 // however due to the scale of the graph the append-animation might be negligible.
@@ -24,6 +26,10 @@ const useDashboardData = () => {
     let { own } = useOwnData();
     let { sibling } = useSiblingData()
     let incentives = useIncentives()
+    const { connectAccount, account, contributions } = useAccountData();
+    const totalKsmContributed = useTotalKsmContributed();
+    const rewardsReceived = useCalculateRewardsReceived();
+    const historicalIncentives = useHistoricalIncentives()
 
     /**
      * Function that triggers loading of a chronicle,
@@ -49,7 +55,19 @@ const useDashboardData = () => {
     //     return () => clearInterval(intervalId)
     // }, [])
 
-    return { chronicle, own, loadChronicle, sibling, incentives };
+    return {
+        chronicle,
+        own,
+        loadChronicle,
+        sibling,
+        incentives,
+        connectAccount,
+        account,
+        contributions,
+        historicalIncentives,
+        totalKsmContributed,
+        rewardsReceived
+    };
 }
 
 const divideKSMBy = new BigNumber(10).exponentiatedBy(12)
@@ -58,10 +76,14 @@ const parseChartDataPoint = (chartDataPoint: string) => new BigNumber(chartDataP
     .toFixed(0)
 
 const Dashboard = () => {
-    // TODO: spin the bsx eye if anything is loading?
-    const loading = useIsLoading();
     // obtain data required to display the dashboard
-    const { chronicle, own, loadChronicle, sibling, incentives } = useDashboardData();
+    const {
+        chronicle,
+        own,
+        loadChronicle, sibling, incentives, account, connectAccount, contributions, historicalIncentives,
+        totalKsmContributed,
+        rewardsReceived 
+    } = useDashboardData();
 
     // testing chart stuff
     const [lineChartData, setLineChartData] = useState({
@@ -69,7 +91,7 @@ const Dashboard = () => {
         datasets: []
     })
 
-    const getLineChartData = useCallback(() => {
+    const getLineChartData = () => {
         const lineChartData = {
             labels: own.data.aggregatedCrowdloanBalances
                 ?.map(aggregatedCrowdloanBalance => aggregatedCrowdloanBalance.blockNum)
@@ -81,7 +103,8 @@ const Dashboard = () => {
                         ?.map(aggregatedCrowdloanBalance => parseChartDataPoint(`${aggregatedCrowdloanBalance.raised}`))
                         .concat(own.data.crowdloan ? [
                             parseChartDataPoint(`${own.data.crowdloan?.raised}`)
-                        ] : [])
+                        ] : []),
+                    borderColor: 'red'
                 },
                 {
                     label: 'sibling',
@@ -89,28 +112,21 @@ const Dashboard = () => {
                         ?.map(aggregatedCrowdloanBalance => parseChartDataPoint(`${aggregatedCrowdloanBalance.raised}`))
                         .concat(sibling.data.crowdloan ? [
                             parseChartDataPoint(`${sibling.data.crowdloan?.raised}`)
-                        ] : [])
+                        ] : []),
+                    borderColor: 'blue'
                 }
             ]
         }
         return lineChartData;
-    }, [
-        own.loading,
-        own.data.aggregatedCrowdloanBalances,
-        sibling.loading,
-        sibling.data.aggregatedCrowdloanBalances
-    ])
+    }
 
     useEffect(() => {
-        if (own.loading || sibling.loading) return;
-        console.log('getLineChartData', sibling.data.aggregatedCrowdloanBalances)
         const lineChartData = getLineChartData();
         setLineChartData(lineChartData as any);
     }, [
         own.data.aggregatedCrowdloanBalances,
         sibling.data.aggregatedCrowdloanBalances,
-        sibling.loading,
-        own.loading
+        chronicle.data.curBlockNum
     ])
 
     const lineChartOptions = {
@@ -118,14 +134,14 @@ const Dashboard = () => {
         scales: {
             x: {
                 ticks: {
-                   callback: (val: number, index: number) => {
-                       const length = lineChartData.labels?.length;
-                       
-                       return (index == ((length || 0 ) - 1))
-                        ? (lineChartData.labels && lineChartData.labels[index])
-                        : ''
-                   },
-                   autoSkip: false
+                    callback: (val: number, index: number) => {
+                        const length = lineChartData.labels?.length;
+
+                        return (index == ((length || 0) - 1))
+                            ? (lineChartData.labels && lineChartData.labels[index])
+                            : ''
+                    },
+                    autoSkip: false
                 },
                 grid: {
                     display: false
@@ -134,16 +150,16 @@ const Dashboard = () => {
         },
         plugins: {
             legend: {
-                display: false
+                display: true
             }
         }
     }
 
     const chronicleEl = (<>
+        <h1>Chronicle</h1>
         <button
             onClick={_ => loadChronicle()}
         >Load chronicle</button>
-        <h1>Chronicle</h1>
         <p>loading: {chronicle.loading ? "true" : "false"}</p>
         <p>curBlockNum: {chronicle.data.curBlockNum}</p>
         <p>curAuctionId: {chronicle.data.curAuctionId}</p>
@@ -151,8 +167,18 @@ const Dashboard = () => {
 
     const incentivesEl = (<>
         <h1>Incentives</h1>
-        <p>HDX Bonus: {incentives.hdxBonus?.toFixed(5) || '-'}</p>
-        <p>BSX Multiplier: {incentives.bsxMultiplier?.toFixed(5) || '-'}</p>
+        <p>HDX Bonus: {incentives.hdxBonus || '-'}</p>
+        <p>BSX Multiplier: {incentives.bsxMultiplier || '-'}</p>
+
+        <h3>Historical incentives</h3>
+        {Object.keys(historicalIncentives.data).map(blockNum => (
+            <div key={blockNum}>
+                <p><b>{blockNum}:</b></p>
+                <p>Sibling parachainId: {(historicalIncentives as any).data[blockNum]?.siblingParachainId}</p>
+                <p>HDX Bonus: {(historicalIncentives as any).data[blockNum]?.hdxBonus}</p>
+                <p>BSX Multiplier: {(historicalIncentives as any).data[blockNum]?.bsxMultiplier}</p>
+            </div>
+        ))}
     </>)
 
     const ownCrowdloanEl = (<>
@@ -188,13 +214,33 @@ const Dashboard = () => {
         </div>
     </>)
 
+    const accountEl = (<>
+        <h1>Account</h1>
+        <button onClick={_ => connectAccount()}>Connect account</button>
+        <p>loading: {account.loading ? 'true' : 'false'}</p>
+        <p>address: {account.data.address}</p>
+        <p>balance: {account.data.balance}</p>
+        <p>total KSM contributed: {totalKsmContributed}</p>
+        <p>(current) HDX received: {rewardsReceived.currentHdxReceived}</p>
+        <p>(current) BSX received: {rewardsReceived.currentBsxReceived}</p>
+        <p>(minimal) BSX received: {rewardsReceived.minimalBsxReceived}</p>
+        <p>BSX received diff: {(new BigNumber(rewardsReceived.currentBsxReceived).minus(rewardsReceived.minimalBsxReceived).toFixed(config.incentives.precision))}</p>
+        <p>contributions:</p>
+        <div>
+            {account.data.contributions.map(contribution => (<div key={`${contribution.account}-${contribution.blockNum}`}>
+                <b><p>{contribution.blockNum}</p></b>
+                <p>{contribution.amount}</p>
+            </div>))}
+        </div>
+    </>)
+
     return <>
-        <p>Dashboard loading: {loading ? "true" : "false"}</p>
+        {accountEl}
         {chronicleEl}
         {incentivesEl}
         {ownCrowdloanEl}
         {siblingCrowdloanEl}
-        
+
     </>
 };
 

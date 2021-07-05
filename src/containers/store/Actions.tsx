@@ -1,4 +1,4 @@
-import { ParachainCrowdloanState } from "./Store";
+import { AccountState, HistoricalIncentives, ParachainCrowdloanState } from "./Store";
 import { Chronicle } from './../../hooks/useQueries';
 
 export enum ActionType {
@@ -9,7 +9,13 @@ export enum ActionType {
     SetOwnData = 'SET_OWN_DATA',
 
     LoadSiblingData = 'LOAD_SIBLING_DATA',
-    SetSiblingData = 'SET_SIBLING_DATA'
+    SetSiblingData = 'SET_SIBLING_DATA',
+
+    ConnectAccount = 'CONNECT_ACCOUNT',
+    SetAccountData = 'SET_ACCOUNT_DATA',
+
+    LoadHistoricalIncentivesData = 'LOAD_HISTORICAL_INCENTIVES_DATA',
+    SetHistoricalIncentivesData = 'SET_HISTORICAL_INCENTIVES_DATA'
 };
 
 export type ActionWithoutPayload = {
@@ -32,8 +38,21 @@ export type SetSiblingData = {
     payload: ParachainCrowdloanState
 }
 
+export type SetAccountData = {
+    type: ActionType.SetAccountData,
+    payload: AccountState
+}
+
+export type SetHistoricalIncentivesData = {
+    type: ActionType.SetHistoricalIncentivesData,
+    payload: HistoricalIncentives
+}
+
+
 export type Action = 
     | ActionWithoutPayload
     | SetChronicle
     | SetOwnData
     | SetSiblingData
+    | SetAccountData
+    | SetHistoricalIncentivesData

@@ -3,11 +3,20 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
-import log from 'loglevel'
+import log, { LogLevelDesc } from 'loglevel'
+import linearScale from 'simple-linear-scale';
+
+var scaleFunction = linearScale([10, 20], [10, 0], true);
+console.log('scaleFunction', scaleFunction(11)) // 10
 
 // <reference types="simple-linear-scale.d.ts">
 
-log.setLevel('info')
+let logLevel = (() => {
+  let params = (new URL(document.location as unknown as string)).searchParams;
+  return params.get('loglevel') as LogLevelDesc;
+})() || 'info'
+
+log.setLevel(logLevel)
 
 ReactDOM.render(
   <React.StrictMode>

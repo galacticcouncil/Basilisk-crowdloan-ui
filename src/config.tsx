@@ -1,15 +1,42 @@
 const config = {
-    indexerUrl: 'http://localhost:3000',
+    // indexerUrl: 'http://localhost:3000',
+    indexerUrl: 'https://ksm-arch.hydration.cloud/',
     // used to fetch own crowdloan & bid data for incentive calculation
     // and graph rendering
-    ownParachainId: '2007-Ekf4HssuTpYjmUEvzy9AAFuqpUcNm9AAkrMF1stTU6Mo1hR',
+    // shiden
+    // ownParachainId: '2007-Ekf4HssuTpYjmUEvzy9AAFuqpUcNm9AAkrMF1stTU6Mo1hR',
+    // khala
+    // ownParachainId: '2004-DaEJPYPCJQnKeHGfV6SSF8WPWtLg9zggbWwAwCZRWVPeWvv',
+    // bifrost
+    // ownParachainId: "2001-GLiebiQp5f6G5vNcc7BgRE9T3hrZSYDwP6evERn3hEczdaM",
+    // first crowdloan registred
+    // ownParachainId: "2000-Gq2No2gcF6s4DLfzzuB53G5opWCoCtK9tZeVGRGcmkSDGoK",
+    ownParachainId: (() => {
+        let params = (new URL(document.location as unknown as string)).searchParams;
+        console.log('ownParachainId', params.get('ownParachainId'));
+        return params.get("ownParachainId");
+    })() || "2000-Gq2No2gcF6s4DLfzzuB53G5opWCoCtK9tZeVGRGcmkSDGoK",
     // used to fetch the indexer chronicle periodically
     // alternativelly plug-in polkadot.js and watch for new blocks instead
     blockTime: 6000,
+    // used to fetch data newer than this block, especially for the graph
+    ownCrowdloanBlockNum: 8106771,
+    // oldest crowdloan blockNum
+    // ownCrowdloanBlockNum: 7830323,
     // used to calculated incentives based on curAuctionId
     targetAuctionId: 1,
+
+    // value lost by not staking your KSM
+    ksmOpportunityCost: '0.1375',
+    ksmPrecision: 12,
+    // TODO: feetch ksm price dynamically
+    ksmToUsd: '205.20',
+    hdxToUsd: '0.0859',
+
     incentives: {
+        precision: 50,
         hdx: {
+            decimals: 12,
             scale: {
               leadPercentageDiff: {
                 min: 0,
@@ -22,9 +49,12 @@ const config = {
                 min: 0.3,
                 max: 0.05
               }
-            }
+            },       
           },
           bsx: {
+              decimals: 12,
+              // 15bn with 12 decimals
+              allocated: '15000000000000000000000',
               scale: {
                 rewardMultiplier: {
                   min: 1,
@@ -36,6 +66,24 @@ const config = {
                 }
               }
           }
-    }
+    },
+    historicalAuctionData: {
+      1: {
+          blockNum: 7924237,
+          closingStart: 7951237,
+          closingEnd: 8023773
+      },
+      2: {
+          blockNum: 8024552, // 779 blocks since closingEnd
+          closingStart: 8051552,
+          closingEnd: 8123989,
+      },
+      3: {
+          blockNum: 8124516, // 527 blocks since closing end
+          closingStart: 8151516,
+          closingEnd: 8223516
+      }
+  }
 };
+
 export default config;

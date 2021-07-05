@@ -1,7 +1,7 @@
-import { useChronicleQuery, useOwnAggregatedCrowdloanBalancesQuery, useOwnCrowdloanQuery, AggregatedCrowdloanBalance, useSiblingCrowdloanCandidatesQuery, useAggregatedCrowdloanBalancesByParachainIdQuery, useCrowdloanByParachainIdQuery } from './useQueries';
+import { useChronicleQuery, useOwnAggregatedCrowdloanBalancesQuery, useOwnCrowdloanQuery, AggregatedCrowdloanBalance, useSiblingCrowdloanCandidatesQuery, useAggregatedCrowdloanBalancesByParachainIdQuery, useCrowdloanByParachainIdQuery, useContributionsByAccountAndParachainId, getContributionsByAccountAndParachainId } from './useQueries';
 import { useEffect, useState } from 'react';
 import { every } from 'lodash';
-import { ActionType, useStoreContext } from 'src/containers/store/Store';
+import { ActionType, useAccount, useContributions, useStoreContext } from 'src/containers/store/Store';
 import { useChronicle, useSibling, useOwn } from '../containers/store/Store';
 import log from 'loglevel';
 import config from 'src/config';
@@ -50,6 +50,7 @@ const useChronicleData = () => {
                 curAuction: {
                     closingStart: chronicle.data.chronicle.curAuction?.closingStart,
                     closingEnd: chronicle.data.chronicle.curAuction?.closingEnd,
+                    blockNum: chronicle.data.chronicle.curAuction?.blockNum,
                 }
             }
         })
@@ -181,19 +182,20 @@ const useOwnData = () => {
 
 /**
  * TODO: add auction bids into the equation, not just crowdloan balances
+ * TODO: make sure this logic works out
  * @param siblingCrowdloanCandidates 
  * @param ownValuation 
  */
 const determineSiblingParachain = (
-    siblingCrowdloanCandidates: any, 
-    ownValuation: number,
+    siblingCrowdloanCandidates: any,
     curAuctionId: null | number
 ) => {
-    const siblingCandidates = siblingCrowdloanCandidates.data.crowdloans.nodes
+    log.debug('determineSiblingParachain', siblingCrowdloanCandidates, curAuctionId);
+    const siblingCandidates = siblingCrowdloanCandidates
         .map((siblingCrowdloanCandidate: any) => ({
             valuation: siblingCrowdloanCandidate.raised,
             parachainId: siblingCrowdloanCandidate.parachainId
-        }))
+        })) || [];
 
     /**
      * If we're not in the target auction yet, then our competitor
@@ -205,7 +207,8 @@ const determineSiblingParachain = (
         ? siblingCandidates[1]
         : siblingCandidates[0];
 
-    return siblingParachain.parachainId;
+    log.debug('determineSiblingParachain', 'siblingParachain', siblingParachain?.parachainId);
+    return siblingParachain?.parachainId;
 }
 
 /**
@@ -214,7 +217,7 @@ const determineSiblingParachain = (
  * 
  * TODO: factor in bid size, not only crowdloan size
  */
-let useSiblingData = () => {
+const useSiblingData = () => {
     const chronicle = useChronicle();
     const own = useOwn()
     const { dispatch } = useStoreContext()
@@ -223,6 +226,8 @@ let useSiblingData = () => {
     const [getSiblingCrowdloanCandidates, siblingCrowdloanCandidates] = useSiblingCrowdloanCandidatesQuery();
     
     const [siblingParachainId, setSiblingParachainId] = useState("");
+    // TODO: fetch latest data from the node, instead of the indexer
+    // in order to provide the most accurate reward estimates
     const [getSiblingCrowdloan, siblingCrowdloan] = useCrowdloanByParachainIdQuery(siblingParachainId);
     const [getAggregatedSiblingCrowdloanBalances, aggregatedSiblingCrowdloanBalances] = useAggregatedCrowdloanBalancesByParachainIdQuery({
         parachainId: siblingParachainId
@@ -240,7 +245,8 @@ let useSiblingData = () => {
         if (own.loading) return;
         if (sibling.loading) return;
 
-        console.log('load sibling data');
+        log.debug('useSiblingData', 'loading')
+
         dispatch({
             type: ActionType.LoadSiblingData
         })
@@ -255,8 +261,8 @@ let useSiblingData = () => {
         if (!sibling.loading) return;
         if (siblingCrowdloan.loading) return;
         if (siblingCrowdloanCandidates.loading) return;
+        log.debug('useSiblingData', 'getSiblingCrowdloanCandidates')
         getSiblingCrowdloanCandidates();
-        console.log('actually loading..')
     }, [
         chronicle.data.curBlockNum,
         sibling.loading,
@@ -268,12 +274,14 @@ let useSiblingData = () => {
         if (!chronicle.data.curBlockNum) return;
         if (!siblingCrowdloanCandidates.called || siblingCrowdloanCandidates.loading) return;
 
+        log.debug('useSiblingData', 'loaded', 'determining sibling parachain');
+
         const siblingParachainId = determineSiblingParachain(
-            siblingCrowdloanCandidates,
-            own.data.crowdloan?.raised,
+            siblingCrowdloanCandidates.data?.crowdloans.nodes,
             chronicle.data?.curAuctionId
         );
         
+        // TODO: if siblingParachainId is undefined, this hook never 'stops loading'
         setSiblingParachainId(siblingParachainId);
     }, [
         siblingCrowdloanCandidates,
@@ -293,6 +301,7 @@ let useSiblingData = () => {
         if (!chronicle.data.curBlockNum) return;
         if (!sibling.loading) return;
         // if (!sibling.loading) return;
+        log.debug('useSiblingData', 'fetching sibling data');
         getAggregatedSiblingCrowdloanBalances()
         getSiblingCrowdloan()
     }, [
@@ -304,6 +313,8 @@ let useSiblingData = () => {
     useEffect(() => {
         if (!siblingCrowdloan.called || siblingCrowdloan.loading) return;
         if (!aggregatedSiblingCrowdloanBalances.called || aggregatedSiblingCrowdloanBalances.loading) return;
+
+        log.debug('useSiblingData', 'fetched sibling data', 'parsing');
 
         let crowdloan = siblingCrowdloan.data.crowdloans.nodes[0];
         crowdloan = {
@@ -321,9 +332,9 @@ let useSiblingData = () => {
             .map(({ id, blockNum, raised, parachainId }: AggregatedCrowdloanBalance) => ({
                 id, blockNum, raised, parachainId
             }));
-
-        console.log('aggregated sibling', aggregatedSiblingCrowdloanBalances);
         
+        log.debug('useSiblingData', 'setting sibling data');
+
         dispatch({
             type: ActionType.SetSiblingData,
             payload: {
@@ -342,8 +353,12 @@ let useSiblingData = () => {
     }
 }
 
+
+
+
 export {
     useChronicleData,
     useOwnData,
-    useSiblingData
+    useSiblingData,
+    determineSiblingParachain
 }
