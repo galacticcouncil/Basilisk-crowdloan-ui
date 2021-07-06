@@ -1,0 +1,24 @@
+{
+  "files": {
+    "main.css": "/static/css/main.3e42caad.chunk.css",
+    "main.js": "/static/js/main.1198cbd8.chunk.js",
+    "main.js.map": "/static/js/main.1198cbd8.chunk.js.map",
+    "runtime-main.js": "/static/js/runtime-main.d280da59.js",
+    "runtime-main.js.map": "/static/js/runtime-main.d280da59.js.map",
+    "static/js/2.79956a9b.chunk.js": "/static/js/2.79956a9b.chunk.js",
+    "static/js/2.79956a9b.chunk.js.map": "/static/js/2.79956a9b.chunk.js.map",
+    "static/js/3.4fd9685c.chunk.js": "/static/js/3.4fd9685c.chunk.js",
+    "static/js/3.4fd9685c.chunk.js.map": "/static/js/3.4fd9685c.chunk.js.map",
+    "index.html": "/index.html",
+    "static/css/main.3e42caad.chunk.css.map": "/static/css/main.3e42caad.chunk.css.map",
+    "static/js/2.79956a9b.chunk.js.LICENSE.txt": "/static/js/2.79956a9b.chunk.js.LICENSE.txt",
+    "static/media/Logo-dark-2-clean.cbd38319.png": "/static/media/Logo-dark-2-clean.cbd38319.png",
+    "static/media/basilisk-wallpaper-2.cc01249c.png": "/static/media/basilisk-wallpaper-2.cc01249c.png"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.d280da59.js",
+    "static/js/2.79956a9b.chunk.js",
+    "static/css/main.3e42caad.chunk.css",
+    "static/js/main.1198cbd8.chunk.js"
+  ]
+}
