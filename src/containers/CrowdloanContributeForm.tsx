@@ -7,6 +7,7 @@ import config from './../config';
 import { fromKsmPrecision, ksmToUsd, toKsmPrecision, usdToHdx } from './../utils';
 import CurrencyInput from 'react-currency-input-field';
 import './CrowdloanContributeForm.scss'
+import BigNumber from 'bignumber.js';
 
 type Props = {
     totalContributionWeight: string
@@ -31,7 +32,6 @@ export const CrowdloanContributeForm = ({totalContributionWeight}: Props) => {
     });
 
     useEffect(() => {
-        console.log('amount updated')
         log.debug('CrowdloanContributeForm', 'calculating rewards', amount, own, totalContributionWeight);
         if (!own || !chronicle || !totalContributionWeight) return;
         if (!own.data.crowdloan) return;
@@ -44,15 +44,10 @@ export const CrowdloanContributeForm = ({totalContributionWeight}: Props) => {
             }
         ];
 
-        console.log('input contributions', contributions)
-
         const historicalIncentives: any = { data: {} };
         (historicalIncentives as any).data[chronicle.data.curBlockNum] = {
             hdxBonus: incentives.hdxBonus
         };
-
-        console.log('input incentives', historicalIncentives);
-
 
         const bsxRewards = calculateBsxRewards(
             contributions,
@@ -70,12 +65,10 @@ export const CrowdloanContributeForm = ({totalContributionWeight}: Props) => {
 
         log.debug('CrowdloanContributeForm', bsxRewards, hdxReward);
         
-        // const hdxReward =
-
         setRewardsReceived({
-            minimalBsxReceived: fromKsmPrecision(bsxRewards.accountMinimumBsxReward),
-            currentBsxReward: fromKsmPrecision(bsxRewards.accountCurrentBsxReward),
-            currentHdxReceived: fromKsmPrecision(hdxReward)
+            minimalBsxReceived: new BigNumber(fromKsmPrecision(bsxRewards.accountMinimumBsxReward)).toFixed(6),
+            currentBsxReward: new BigNumber(fromKsmPrecision(bsxRewards.accountCurrentBsxReward)).toFixed(6),
+            currentHdxReceived: new BigNumber(usdToHdx(ksmToUsd(fromKsmPrecision(hdxReward)))).toFixed(6)
         })
 
     }, [
@@ -92,7 +85,6 @@ export const CrowdloanContributeForm = ({totalContributionWeight}: Props) => {
     }
 
     useEffect(() => {
-        console.log('lastContributionStatusChanged', lastContributionStatus)
         if (lastContributionStatus) setAmount(0)
     }, [
         lastContributionStatus
@@ -100,7 +92,6 @@ export const CrowdloanContributeForm = ({totalContributionWeight}: Props) => {
 
     const handleContributeChange = (value: any) => {
         log.debug('CrowdloanContributeForm', 'handleContributeChange', value, activeAccountBalance);
-        console.log('handleContributeChange', value)
         if (value == undefined) return setAmount(undefined);
         setAmount(value)
     }
@@ -110,13 +101,6 @@ export const CrowdloanContributeForm = ({totalContributionWeight}: Props) => {
     const noop = () => {}
 
     return <div className="bsx-contribute-form">
-
-        {/* <p>total contribution weight {totalContributionWeight}</p> */}
-        {/* <p>last contribution status {
-            (lastContributionStatus == undefined)
-                ? 'unknown' 
-                : (lastContributionStatus) ? 'contribution successful' : 'error contributing'
-        }</p> */}
 
         <div className="bsx-form-wrapper">
             <label>ksm contribution</label>
@@ -129,28 +113,31 @@ export const CrowdloanContributeForm = ({totalContributionWeight}: Props) => {
 
             {/* rewards */}
             <label>minimal bsx received</label>
-            <input 
-                name="amount" 
-                type="string"
+            <CurrencyInput
+                name="minimal bsx received"
+                decimalsLimit={6}
+                disabled={true}
                 value={rewardsReceived.minimalBsxReceived}
-                onChange={noop}
-            ></input>
+                onValueChange={noop}
+            />
 
             <label>current bsx received</label>
-            <input 
-                name="amount" 
-                type="string"
+            <CurrencyInput
+                name="current bsx received"
+                decimalsLimit={6}
+                disabled={true}
                 value={rewardsReceived.currentBsxReward}
-                onChange={noop}
-            ></input>
+                onValueChange={noop}
+            />
 
             <label>current hdx received</label>
-            <input 
-                name="amount" 
-                type="string"
-                value={usdToHdx(ksmToUsd(rewardsReceived.currentHdxReceived))}
-                onChange={noop}
-            ></input>
+            <CurrencyInput
+                name="current hdx received"
+                decimalsLimit={6}
+                disabled={true}
+                value={rewardsReceived.currentHdxReceived}
+                onValueChange={noop}
+            />
 
 
             <button
@@ -160,8 +147,15 @@ export const CrowdloanContributeForm = ({totalContributionWeight}: Props) => {
         </div>
 
         <div className="contribution-status">
-            {/* Thanksss for your sacrifice */}
-            There was a problem with your contribution, please try again.
+            {lastContributionStatus 
+                ? "Thanksss for your sacrifice"
+                : (
+                    (lastContributionStatus == false)
+                        ? "There was a problem with your contribution, please try again."
+                        : ""
+
+                )
+            }
         </div>
     </div>
 }

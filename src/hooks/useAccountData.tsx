@@ -65,10 +65,10 @@ const useAccountData = () => {
     } = usePolkaDotContext()
 
     const accountContributions = useContributionsData();
+    const totalKsmContributed = useTotalKsmContributed()
 
     // TODO: fix loading state
     useEffect(() => {
-        console.log('dispatch connect account');
         dispatch({
             type: ActionType.ConnectAccount
         })
@@ -101,7 +101,8 @@ const useAccountData = () => {
     return {
         account,
         contributions,
-        rewardsReceived
+        rewardsReceived,
+        totalKsmContributed
     }
 }
 

@@ -195,6 +195,7 @@ export const useHistoricalIncentivesData = () => {
      * we need to calculate incentives for.
      */
     useEffect(() => {
+        log.debug('notWorkingHook', contributions)
         if (!contributions) return;
         if (contributions && !contributions.length) return;
         const contributionBlockNums = contributions.map(contribution => contribution.blockNum);
@@ -555,7 +556,6 @@ export const useCalculateRewardsReceived = () => {
         const totalContributionWeight = allOwnContributions.data.contributions.nodes
             .reduce((accumulator: string, contribution: any) => {
                 const activeAuctionId = findActiveHistoricalAuction(contribution.blockNum);
-                console.log('activeAuctionId', activeAuctionId);
                 const activeAuction = (config.historicalAuctionData as any)[activeAuctionId];
                 /**
                  * BSX Multiplier needs to be calculated for the past blockNum when the contribution was made.
@@ -595,6 +595,8 @@ export const useCalculateRewardsReceived = () => {
     ]);
 
     useEffect(() => {
+        // log.debug('notWorkingHook', own.data.crowdloan?.cap, historicalIncentives);
+
         if (!own.data.crowdloan?.cap) return;
         if (historicalIncentives.loading) return;
         // there are no historical incentives data
@@ -614,6 +616,9 @@ export const useCalculateRewardsReceived = () => {
         // values in BSX, not in KSM
         setCurrentBsxReceived(accountCurrentBsxReward)
         setMinimalBsxReceived(accountMinimumBsxReward);
+        
+        log.debug('useCalculateRewardsReceived', 'bsx rewards', accountMinimumBsxReward, accountCurrentBsxReward);
+
 
         /**
          * Calculate HDX rewards
@@ -627,7 +632,6 @@ export const useCalculateRewardsReceived = () => {
 
         // hdx value in KSM, not converted yet
         setCurrentHdxReceived(hdxReward);
-        console.log('hdx reward', hdxReward)
         setLoading(false);
     }, [
         totalContributionWeight,

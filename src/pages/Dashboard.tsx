@@ -9,14 +9,20 @@ import { useMemo, useEffect } from 'react';
 import { range, times } from 'lodash';
 import config from 'src/config';
 import { calculateBsxMultiplier } from 'src/incentives/calculateBsxMultiplier';
-import { fromKsmPrecision } from 'src/utils';
+import { fromKsmPrecision, usdToHdx, ksmToUsd } from 'src/utils';
 import millify from 'millify';
 import linearScale from 'simple-linear-scale'
 
 import { Chart } from 'chart.js';
 import annotationPlugin from 'chartjs-plugin-annotation';
+import { useIncentives } from 'src/hooks/useIncentives';
+import { useAccountData, useTotalKsmContributed } from 'src/hooks/useAccountData';
+import BigNumber from 'bignumber.js';
 Chart.register(annotationPlugin);
 
+const millifyOptions = {
+    precision: 6
+}
 
 defaults.animation = false;
 
@@ -33,9 +39,13 @@ const colors = {
 
 export const useDashboardData = () => {
     let { dispatch } = useStoreContext();
-    let { chronicle } = useChronicleData()
+    let { chronicle } = useChronicleData();
     let { own, ownLoading } = useOwnData();
-    let { sibling, siblingLoading } = useSiblingData()
+    let { sibling, siblingLoading } = useSiblingData();
+    let incentives = useIncentives();
+    const accountData = useAccountData();
+    const totalKsmContributed = useTotalKsmContributed();
+
 
     /**
      * Function that triggers loading of a chronicle,
@@ -57,13 +67,22 @@ export const useDashboardData = () => {
         chronicle,
         own,
         sibling,
-        isDashboardEssentialDataLoading
+        isDashboardEssentialDataLoading,
+        incentives,
+        accountData
     }
 }
 
 export const Dashboard = () => {
 
-    const { chronicle, own, sibling, isDashboardEssentialDataLoading } = useDashboardData()
+    const { 
+        chronicle, 
+        own, 
+        sibling, 
+        isDashboardEssentialDataLoading,
+        incentives,
+        accountData,
+    } = useDashboardData()
 
     const aggregationCoeficient = 50;
     const targetAuctionId = config.targetAuctionId;
@@ -83,8 +102,6 @@ export const Dashboard = () => {
             (targetAuction.closingEnd - config.ownCrowdloanBlockNum) / aggregationCoeficient,
         ]
     )
-
-    console.log('ll', own.data.aggregatedCrowdloanBalances?.length);
 
     const lineChartData = useMemo(() => {
         
@@ -256,7 +273,7 @@ export const Dashboard = () => {
                             scaleID: 'crowdloanCap',
                             label: {
                                 ...labelOptions,
-                                content: millify(parseFloat(fromKsmPrecision(own.data.crowdloan.raised))),
+                                content: millify(parseFloat(fromKsmPrecision(own.data.crowdloan.raised)), millifyOptions),
                             }
                         } : null,
                         siblingRaised: sibling.data.crowdloan?.raised ? {
@@ -270,7 +287,7 @@ export const Dashboard = () => {
                             label: {
                                 ...labelOptions,
                                 backgroundColor: colors.yellow,
-                                content: millify(parseFloat(fromKsmPrecision(sibling.data.crowdloan.raised))),
+                                content: millify(parseFloat(fromKsmPrecision(sibling.data.crowdloan.raised)), millifyOptions),
                             }
                         } : null
                     },
@@ -286,8 +303,6 @@ export const Dashboard = () => {
     const isLineChartDataLoading = useMemo(() => isDashboardEssentialDataLoading, [
         isDashboardEssentialDataLoading
     ]);
-
-    console.log(chronicle.data.curBlockNum, lineChartBlockNumScale(targetAuction.closingEnd));
 
     return <div className='bsx-dashboard'>
 
@@ -341,7 +356,7 @@ export const Dashboard = () => {
             <div className="container">
                 <div className="row bsx-account-selector-display">
                     <div className="col-9 bsx-address">
-                        Em9CzTD4q3zAD5gjAKS5bzUYCDq2jhLXcM66PvJvaFbmTN8
+                        {accountData.account.data.address}
                     </div>
                     <div className="col-3 bsx-select-account">
                         change your account
@@ -355,7 +370,7 @@ export const Dashboard = () => {
                                     total ksm contributed
                                 </span>
                                 <span className="bsx-stat-value">
-                                    50 000
+                                    ~{millify(parseFloat(fromKsmPrecision(accountData.totalKsmContributed)), millifyOptions)}
                                 </span>
                             </div>
                             <div className="col-3 bsx-stat">
@@ -363,7 +378,7 @@ export const Dashboard = () => {
                                     minimal bsx received
                                 </span>
                                 <span className="bsx-stat-value">
-                                    50 000
+                                    ~{millify(parseFloat(fromKsmPrecision(accountData.rewardsReceived.minimalBsxReceived)), millifyOptions)}
                                 </span>
                             </div>
                             <div className="col-3 bsx-stat">
@@ -371,7 +386,7 @@ export const Dashboard = () => {
                                     current bsx received
                                 </span>
                                 <span className="bsx-stat-value">
-                                    50 000
+                                    ~{millify(parseFloat(fromKsmPrecision(accountData.rewardsReceived.currentBsxReceived)), millifyOptions)}
                                 </span>
                             </div>
                             <div className="col-3 bsx-stat">
@@ -379,7 +394,7 @@ export const Dashboard = () => {
                                     current hdx reward
                                 </span>
                                 <span className="bsx-stat-value">
-                                    50 000
+                                    ~{millify(parseFloat(usdToHdx(ksmToUsd(fromKsmPrecision(accountData.rewardsReceived.currentHdxReceived)))), millifyOptions)}
                                 </span>
                             </div>
                         </div>
@@ -389,7 +404,7 @@ export const Dashboard = () => {
                             balance
                         </span>
                         <span className="bsx-stat-value">
-                            50 000
+                            ~{millify(parseFloat(fromKsmPrecision(accountData.account.data.balance)), millifyOptions)}
                         </span>
                     </div>
                 </div>
@@ -423,7 +438,7 @@ export const Dashboard = () => {
                     <div className="bsx-graph-timeline">
                         <div className="row">
                             <div className="col-6">
-                                06.07
+                                05.07
                             </div>
                             <div className="col-6">
                                 13.07
@@ -455,7 +470,10 @@ export const Dashboard = () => {
                                         </div>
                                         <div className="col-6 value">
                                             <span>
-                                                ~17.5%
+                                            ~{incentives.hdxBonus
+                                                    ? (new BigNumber(incentives.hdxBonus).toFixed(2))
+                                                    : '-'
+                                                }
                                             </span>
                                         </div>
                                     </div>
@@ -470,7 +488,10 @@ export const Dashboard = () => {
                                         </div>
                                         <div className="col-3 value">
                                             <span>
-                                                ~1
+                                                ~{incentives.bsxMultiplier
+                                                    ? (new BigNumber(incentives.bsxMultiplier).toFixed(2))
+                                                    : '-'
+                                                }
                                             </span>
                                         </div>
                                     </div>
@@ -482,7 +503,7 @@ export const Dashboard = () => {
 
                     <div>
                         <CrowdloanContributeForm
-                            totalContributionWeight={""}
+                            totalContributionWeight={accountData.rewardsReceived.totalContributionWeight}
                         />
                     </div>
                 </div>

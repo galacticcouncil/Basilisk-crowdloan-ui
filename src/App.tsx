@@ -11,6 +11,7 @@ function App() {
       <StoreProvider>
         <PolkadotProvider>
           <Dashboard/>
+          {/* <TestDashboard/> */}
         </PolkadotProvider>
       </StoreProvider>
     </ConfiguredApolloProvider>

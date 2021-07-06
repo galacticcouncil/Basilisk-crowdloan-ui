@@ -57,7 +57,6 @@ export const usePolkadot = () => {
             });
 
             log.debug('usePolkadot', 'loaded', allInjected, api);
-            console.log('allAccount', allAccounts);
             setAccounts(allAccounts);
             setApi(api);
             setLoading(false);
@@ -83,10 +82,9 @@ export const usePolkadot = () => {
         if (!activeAccount) return;
         
         setLoading(true);
-        console.log('running api contribute', amount, api, activeAccount);
 
-        const injector = await web3FromAddress(activeAccount)
-        console.log('api crowdloan', api.tx.crowdloan.contribute);
+        const injector = await web3FromAddress(activeAccount);
+
         (async () => {
             try {
                 const contribute = await api.tx.crowdloan.contribute(
@@ -100,11 +98,9 @@ export const usePolkadot = () => {
                         signer: injector.signer
                     }
                 )
-                console.log('contribute', activeAccount, injector.signer);
                 setLastContributionStatus(true);
             } catch (e) {
                 setLastContributionStatus(false);
-                console.log('error sending contribution', e);
             }
 
             setLoading(false);

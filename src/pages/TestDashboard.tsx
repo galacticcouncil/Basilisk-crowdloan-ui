@@ -34,7 +34,7 @@ const useDashboardData = () => {
 
     const { account, contributions, rewardsReceived } = useAccountData();
     const totalKsmContributed = useTotalKsmContributed();
-    
+
     const historicalIncentives = useHistoricalIncentives()
 
     /**
