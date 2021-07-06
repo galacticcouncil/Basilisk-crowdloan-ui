@@ -1,0 +1,11 @@
+@import './colors.scss';
+@font-face {font-family: "Pexico-Regular"; src: url("//db.onlinewebfonts.com/t/b77483504f720bf0ce1d3f83f694ea52.eot"); src: url("//db.onlinewebfonts.com/t/b77483504f720bf0ce1d3f83f694ea52.eot?#iefix") format("embedded-opentype"), url("//db.onlinewebfonts.com/t/b77483504f720bf0ce1d3f83f694ea52.woff2") format("woff2"), url("//db.onlinewebfonts.com/t/b77483504f720bf0ce1d3f83f694ea52.woff") format("woff"), url("//db.onlinewebfonts.com/t/b77483504f720bf0ce1d3f83f694ea52.ttf") format("truetype"), url("//db.onlinewebfonts.com/t/b77483504f720bf0ce1d3f83f694ea52.svg#Pexico-Regular") format("svg"); }
+
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: $grayDarkest;
+  font-family: 'Pexico-Regular';
+  font-smooth: subpixel-antialiased;
+}

@@ -23,11 +23,12 @@ const config = {
     // alternativelly plug-in polkadot.js and watch for new blocks instead
     blockTime: 6000,
     // used to fetch data newer than this block, especially for the graph
-    ownCrowdloanBlockNum: 8106771,
+    // ownCrowdloanBlockNum: 8106771,
+    ownCrowdloanBlockNum: 8204581,
     // oldest crowdloan blockNum
     // ownCrowdloanBlockNum: 7830323,
     // used to calculated incentives based on curAuctionId
-    targetAuctionId: 3,
+    targetAuctionId: 4,
 
     // value lost by not staking your KSM
     ksmOpportunityCost: '0.1375',
@@ -85,7 +86,12 @@ const config = {
           blockNum: 8124516, // 527 blocks since closing end
           closingStart: 8151516,
           closingEnd: 8223516
-      }
+      },
+      4: {
+        blockNum: 8224581,
+        closingStart: 8251581,
+        closingEnd: 8323581
+    }
   }
 };
 

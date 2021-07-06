@@ -121,7 +121,8 @@ const useOwnData = () => {
      */
     const loading = every([
         ownCrowdloan.loading,
-        ownCrowdloanAggregatedBalances.loading
+        ownCrowdloanAggregatedBalances.loading,
+        !ownCrowdloanAggregatedBalances.called
     ]);
 
     log.debug('useOwnData', 'loading', loading);
@@ -161,6 +162,11 @@ const useOwnData = () => {
         log.debug('useOwnData', 'crowdloan', crowdloan)
         log.debug('useOwndata', 'aggregatedCrowdloanBalances', aggregatedCrowdloanBalances)
 
+        // load sibling data before setting own as loaded
+        dispatch({
+            type: ActionType.LoadSiblingData
+        })
+
         dispatch({
             type: ActionType.SetOwnData,
             payload: {
@@ -176,7 +182,8 @@ const useOwnData = () => {
     ])
 
     return {
-        own
+        own,
+        ownLoading: loading
     }
 }
 
@@ -232,29 +239,14 @@ const useSiblingData = () => {
     const [getAggregatedSiblingCrowdloanBalances, aggregatedSiblingCrowdloanBalances] = useAggregatedCrowdloanBalancesByParachainIdQuery({
         parachainId: siblingParachainId
     })
-    
-    /**
-     * Wait until own data is loaded together with the chronicle,
-     * and only then start fetching the sibling data.
-     * 
-     * TODO: fetch data in paralel with own data, but do the sibling
-     * calculations when own data is ready
-     */
-    useEffect(() => {
-        if (!chronicle.data.curBlockNum) return;
-        if (own.loading) return;
-        if (sibling.loading) return;
 
-        log.debug('useSiblingData', 'loading')
-
-        dispatch({
-            type: ActionType.LoadSiblingData
-        })
-    }, [
-        chronicle.data.curBlockNum,
-        own.loading
+    const loading = every([
+        siblingCrowdloan.loading,
+        !siblingCrowdloan.called,
+        aggregatedSiblingCrowdloanBalances.loading,
+        !aggregatedSiblingCrowdloanBalances.called
     ]);
-
+    
     useEffect(() => {
         // don't do anything in case we don't know the `curBlockNum` yet
         if (!chronicle.data.curBlockNum) return;
@@ -349,7 +341,8 @@ const useSiblingData = () => {
     ])
 
     return {
-        sibling
+        sibling,
+        siblingLoading: loading
     }
 }
 

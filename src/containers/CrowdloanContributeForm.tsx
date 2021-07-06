@@ -6,6 +6,7 @@ import { calculateBsxRewards, calculateCurrentHdxReward, useIncentives } from '.
 import config from './../config';
 import { fromKsmPrecision, ksmToUsd, toKsmPrecision, usdToHdx } from './../utils';
 import CurrencyInput from 'react-currency-input-field';
+import './CrowdloanContributeForm.scss'
 
 type Props = {
     totalContributionWeight: string
@@ -108,50 +109,59 @@ export const CrowdloanContributeForm = ({totalContributionWeight}: Props) => {
 
     const noop = () => {}
 
-    return <div>
-        <h1>Contribute</h1>
+    return <div className="bsx-contribute-form">
 
-        <p>total contribution weight {totalContributionWeight}</p>
-        <p>last contribution status {
+        {/* <p>total contribution weight {totalContributionWeight}</p> */}
+        {/* <p>last contribution status {
             (lastContributionStatus == undefined)
                 ? 'unknown' 
                 : (lastContributionStatus) ? 'contribution successful' : 'error contributing'
-        }</p>
+        }</p> */}
 
-        <CurrencyInput
-            name="amount"
-            decimalsLimit={12}
-            value={amount}
-            onValueChange={handleContributeChange}
-        />
+        <div className="bsx-form-wrapper">
+            <label>ksm contribution</label>
+            <CurrencyInput
+                name="amount"
+                decimalsLimit={12}
+                value={amount}
+                onValueChange={handleContributeChange}
+            />
 
-        <br/>
-        {/* rewards */}
-        <input 
-            name="amount" 
-            type="number"
-            value={rewardsReceived.minimalBsxReceived}
-            onChange={noop}
-        ></input>
+            {/* rewards */}
+            <label>minimal bsx received</label>
+            <input 
+                name="amount" 
+                type="string"
+                value={rewardsReceived.minimalBsxReceived}
+                onChange={noop}
+            ></input>
 
-        <input 
-            name="amount" 
-            type="number"
-            value={rewardsReceived.currentBsxReward}
-            onChange={noop}
-        ></input>
+            <label>current bsx received</label>
+            <input 
+                name="amount" 
+                type="string"
+                value={rewardsReceived.currentBsxReward}
+                onChange={noop}
+            ></input>
 
-        <input 
-            name="amount" 
-            type="number"
-            value={usdToHdx(ksmToUsd(rewardsReceived.currentHdxReceived))}
-            onChange={noop}
-        ></input>
+            <label>current hdx received</label>
+            <input 
+                name="amount" 
+                type="string"
+                value={usdToHdx(ksmToUsd(rewardsReceived.currentHdxReceived))}
+                onChange={noop}
+            ></input>
 
 
-        <button
-            disabled={(!amount || amount == 0)}
-            onClick={handleContributeClick}
-        >Contribute</button>
+            <button
+                disabled={(!amount || amount == 0)}
+                onClick={handleContributeClick}
+            >Contribute</button>
+        </div>
+
+        <div className="contribution-status">
+            {/* Thanksss for your sacrifice */}
+            There was a problem with your contribution, please try again.
+        </div>
     </div>
 }

@@ -139,18 +139,21 @@ const Dashboard = () => {
     const lineChartOptions = {
         pointRadius: 0,
         scales: {
-            x: {
+            y: {
+                display: false,
                 ticks: {
-                    callback: (val: number, index: number) => {
-                        const length = lineChartData.labels?.length;
-
-                        return (index == ((length || 0) - 1))
-                            ? (lineChartData.labels && lineChartData.labels[index])
-                            : ''
-                    },
-                    autoSkip: false
+                    display: false,
                 },
-                grid: {
+                gridLines: {
+                    display: false
+                }
+            },
+            x: {
+                display: false,
+                ticks: {
+                    display: false
+                },
+                gridLines: {
                     display: false
                 }
             }
