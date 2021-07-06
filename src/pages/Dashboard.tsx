@@ -163,7 +163,6 @@ export const Dashboard = () => {
                                     targetAuction.closingEnd
                                 )
                             })
-                            // .map(v => 1)
                 }
             ]
         })
@@ -349,8 +348,8 @@ export const Dashboard = () => {
                                 </a>
                             </div>
                             <div className="bsx-menu-item">
-                                <a href="https://basiliskfi.substack.com/p/basilisk-parachain-crowdloan" target="_blank">
-                                    faq
+                                <a href="https://docs.bsx.fi/" target="_blank">
+                                    docs
                                 </a>
                             </div>
                             <div className="bsx-menu-item">
