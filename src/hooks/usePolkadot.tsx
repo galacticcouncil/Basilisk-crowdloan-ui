@@ -92,7 +92,7 @@ export const usePolkadot = () => {
 
         (async () => {
             try {
-                const contribute = await api.tx.crowdloan.contribute(
+                api.tx.crowdloan.contribute(
                     config.ownParaId,
                     new BigNumber(amount).toFixed(0),
                     null
@@ -101,9 +101,17 @@ export const usePolkadot = () => {
                     activeAccount,
                     {
                         signer: injector.signer
+                    },
+                    ({ status, events }) => {
+                        if (status.isInBlock || status.isFinalized) {
+                            events
+                                .filter(({ event }) => api.events.system.ExtrinsicFailed.is(event))
+                                .length
+                                ? setLastContributionStatus(false)
+                                : setLastContributionStatus(true);
+                        }
                     }
                 )
-                setLastContributionStatus(true);
                 fetchBalance();
             } catch (e) {
                 setLastContributionStatus(false);
