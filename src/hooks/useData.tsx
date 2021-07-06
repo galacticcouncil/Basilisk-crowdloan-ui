@@ -31,11 +31,9 @@ const useChronicleData = () => {
 
     useEffect(() => {
         const intervalId = setInterval(() => {
-            console.log('getting chronicle')
             getChronicle()
         }, config.blockTime);
         return () => {
-            console.log('clearning')
             clearInterval(intervalId)
         };
     }, [])
@@ -49,7 +47,6 @@ const useChronicleData = () => {
         // TODO: also check for errors 
         if (!chronicle.called || chronicle.loading) return;
         log.debug('useChronicleData', 'chronicle', chronicle)
-        console.log(chronicle.data.chronicle.curBlockNum)
         if(!chronicle.data) return;
 
         dispatch({
