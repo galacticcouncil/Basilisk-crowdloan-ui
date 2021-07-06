@@ -25,6 +25,12 @@ export interface HistoricalIncentives {
     [blockNum: number]: Incentive
 }
 
+export interface Rewards {
+    currentBsxReceived: null | string,
+    minimalBsxReceived: null | string,
+    currentHdxReceived: null | string
+}
+
 export type State = {
     account: {
         loading: boolean,
@@ -156,7 +162,7 @@ const reducer = (state: State, action: Action) => {
                 return {
                     ...state,
                     account: {
-                        ...state.account,
+                        ...initialState.account,
                         loading: true,
                     }
                 }

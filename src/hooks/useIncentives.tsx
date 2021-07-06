@@ -32,13 +32,23 @@ export const calculateIncentives = (
         blockNum, curAuctionId, curAuctionClosingStart, curAuctionClosingEnd, ownCrowdloanValuation, siblingCrowdloanValuation
     });
 
+    const targetAuctionClosingEnd = (config.historicalAuctionData as any)[config.targetAuctionId].closingEnd;
+
+    const noIncentives = {
+        hdxBonus: "0",
+        bsxMultiplier: "0"
+    };
+
     // if there is no own crowdloan, there are no incentives
+    // if the contribution is beyond the target auction, there are no incentives
     if (ownCrowdloanValuation == undefined) {
         log.debug('calculateIncentives', 'no ownCrowdloanValuation')
-        return {
-            hdxBonus: null,
-            bsxMultiplier: null
-        };
+        return noIncentives
+    }
+
+    if (blockNum > (targetAuctionClosingEnd || 0)) {
+        log.debug('calculateIncentives', 'contribution newer than target auction end');
+        return noIncentives;
     }
     
     // calculate the bsx multiplier 
@@ -291,14 +301,14 @@ export const useHistoricalIncentivesData = () => {
             // recalculate incentives (hdx bonus) for the given blockNum,
             // while taking the historically active auctionId into consideration
             (accumulator as any)[blockNum] = {
-                hdxBonus: calculateIncentives(
+                ...calculateIncentives(
                     blockNum,
                     activeAuctionId,
                     activeAuction?.closingStart,
                     activeAuction?.closingEnd,
                     ownCrowdloan?.raised,
                     siblingParachainCrowdloan?.raised
-                ).hdxBonus,
+                ),
                 blockNum,
                 siblingParachainId
             }
@@ -423,7 +433,7 @@ export const calculateCurrentBsxReceived = (
  * @param contributions 
  * @param historicalIncentives 
  */
-const calculateCurrentHdxReward = (
+export const calculateCurrentHdxReward = (
     contributions: any[],
     historicalIncentives: any
 ) => {
@@ -450,11 +460,12 @@ const calculateCurrentHdxReward = (
     return hdxReward;
 }
 
-const calculateBsxRewards = (
+export const calculateBsxRewards = (
     contributions: any[],
     chronicle: any,
     totalContributionWeight: string,
     own: any,
+    historicalIncentives: any
 ) => {
     const accountWeight = contributions.reduce((accumulator, contribution: Contribution) => {
         const bsxMultiplier = calculateBsxMultiplier(
@@ -463,6 +474,8 @@ const calculateBsxRewards = (
             chronicle.data.curAuction.closingStart,
             chronicle.data.curAuction.closingEnd
         );
+
+        // const bsxMultiplier = historicalIncentives.data[contribution.blockNum].bsxMultiplier
 
         log.debug('useCalculateRewardsReceived', 'accountWeight bsxMultiplier', bsxMultiplier, {
             blockNum: contribution.blockNum,
@@ -518,15 +531,16 @@ export const useCalculateRewardsReceived = () => {
     const [currentBsxReceived, setCurrentBsxReceived] = useState("0");
     const [minimalBsxReceived, setMinimalBsxReceived] = useState("0");
     const [currentHdxReceived, setCurrentHdxReceived] = useState("0");
+    const [loading, setLoading] = useState(false);
     const own = useOwn();
 
-    // TODO: add loading state (!)
     /**
      * When the curBlockNum changed, load all account contributions to our crowdloan
      */
     useEffect(() => {
         log.debug('useCalculateRewardsReceived', 'getAllOwnContributions', 'fetching')
         getAllOwnContributions();
+        setLoading(true)
     }, [
         chronicle.data.curBlockNum
     ]);
@@ -540,22 +554,25 @@ export const useCalculateRewardsReceived = () => {
         log.debug('useCalculateRewardsReceived', 'totalContributionWeight', 'calculating')
         const totalContributionWeight = allOwnContributions.data.contributions.nodes
             .reduce((accumulator: string, contribution: any) => {
+                const activeAuctionId = findActiveHistoricalAuction(contribution.blockNum);
+                console.log('activeAuctionId', activeAuctionId);
+                const activeAuction = (config.historicalAuctionData as any)[activeAuctionId];
                 /**
                  * BSX Multiplier needs to be calculated for the past blockNum when the contribution was made.
                  * We still use the curAuction, since the `calculateBsxMultiplier` can handle past blockNums well.
                  */
                 const bsxMultiplier = calculateBsxMultiplier(
                     contribution.blockNum,
-                    chronicle.data.curAuctionId,
-                    chronicle.data.curAuction.closingStart,
-                    chronicle.data.curAuction.closingEnd
+                    activeAuctionId,
+                    activeAuction?.closingStart,
+                    activeAuction?.closingEnd
                 );
 
-                log.debug('useCalculateRewardsReceived', 'bsxMultiplier', bsxMultiplier, {
+                log.debug('useCalculateRewardsReceived', 'bsxMultiplier totalContributionWeight', bsxMultiplier, {
                     blockNum: contribution.blockNum,
-                    curAuctionId: chronicle.data.curAuctionId,
-                    closingStart: chronicle.data.curAuction.closingStart,
-                    closingEnd: chronicle.data.curAuction.closingEnd
+                    curAuctionId: activeAuctionId,
+                    closingStart: activeAuction?.closingStart,
+                    closingEnd: activeAuction?.closingEnd
                 });
 
                 // weight of the individual contribution
@@ -590,7 +607,8 @@ export const useCalculateRewardsReceived = () => {
             contributions,
             chronicle,
             totalContributionWeight,
-            own
+            own,
+            historicalIncentives
         );
 
         // values in BSX, not in KSM
@@ -610,6 +628,7 @@ export const useCalculateRewardsReceived = () => {
         // hdx value in KSM, not converted yet
         setCurrentHdxReceived(hdxReward);
         console.log('hdx reward', hdxReward)
+        setLoading(false);
     }, [
         totalContributionWeight,
         historicalIncentives.loading,
@@ -621,6 +640,8 @@ export const useCalculateRewardsReceived = () => {
     return {
         currentBsxReceived,
         minimalBsxReceived,
-        currentHdxReceived
+        currentHdxReceived,
+        totalContributionWeight,
+        loading
     }
 }

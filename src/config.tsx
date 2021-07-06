@@ -1,6 +1,8 @@
 const config = {
     // indexerUrl: 'http://localhost:3000',
     indexerUrl: 'https://ksm-arch.hydration.cloud/',
+    nodeUrl: 'wss://ksm-arch.hydration.cloud:1144',
+    dappName: 'Basilisk Crowdloan',
     // used to fetch own crowdloan & bid data for incentive calculation
     // and graph rendering
     // shiden
@@ -16,6 +18,7 @@ const config = {
         console.log('ownParachainId', params.get('ownParachainId'));
         return params.get("ownParachainId");
     })() || "2000-Gq2No2gcF6s4DLfzzuB53G5opWCoCtK9tZeVGRGcmkSDGoK",
+    ownParaId: "2000",
     // used to fetch the indexer chronicle periodically
     // alternativelly plug-in polkadot.js and watch for new blocks instead
     blockTime: 6000,
@@ -24,7 +27,7 @@ const config = {
     // oldest crowdloan blockNum
     // ownCrowdloanBlockNum: 7830323,
     // used to calculated incentives based on curAuctionId
-    targetAuctionId: 1,
+    targetAuctionId: 3,
 
     // value lost by not staking your KSM
     ksmOpportunityCost: '0.1375',

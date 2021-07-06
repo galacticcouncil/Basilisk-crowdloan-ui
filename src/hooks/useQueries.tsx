@@ -221,7 +221,7 @@ export const getAllContributionsByOwnParachainId = gql`
             },
             blockNum:{
                 greaterThan: $ownCrowdloanBlockNum
-            }
+            },
         }) {
             totalCount,
             nodes{

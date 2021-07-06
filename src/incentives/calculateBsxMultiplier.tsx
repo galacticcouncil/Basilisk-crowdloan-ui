@@ -1,5 +1,6 @@
 import linearScale from 'simple-linear-scale'
 import config from '../config'
+import log from 'loglevel';
 
 const incentivesConfig = config.incentives;
 
@@ -9,13 +10,15 @@ export const calculateBsxMultiplier = (
     curAuctionClosingStart: null | number,
     curAuctionClosingEnd: null | number,
 ) => {
-    
+    log.debug('calculateBsxMultiplier', curAuctionId);
+    // if a contribution is newer than the target auction, it is not considered
+    if (curBlockNum >= (config.historicalAuctionData as any)[config.targetAuctionId].closingEnd) return incentivesConfig.bsx.scale.rewardMultiplier.none;
     // if we're in targetAuctionId - 1, return full bsx multiplier
     if ((curAuctionId || 0) < config.targetAuctionId) return incentivesConfig.bsx.scale.rewardMultiplier.min;
     // There is no curAuctionId, therefore no closing start/end information either.
     // Which means there is no auction registred yet therefore we return the full multiplier.
     if (!curAuctionClosingStart || !curAuctionClosingEnd) return incentivesConfig.bsx.scale.rewardMultiplier.min;
-    
+
     /**
      * Linear scale used to determine the reward multiplier
      * resulting from a range of possible lead percentage diffs.

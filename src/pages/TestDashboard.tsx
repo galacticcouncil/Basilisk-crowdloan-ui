@@ -4,9 +4,14 @@ import { ActionType, useStoreContext, useContributions, useHistoricalIncentives 
 import { Line, defaults } from 'react-chartjs-2';
 import BigNumber from 'bignumber.js';
 import config from '../config'
-import { useCalculateRewardsReceived, useHistoricalIncentivesData, useIncentives } from 'src/hooks/useIncentives';
+import { useHistoricalIncentivesData, useIncentives } from 'src/hooks/useIncentives';
 import { useAccountData, useTotalKsmContributed } from 'src/hooks/useAccountData';
 import linearScale from 'simple-linear-scale';
+import { AccountSelector } from '../containers/AccountSelector';
+import { useLocalStorage } from 'react-use';
+import { usePolkaDotContext } from 'src/hooks/usePolkadot';
+import { CrowdloanContributeForm } from 'src/containers/CrowdloanContributeForm';
+import { fromKsmPrecision } from 'src/utils';
 
 // TODO: append data to the graph datasets instead, and let it animate
 // however due to the scale of the graph the append-animation might be negligible.
@@ -26,9 +31,10 @@ const useDashboardData = () => {
     let { own } = useOwnData();
     let { sibling } = useSiblingData()
     let incentives = useIncentives()
-    const { connectAccount, account, contributions } = useAccountData();
+
+    const { account, contributions, rewardsReceived } = useAccountData();
     const totalKsmContributed = useTotalKsmContributed();
-    const rewardsReceived = useCalculateRewardsReceived();
+    
     const historicalIncentives = useHistoricalIncentives()
 
     /**
@@ -61,12 +67,11 @@ const useDashboardData = () => {
         loadChronicle,
         sibling,
         incentives,
-        connectAccount,
         account,
         contributions,
         historicalIncentives,
         totalKsmContributed,
-        rewardsReceived
+        rewardsReceived,
     };
 }
 
@@ -80,10 +85,12 @@ const Dashboard = () => {
     const {
         chronicle,
         own,
-        loadChronicle, sibling, incentives, account, connectAccount, contributions, historicalIncentives,
+        loadChronicle, sibling, incentives, account, contributions, historicalIncentives,
         totalKsmContributed,
-        rewardsReceived 
+        rewardsReceived,
     } = useDashboardData();
+
+    let [showAccountSelector, setShowAccountSelector] = useState(false);
 
     // testing chart stuff
     const [lineChartData, setLineChartData] = useState({
@@ -185,8 +192,8 @@ const Dashboard = () => {
         <h1>Own Crowdloan</h1>
         <p>Loading {own.loading ? "true" : "false"}</p>
         <p>id {own.data.crowdloan?.id}</p>
-        <p>raised {own.data.crowdloan?.raised}</p>
-        <p>cap {own.data.crowdloan?.cap}</p>
+        <p>raised {fromKsmPrecision(own.data.crowdloan?.raised)}</p>
+        <p>cap {fromKsmPrecision(own.data.crowdloan?.cap)}</p>
         <p>parachainId {own.data.crowdloan?.parachainId}</p>
         <p>blockNum {own.data.crowdloan?.blockNum}</p>
         <p>aggregated balances</p>
@@ -196,8 +203,8 @@ const Dashboard = () => {
         <h1>Sibling Crowdloan</h1>
         <p>Loading {sibling.loading ? "true" : "false"}</p>
         <p>id {sibling.data.crowdloan?.id}</p>
-        <p>raised {sibling.data.crowdloan?.raised}</p>
-        <p>cap {sibling.data.crowdloan?.cap}</p>
+        <p>raised {fromKsmPrecision(sibling.data.crowdloan?.raised)}</p>
+        <p>cap {fromKsmPrecision(sibling.data.crowdloan?.cap)}</p>
         <p>parachainId {sibling.data.crowdloan?.parachainId}</p>
         <p>blockNum {sibling.data.crowdloan?.blockNum}</p>
         <p>aggregated balances</p>
@@ -216,7 +223,18 @@ const Dashboard = () => {
 
     const accountEl = (<>
         <h1>Account</h1>
-        <button onClick={_ => connectAccount()}>Connect account</button>
+        
+        <button
+            onClick={_ => setShowAccountSelector(!showAccountSelector)}
+        >Select account</button>
+        {showAccountSelector ? <AccountSelector
+            onAccountSelect={() => setShowAccountSelector(false)}
+        /> : <></>}
+
+        <CrowdloanContributeForm
+            totalContributionWeight={rewardsReceived.totalContributionWeight}
+        />
+        
         <p>loading: {account.loading ? 'true' : 'false'}</p>
         <p>address: {account.data.address}</p>
         <p>balance: {account.data.balance}</p>

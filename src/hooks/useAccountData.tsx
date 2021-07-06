@@ -3,28 +3,15 @@ import { useEffect, useState } from "react";
 import config from "src/config";
 import { ActionType, useStoreContext, useAccount, useChronicle, useContributions } from "src/containers/store/Store"
 import { useContributionsByAccountAndParachainId } from "./useQueries";
+import { useCalculateRewardsReceived } from 'src/hooks/useIncentives';
 import log from 'loglevel';
+import { useLocalStorage } from 'react-use';
+import { usePolkaDotContext } from "./usePolkadot";
 
-const mockAccount = {
-    // 400+ bifrost contributions from this address
-    // address: 'Ge1LJP92bS9wKxKGpkBbu8LcGD5vdfugNyaqxnaZXD9edfT',
-    // one bifrost contribution
-    // address: "DFfX8mydSrTadbXYfLzv1vkR53awtqshNxqpSusAn63t2xe",
-    // several early contribution to 2000-Gq2No2gcF6s4DLfzzuB53G5opWCoCtK9tZeVGRGcmkSDGoK
-    // address: "Em9CzTD4q3zAD5gjAKS5bzUYCDq2jhLXcM66PvJvaFbmTN8",
-    // 
-    // address: 'Ga7qfpHpNWW2jtUCuQawANkjP1xL4dCMDkhpUbH9TgvFUB4',
-    address: "D5CVLHRhookKgoYLrszyuF4yxNPpHCFBAMZEzL7xUGtwkgG",
-    // address: (() => {
-    //     let params = (new URL(document.location as unknown as string)).searchParams;
-    //     log.debug('account', params.get('account'));
-    //     return params.get("account");
-    // })() || "Ga7qfpHpNWW2jtUCuQawANkjP1xL4dCMDkhpUbH9TgvFUB4",
-    balance: '123456789'
-}
-
-const useContributionsData = (address: string | null) => {
+const useContributionsData = () => {
     const chronicle = useChronicle();
+    const account = useAccount();
+    const address = account.data.address;
     const [getContributionsByAccountAndParachainId, contributionsByAccountAndParachainId] = useContributionsByAccountAndParachainId(
         address || "",
         config.ownParachainId
@@ -71,79 +58,50 @@ const useAccountData = () => {
     const account = useAccount();
     const chronicle = useChronicle();
     const contributions = useContributions();
-    // intermediate account state for fetching of contributions
-    const [intermediateAccount, setIntermediateAccount] = useState({
-        address: "",
-        balance: "",
-        loading: false
-    });
-    const accountContributions = useContributionsData(intermediateAccount.address);
+    const rewardsReceived = useCalculateRewardsReceived();
+    const {
+        activeAccount,
+        activeAccountBalance,
+    } = usePolkaDotContext()
 
-    const connectAccount = () => {
-        log.debug('useAccountData', 'connecting account')
+    const accountContributions = useContributionsData();
+
+    // TODO: fix loading state
+    useEffect(() => {
+        console.log('dispatch connect account');
         dispatch({
             type: ActionType.ConnectAccount
         })
-        setIntermediateAccount({
-            ...intermediateAccount,
-            address: mockAccount.address,
-            loading: true
-        })
-    };
-
-    useEffect(() => {
-        // reload account balance with every block & address change
-        if (!intermediateAccount.address) return;
-        log.debug('useAccountData', 'reloading balance')
-        setIntermediateAccount({
-            loading: true,
-            address: intermediateAccount.address,
-            balance: mockAccount.balance
-        })
     }, [
-        chronicle.data.curBlockNum,
-        intermediateAccount.address
-    ]);
-
-    // connect to the wallet using polkadot.js
-    useEffect(() => {
-        if (!intermediateAccount.loading) return;
-        log.debug('useAccountData', 'account ready')
-        setIntermediateAccount({
-            ...mockAccount,
-            loading: false
-        })
-    }, [
-        account.loading,
-        intermediateAccount,
-        setIntermediateAccount
+        activeAccount
     ])
 
     useEffect(() => {
-        if (intermediateAccount.loading) return;
+        if (!activeAccount) return;
+        if (!activeAccountBalance) return;
         if (accountContributions.loading) return;
-        if (!accountContributions.data) return;
 
-        log.debug('useAccountData', 'setting account data')
+        log.debug('useAccountData', 'setting account data', activeAccount, activeAccountBalance)
         dispatch({
             type: ActionType.SetAccountData,
             payload: {
-                address: intermediateAccount.address,
-                balance: intermediateAccount.balance,
+                address: activeAccount,
+                balance: activeAccountBalance,
                 contributions: accountContributions.data
             }
         })
     }, [
-        intermediateAccount,
-        accountContributions.data,
+        activeAccount,
+        activeAccountBalance,
         accountContributions.loading,
+        accountContributions.data,
         dispatch,
     ])
 
     return {
-        connectAccount,
         account,
-        contributions
+        contributions,
+        rewardsReceived
     }
 }
 
