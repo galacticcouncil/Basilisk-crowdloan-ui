@@ -12,6 +12,7 @@ import config from './../config';
 import constate from 'constate';
 import log from 'loglevel';
 import { Signer } from '@polkadot/api/types';
+import BigNumber from 'bignumber.js';
 
 const mockAccount = {
     // 400+ bifrost contributions from this address
@@ -89,7 +90,7 @@ export const usePolkadot = () => {
             try {
                 const contribute = await api.tx.crowdloan.contribute(
                     config.ownParaId,
-                    amount,
+                    new BigNumber(amount).toFixed(0),
                     null
                 )
                 .signAndSend(
