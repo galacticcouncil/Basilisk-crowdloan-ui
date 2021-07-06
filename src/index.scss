@@ -17,3 +17,20 @@ html, body {
   font-family: 'Pexico';
   font-smooth: subpixel-antialiased;
 }
+
+@media (max-width: 1400px) {
+  html, body, #root {
+    width: 1400px;
+    min-width: 1400px;
+  }
+
+  .container{
+    width: 100%;
+    min-width: 1400px;
+  }
+
+  .bsx-dashboard {
+    width: 1400px;
+  }
+  
+}

@@ -152,6 +152,7 @@ const useOwnData = () => {
         if (!ownCrowdloan.data) return;
 
         let crowdloan = ownCrowdloan.data.crowdloans.nodes[0];
+        if (!crowdloan) return;
         crowdloan = {
             id: crowdloan.id,
             parachainId: crowdloan.parachainId,
