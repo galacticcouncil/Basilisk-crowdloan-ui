@@ -63,9 +63,10 @@ export const calculateHdxMultiplier = (
      * https://www.wolframalpha.com/input/?i=percent+difference&assumption=%7B%22F%22%2C+%22PercentDifference%22%2C+%22number2%22%7D+-%3E%2241216215268999930%22&assumption=%7B%22F%22%2C+%22PercentDifference%22%2C+%22number1%22%7D+-%3E%22137017971757623070%22
      */
     const leadPercentageDiff = siblingParachainValuation
-        .minus(ownParachainValuation)
-        .dividedBy(ownParachainValuation)
-        .multipliedBy(-1)
+            .minus(ownParachainValuation)
+            .dividedBy(ownParachainValuation)
+            .multipliedBy(-1)
+        
 
     log.debug('calculateHdxMultiplier', 'leadPercentageDiff',
         ownParachainValuation.toFixed(0),

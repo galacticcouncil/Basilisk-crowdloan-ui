@@ -420,10 +420,12 @@ export const calculateCurrentBsxReceived = (
     }, "0");
 
     // current bsx received with respect to the total contributions weight
-    const accountCurrentBsxReward = new BigNumber(config.incentives.bsx.allocated)
-        .dividedBy(totalContributionWeight)
-        .multipliedBy(contributionsWeight)
-        .toFixed(config.incentives.precision); 
+    const accountCurrentBsxReward = (!new BigNumber(contributionsWeight).isZero())
+        ? new BigNumber(config.incentives.bsx.allocated)
+            .dividedBy(totalContributionWeight)
+            .multipliedBy(contributionsWeight)
+            .toFixed(config.incentives.precision)
+        : new BigNumber("0").toFixed(config.incentives.precision)
 
     return accountCurrentBsxReward
 }
@@ -464,7 +466,7 @@ export const calculateCurrentHdxReward = (
 export const calculateBsxRewards = (
     contributions: any[],
     chronicle: any,
-    totalContributionWeight: string,
+    totalContributionWeight: string | undefined,
     own: any,
     historicalIncentives: any
 ) => {
@@ -497,7 +499,7 @@ export const calculateBsxRewards = (
     log.debug('useCalculateRewardsReceived', 'totalContributionWeight', totalContributionWeight);
 
     const accountCurrentBsxReward = calculateCurrentBsxReceived(
-        totalContributionWeight,
+        totalContributionWeight || "0",
         contributions,
         chronicle
     );

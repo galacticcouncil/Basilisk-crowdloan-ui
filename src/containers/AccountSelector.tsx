@@ -1,4 +1,8 @@
+import { useRef } from 'react';
+import { useClickAway } from 'react-use';
 import { usePolkaDotContext } from './../hooks/usePolkadot';
+import './AccountSelector.scss';
+
 export type Props = {
     onAccountSelect: any,
 };
@@ -11,16 +15,28 @@ export const AccountSelector = ({onAccountSelect}: Props) => {
         onAccountSelect()
     }
 
-    return <div>
-        <h1>Accounts</h1>
-        {accounts.map(account => (
-            <div
-                key={account.address}
-                onClick={_ => handleAccountOnClick(account.address)}
-            >
-                <p>{account.meta.name}</p>
-                <p>{account.address}</p>
+    const ref = useRef(null);
+    useClickAway(ref, () => {
+        onAccountSelect();
+    })
+
+    return <div className="bsx-account-selector">
+        <div className="bsx-account-selector-backdrop">
+            <div className="bsx-account-selector-modal" ref={ref}>
+                <div className="title">Select an account</div>
+                <div>
+                    {accounts.map(account => (
+                        <div
+                            className="account"
+                            key={account.address}
+                            onClick={_ => handleAccountOnClick(account.address)}
+                        >
+                            <p className="name">{account.meta.name}</p>
+                            <p className="address">{account.address}</p>
+                        </div>
+                    ))}
+                </div>
             </div>
-        ))}
+        </div>
     </div>
 }

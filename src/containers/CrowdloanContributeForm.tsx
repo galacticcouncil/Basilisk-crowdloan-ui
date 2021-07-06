@@ -64,7 +64,6 @@ export const CrowdloanContributeForm = ({totalContributionWeight}: Props) => {
         )
 
         log.debug('CrowdloanContributeForm', bsxRewards, hdxReward);
-        
         setRewardsReceived({
             minimalBsxReceived: new BigNumber(fromKsmPrecision(bsxRewards.accountMinimumBsxReward)).toFixed(6),
             currentBsxReward: new BigNumber(fromKsmPrecision(bsxRewards.accountCurrentBsxReward)).toFixed(6),

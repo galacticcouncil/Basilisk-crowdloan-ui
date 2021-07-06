@@ -18,7 +18,7 @@ const config = {
         let params = (new URL(document.location as unknown as string)).searchParams;
         console.log('ownParachainId', params.get('ownParachainId'));
         return params.get("ownParachainId");
-    })() || "2000-Gq2No2gcF6s4DLfzzuB53G5opWCoCtK9tZeVGRGcmkSDGoK",
+    })() || "2007-Ekf4HssuTpYjmUEvzy9AAFuqpUcNm9AAkrMF1stTU6Mo1hR",
     ownParaId: "2000",
     // used to fetch the indexer chronicle periodically
     // alternativelly plug-in polkadot.js and watch for new blocks instead

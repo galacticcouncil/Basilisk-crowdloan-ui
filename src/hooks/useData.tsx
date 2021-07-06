@@ -29,6 +29,14 @@ const useChronicleData = () => {
         getChronicle
     ])
 
+    useEffect(() => {
+        const intervalId = setInterval(() => {
+            console.log('getting chronicle')
+            getChronicle()
+        }, config.blockTime);
+        // return clearInterval(intervalId);
+    }, [getChronicle])
+
     /**
      * Watch `chronicle` data from the `getChronicle` query.
      * When it changes while the query has finished loading,

@@ -5,7 +5,7 @@ import { CrowdloanContributeForm } from 'src/containers/CrowdloanContributeForm'
 import { Line, defaults } from 'react-chartjs-2';
 import { ActionType, useChronicle, useStoreContext } from 'src/containers/store/Store';
 import { useChronicleData, useOwnData, useSiblingData } from 'src/hooks/useData';
-import { useMemo, useEffect } from 'react';
+import { useMemo, useEffect, useState } from 'react';
 import { range, times } from 'lodash';
 import config from 'src/config';
 import { calculateBsxMultiplier } from 'src/incentives/calculateBsxMultiplier';
@@ -18,6 +18,7 @@ import annotationPlugin from 'chartjs-plugin-annotation';
 import { useIncentives } from 'src/hooks/useIncentives';
 import { useAccountData, useTotalKsmContributed } from 'src/hooks/useAccountData';
 import BigNumber from 'bignumber.js';
+import { AccountSelector } from 'src/containers/AccountSelector';
 Chart.register(annotationPlugin);
 
 const millifyOptions = {
@@ -45,7 +46,6 @@ export const useDashboardData = () => {
     let incentives = useIncentives();
     const accountData = useAccountData();
     const totalKsmContributed = useTotalKsmContributed();
-
 
     /**
      * Function that triggers loading of a chronicle,
@@ -82,7 +82,9 @@ export const Dashboard = () => {
         isDashboardEssentialDataLoading,
         incentives,
         accountData,
-    } = useDashboardData()
+    } = useDashboardData();
+
+    const [showAccountSelector, setShowAccountSelector] = useState(false);
 
     const aggregationCoeficient = 50;
     const targetAuctionId = config.targetAuctionId;
@@ -100,6 +102,17 @@ export const Dashboard = () => {
         [
             0,
             (targetAuction.closingEnd - config.ownCrowdloanBlockNum) / aggregationCoeficient,
+        ]
+    )
+
+    const progressBarScale = linearScale(
+        [
+            config.ownCrowdloanBlockNum,
+            targetAuction.closingEnd,
+        ],
+        [
+            0,
+            100,
         ]
     )
 
@@ -352,13 +365,28 @@ export const Dashboard = () => {
             </div>
         </div>
 
+        <div className="bsx-disclaimer">
+            Basilisk crowdloan user interface may occassionally lag behind with regards to the latest finalized Kusama block. Your past and future
+            rewards may be displayed with a slight delay. However this does not affect your final rewards, stay vigilant.
+        </div>
+
         <div className="bsx-account">
             <div className="container">
                 <div className="row bsx-account-selector-display">
+                    
                     <div className="col-9 bsx-address">
-                        {accountData.account.data.address}
+                        <div>
+                            <span className="bsx-chronicle">
+                                {`#${chronicle.data.curBlockNum}  /  `}  
+                            </span> 
+
+                            {accountData.account.data.address}
+                        </div>
                     </div>
-                    <div className="col-3 bsx-select-account">
+                    <div 
+                        className="col-3 bsx-select-account"
+                        onClick={_ => setShowAccountSelector(true)}    
+                    >
                         change your account
                     </div>
                 </div>
@@ -446,7 +474,7 @@ export const Dashboard = () => {
                         </div>
                         <div className="bsx-progress-bar-container">
                             <div className="bsx-progress-bar" style={{
-                                width: '30%'
+                                width: `${progressBarScale(chronicle.data.curBlockNum)}%`
                             }}></div>
                         </div>
                     </div>
@@ -513,5 +541,9 @@ export const Dashboard = () => {
         <div className="bsx-wallpaper">
             <img src={bsxWallpaper}/>
         </div>
+
+        {showAccountSelector ? <AccountSelector
+            onAccountSelect={() => setShowAccountSelector(false)}
+        /> : <></>}
     </div>
 }
