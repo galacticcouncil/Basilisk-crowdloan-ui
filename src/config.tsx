@@ -1,7 +1,7 @@
 const config = {
     // indexerUrl: 'http://localhost:3000',
-    indexerUrl: 'https://ksm-arch.hydration.cloud/',
-    // indexerUrl: 'https://api-crowdloan-basilisk.hydradx.io/ '
+    // indexerUrl: 'https://ksm-arch.hydration.cloud/',
+    indexerUrl: 'https://api-crowdloan-basilisk.hydradx.io/',
     nodeUrl: 'wss://ksm-arch.hydration.cloud:1144',
     dappName: 'Basilisk Crowdloan',
     // used to fetch own crowdloan & bid data for incentive calculation
