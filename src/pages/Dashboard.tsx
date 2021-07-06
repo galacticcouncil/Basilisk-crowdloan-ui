@@ -319,7 +319,7 @@ export const Dashboard = () => {
     return <div className='bsx-dashboard'>
 
         <div className="bsx-navbar">
-            <div className="container">
+            <div className="container-xl">
                 <div className="row">
                     <div className="col-3">
                         <div className="bsx-logo">
@@ -370,7 +370,7 @@ export const Dashboard = () => {
         </div>
 
         <div className="bsx-account">
-            <div className="container">
+            <div className="container-xl">
                 <div className="row bsx-account-selector-display">
                     
                     <div className="col-9 bsx-address">
@@ -439,7 +439,7 @@ export const Dashboard = () => {
             </div>
         </div>
     
-        <div className="container">
+        <div className="container-xl">
             <div className="row">
                 <div className="col-9 bsx-graph">
                     <div className="bsx-graph-wrapper">

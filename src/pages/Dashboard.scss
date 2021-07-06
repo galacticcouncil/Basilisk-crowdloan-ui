@@ -88,7 +88,7 @@ $borderRadius: 8px;
 
     padding-bottom: 32px;
 
-    .container {
+    .container-xl {
         margin-top: 64px;
         color: $grayLighter;
         border: $borderStyle;
@@ -303,3 +303,10 @@ $borderRadius: 8px;
         display: block;
     }
 }
+
+@media (max-width: 1420px) {
+    .bsx-contribute .bsx-incentives .bsx-incentives-loader {
+        line-height: 32px;
+    }
+    
+  }

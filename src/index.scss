@@ -18,18 +18,14 @@ html, body {
   font-smooth: subpixel-antialiased;
 }
 
-@media (max-width: 1400px) {
+@media (max-width: 1500px) {
   html, body, #root {
     width: 1400px;
     min-width: 1400px;
   }
 
-  .container{
-    width: 100%;
+  .container-xl {
     min-width: 1400px;
-  }
-
-  .bsx-dashboard {
     width: 1400px;
   }
   
