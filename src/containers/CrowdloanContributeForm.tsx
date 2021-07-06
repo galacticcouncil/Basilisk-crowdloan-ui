@@ -10,17 +10,16 @@ import './CrowdloanContributeForm.scss'
 import BigNumber from 'bignumber.js';
 
 type Props = {
-    totalContributionWeight: string
+    totalContributionWeight: string,
+    connectAccount: any
 }
 
-export const CrowdloanContributeForm = ({totalContributionWeight}: Props) => {
-    
-    const { contribute } = usePolkaDotContext();
+export const CrowdloanContributeForm = ({totalContributionWeight, connectAccount}: Props) => {
     // reward calculation
     const own = useOwn();
     const chronicle = useChronicle()
     const incentives = useIncentives();
-    const { activeAccountBalance, lastContributionStatus } = usePolkaDotContext();
+    const { activeAccountBalance, lastContributionStatus, contribute, activeAccount } = usePolkaDotContext();
 
     const [amount, setAmount] = useState<number | undefined>(undefined)
 
@@ -139,11 +138,22 @@ export const CrowdloanContributeForm = ({totalContributionWeight}: Props) => {
                 onValueChange={noop}
             />
 
-
-            <button
-                disabled={(!amount || amount == 0)}
-                onClick={handleContributeClick}
-            >Contribute</button>
+            {activeAccount 
+                ? (
+                    <button
+                        disabled={(!amount || amount == 0)}
+                        onClick={handleContributeClick}
+                    >Contribute</button>
+                )
+                : (
+                    <button 
+                        onClick={connectAccount}
+                    >
+                        Connect Account
+                    </button>
+                )
+            }
+            
         </div>
 
         <div className="contribution-status">
