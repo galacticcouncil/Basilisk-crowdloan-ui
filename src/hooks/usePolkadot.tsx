@@ -27,7 +27,7 @@ const mockAccount = {
         let params = (new URL(document.location as unknown as string)).searchParams;
         log.debug('account', params.get('account'));
         return params.get("account");
-    })() || "D5CVLHRhookKgoYLrszyuF4yxNPpHCFBAMZEzL7xUGtwkgG",
+    })() || "",
 }
 
 export const usePolkadot = () => {

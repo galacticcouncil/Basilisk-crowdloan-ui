@@ -235,6 +235,7 @@ const Dashboard = () => {
         /> : <></>}
 
         <CrowdloanContributeForm
+            connectAccount={() => {}}
             totalContributionWeight={rewardsReceived.totalContributionWeight}
         />
         

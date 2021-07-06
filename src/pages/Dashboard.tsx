@@ -377,7 +377,8 @@ export const Dashboard = () => {
                     <div className="col-9 bsx-address">
                         <div>
                             <span className="bsx-chronicle">
-                                {`#${chronicle.data.curBlockNum}  /  `}  
+                                {`#${chronicle.data.curBlockNum}`}
+                                {accountData.account.data.address ? ` / ` : ''}  
                             </span> 
 
                             {accountData.account.data.address}
@@ -532,6 +533,7 @@ export const Dashboard = () => {
                     <div>
                         <CrowdloanContributeForm
                             totalContributionWeight={accountData.rewardsReceived.totalContributionWeight}
+                            connectAccount={() => setShowAccountSelector(true)}
                         />
                     </div>
                 </div>
