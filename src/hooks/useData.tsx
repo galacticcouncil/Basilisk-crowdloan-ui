@@ -31,6 +31,7 @@ const useChronicleData = () => {
 
     useEffect(() => {
         const intervalId = setInterval(() => {
+            //if(chronicle.loading) return;
             getChronicle()
         }, config.blockTime);
         return () => {

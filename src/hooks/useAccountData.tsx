@@ -7,11 +7,13 @@ import { useCalculateRewardsReceived } from 'src/hooks/useIncentives';
 import log from 'loglevel';
 import { useLocalStorage } from 'react-use';
 import { usePolkaDotContext } from "./usePolkadot";
+import {encodeAddress,decodeAddress } from '@polkadot/util-crypto';
 
 const useContributionsData = () => {
     const chronicle = useChronicle();
     const account = useAccount();
-    const address = account.data.address;
+    const address = account.data.address ? encodeAddress(decodeAddress(account.data.address), 2) : "";
+
     const [getContributionsByAccountAndParachainId, contributionsByAccountAndParachainId] = useContributionsByAccountAndParachainId(
         address || "",
         config.ownParachainId

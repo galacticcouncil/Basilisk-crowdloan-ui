@@ -25,7 +25,7 @@ const config = {
     blockTime: 6000,
     // used to fetch data newer than this block, especially for the graph
     // ownCrowdloanBlockNum: 8106771,
-    ownCrowdloanBlockNum: 8204581,
+    ownCrowdloanBlockNum: 8228873,
     // oldest crowdloan blockNum
     // ownCrowdloanBlockNum: 7830323,
     // used to calculated incentives based on curAuctionId
