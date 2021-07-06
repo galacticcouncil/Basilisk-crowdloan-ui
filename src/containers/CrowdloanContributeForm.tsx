@@ -22,7 +22,7 @@ export const CrowdloanContributeForm = ({totalContributionWeight}: Props) => {
     const incentives = useIncentives();
     const { activeAccountBalance, lastContributionStatus } = usePolkaDotContext();
 
-    const [amount, setAmount] = useState<number | undefined>(0)
+    const [amount, setAmount] = useState<number | undefined>(undefined)
 
     const [rewardsReceived, setRewardsReceived] = useState({
         minimalBsxReceived: "0",
@@ -108,6 +108,7 @@ export const CrowdloanContributeForm = ({totalContributionWeight}: Props) => {
                 name="amount"
                 decimalsLimit={12}
                 value={amount}
+                placeholder={"Your sacrifice goes here"}
                 onValueChange={handleContributeChange}
             />
 
