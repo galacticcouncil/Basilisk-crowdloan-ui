@@ -60,7 +60,7 @@ export const useDashboardData = () => {
     useEffect(() => loadChronicle(), []);
 
     const isDashboardEssentialDataLoading = useMemo(() => {
-        return !own.data.crowdloan || !sibling.data.crowdloan || chronicle.loading
+        return !own.data.crowdloan || !sibling.data.crowdloan
     }, [own.data, sibling.data])
 
     return {
@@ -123,7 +123,7 @@ export const Dashboard = () => {
             datasets: []
         };
 
-        if (own.loading || sibling.loading) return emptyLineChartData;
+        // if (own.loading || sibling.loading) return emptyLineChartData;
 
         return ({
             labels,
@@ -179,7 +179,7 @@ export const Dashboard = () => {
         enabled: true,
         color: colors.black,
         font: {
-            family: 'Pexico-Regular',
+            family: 'Pexico',
             size: 12
         },
         xAdjust: 10,
@@ -465,10 +465,13 @@ export const Dashboard = () => {
                     </div>
                     <div className="bsx-graph-timeline">
                         <div className="row">
-                            <div className="col-6">
+                            <div className="col-3">
                                 05.07
                             </div>
-                            <div className="col-6">
+                            <div className="col-6 bsx-legend">
+                                <span className="basilisk">Basilisk</span> / <span className="sibling">Target</span> KSM raised
+                            </div>
+                            <div className="col-3">
                                 13.07
                             </div>
                         </div>
