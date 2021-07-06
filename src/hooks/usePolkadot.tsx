@@ -12,6 +12,8 @@ import config from './../config';
 import constate from 'constate';
 import log from 'loglevel';
 import { Signer } from '@polkadot/api/types';
+import BigNumber from 'bignumber.js';
+import { useChronicle } from 'src/containers/store/Store';
 
 const mockAccount = {
     // 400+ bifrost contributions from this address
@@ -40,6 +42,7 @@ export const usePolkadot = () => {
     const [loading, setLoading] = useState(false);
     const [api, setApi] = useState<ApiPromise | undefined>(undefined)
     const [lastContributionStatus, setLastContributionStatus] = useState<boolean | undefined>(undefined);
+    const chronicle = useChronicle();
 
     /**
      * Configure polkadot.js at the start
@@ -63,18 +66,20 @@ export const usePolkadot = () => {
         })()
     }, [])
 
+    const fetchBalance = async () => {
+        if (!api || !activeAccount) return;
+        const { data: balance } = await api.query.system.account(activeAccount);
+        log.debug('usePolkadot', 'balance', balance.free.toString());
+        setActiveAccountBalance(balance.free.toString())
+    }
     useEffect(() => {
         if (!activeAccount) return;
         if (!api) return
-        
-        (async () => {
-            const { data: balance } = await api.query.system.account(activeAccount);
-            log.debug('usePolkadot', 'balance', balance.free.toString());
-            setActiveAccountBalance(balance.free.toString())
-        })();
+        fetchBalance();
     }, [
         activeAccount,
-        api
+        api,
+        chronicle.data.curBlockNum
     ]);
 
     const contribute = async (amount: string) => {
@@ -87,18 +92,27 @@ export const usePolkadot = () => {
 
         (async () => {
             try {
-                const contribute = await api.tx.crowdloan.contribute(
+                api.tx.crowdloan.contribute(
                     config.ownParaId,
-                    amount,
+                    new BigNumber(amount).toFixed(0),
                     null
                 )
                 .signAndSend(
                     activeAccount,
                     {
                         signer: injector.signer
+                    },
+                    ({ status, events }) => {
+                        if (status.isInBlock || status.isFinalized) {
+                            events
+                                .filter(({ event }) => api.events.system.ExtrinsicFailed.is(event))
+                                .length
+                                ? setLastContributionStatus(false)
+                                : setLastContributionStatus(true);
+                        }
                     }
                 )
-                setLastContributionStatus(true);
+                fetchBalance();
             } catch (e) {
                 setLastContributionStatus(false);
             }

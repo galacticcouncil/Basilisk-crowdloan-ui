@@ -1,11 +1,32 @@
 @import './colors.scss';
-@font-face {font-family: "Pexico-Regular"; src: url("//db.onlinewebfonts.com/t/b77483504f720bf0ce1d3f83f694ea52.eot"); src: url("//db.onlinewebfonts.com/t/b77483504f720bf0ce1d3f83f694ea52.eot?#iefix") format("embedded-opentype"), url("//db.onlinewebfonts.com/t/b77483504f720bf0ce1d3f83f694ea52.woff2") format("woff2"), url("//db.onlinewebfonts.com/t/b77483504f720bf0ce1d3f83f694ea52.woff") format("woff"), url("//db.onlinewebfonts.com/t/b77483504f720bf0ce1d3f83f694ea52.ttf") format("truetype"), url("//db.onlinewebfonts.com/t/b77483504f720bf0ce1d3f83f694ea52.svg#Pexico-Regular") format("svg"); }
+
+@font-face {
+  font-family: 'Pexico';
+  src: url('./Pexico-Regular.woff2') format('woff2');
+  src: url('./Pexico-Regular.woff') format('woff');
+  font-weight: 100;
+  font-style: normal;
+  font-display: swap;
+}
 
 
 html, body {
   margin: 0;
   padding: 0;
   background: $grayDarkest;
-  font-family: 'Pexico-Regular';
+  font-family: 'Pexico';
   font-smooth: subpixel-antialiased;
+}
+
+@media (max-width: 1400px) {
+  html, body, #root {
+    width: 1400px;
+    min-width: 1400px;
+  }
+
+  .container-xl {
+    min-width: 1400px;
+    width: 1400px;
+  }
+  
 }

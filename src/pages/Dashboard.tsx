@@ -60,7 +60,7 @@ export const useDashboardData = () => {
     useEffect(() => loadChronicle(), []);
 
     const isDashboardEssentialDataLoading = useMemo(() => {
-        return !own.data.crowdloan || !sibling.data.crowdloan || chronicle.loading
+        return !own.data.crowdloan || !sibling.data.crowdloan
     }, [own.data, sibling.data])
 
     return {
@@ -123,7 +123,7 @@ export const Dashboard = () => {
             datasets: []
         };
 
-        if (own.loading || sibling.loading) return emptyLineChartData;
+        // if (own.loading || sibling.loading) return emptyLineChartData;
 
         return ({
             labels,
@@ -163,7 +163,6 @@ export const Dashboard = () => {
                                     targetAuction.closingEnd
                                 )
                             })
-                            // .map(v => 1)
                 }
             ]
         })
@@ -180,7 +179,7 @@ export const Dashboard = () => {
         enabled: true,
         color: colors.black,
         font: {
-            family: 'Pexico-Regular',
+            family: 'Pexico',
             size: 12
         },
         xAdjust: 10,
@@ -320,7 +319,7 @@ export const Dashboard = () => {
     return <div className='bsx-dashboard'>
 
         <div className="bsx-navbar">
-            <div className="container">
+            <div className="container-xl">
                 <div className="row">
                     <div className="col-3">
                         <div className="bsx-logo">
@@ -349,8 +348,8 @@ export const Dashboard = () => {
                                 </a>
                             </div>
                             <div className="bsx-menu-item">
-                                <a href="https://basiliskfi.substack.com/p/basilisk-parachain-crowdloan" target="_blank">
-                                    faq
+                                <a href="https://docs.bsx.fi/" target="_blank">
+                                    docs
                                 </a>
                             </div>
                             <div className="bsx-menu-item">
@@ -371,7 +370,7 @@ export const Dashboard = () => {
         </div>
 
         <div className="bsx-account">
-            <div className="container">
+            <div className="container-xl">
                 <div className="row bsx-account-selector-display">
                     
                     <div className="col-9 bsx-address">
@@ -440,7 +439,7 @@ export const Dashboard = () => {
             </div>
         </div>
     
-        <div className="container">
+        <div className="container-xl">
             <div className="row">
                 <div className="col-9 bsx-graph">
                     <div className="bsx-graph-wrapper">
@@ -466,10 +465,13 @@ export const Dashboard = () => {
                     </div>
                     <div className="bsx-graph-timeline">
                         <div className="row">
-                            <div className="col-6">
+                            <div className="col-3">
                                 05.07
                             </div>
-                            <div className="col-6">
+                            <div className="col-6 bsx-legend">
+                                <span className="basilisk">Basilisk</span> / <span className="sibling">Target</span> KSM raised
+                            </div>
+                            <div className="col-3">
                                 13.07
                             </div>
                         </div>
