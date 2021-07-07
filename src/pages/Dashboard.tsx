@@ -365,8 +365,10 @@ export const Dashboard = () => {
         </div>
 
         <div className="bsx-disclaimer">
-            Basilisk crowdloan user interface may occassionally lag behind with regards to the latest finalized Kusama block. Your past and future
-            rewards may be displayed with a slight delay. However this does not affect your final rewards, stay vigilant.
+            We're currently investigating issues related to our infrastructure, which may affect displaying of your past contributions and rewards.
+            However all of your past contributions have been recorded on-chain, and are completely safe. 
+
+            Your rewards can be retrospectively calculated from existing on-chain data, using the <a href="https://basiliskfi.substack.com/p/basilisk-crowdloan-kick-off" target="_blank">information provided in this article</a>. Stay vigilant.
         </div>
 
         <div className="bsx-account">
