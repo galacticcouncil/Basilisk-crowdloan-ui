@@ -273,6 +273,8 @@ export const useHistoricalIncentivesData = () => {
                 (validHistoricalCrowdloanCandidates as any)[blockNum],
                 activeAuctionId
             );
+            
+            if (!(ownCrowdloansHistoricalBalances as any)[blockNum]) return accumulator;
             const ownCrowdloan = (ownCrowdloansHistoricalBalances as any)[blockNum][0];
 
             log.debug('useHistoricalIncentivesData', 'calculating', {
@@ -448,10 +450,12 @@ export const calculateCurrentHdxReward = (
             );
 
         log.debug('useCalculateRewardsReceived', 'hdxReward', 'ksmOpportunityCostPerContribution', ksmOpportunityCostPerContribution);
-        const contributionHdxReward = ksmOpportunityCostPerContribution
-            .multipliedBy(
-                historicalIncentives.data[contribution.blockNum].hdxBonus
-            );
+        const contributionHdxReward = historicalIncentives.data[contribution.blockNum]
+            ? ksmOpportunityCostPerContribution
+                .multipliedBy(
+                    historicalIncentives.data[contribution.blockNum].hdxBonus
+                )
+            : new BigNumber("0");
             
         log.debug('useCalculateRewardsReceived', 'hdxReward', 'contributionHdxReward', contributionHdxReward);
 

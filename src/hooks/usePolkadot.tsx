@@ -14,6 +14,7 @@ import log from 'loglevel';
 import { Signer } from '@polkadot/api/types';
 import BigNumber from 'bignumber.js';
 import { useChronicle } from 'src/containers/store/Store';
+import {encodeAddress,decodeAddress } from '@polkadot/util-crypto';
 
 const mockAccount = {
     // 400+ bifrost contributions from this address
@@ -52,7 +53,11 @@ export const usePolkadot = () => {
             log.debug('usePolkadot', 'loading initial');
             setLoading(true);
             const allInjected = await web3Enable(config.dappName);
-            const allAccounts = await web3Accounts();
+            const allAccounts = (await web3Accounts())
+                .map(account => ({
+                    ...account,
+                    address: encodeAddress(decodeAddress(account.address), 2)
+                }))
 
             const wsProvider = new WsProvider(config.nodeUrl);
             const api = await ApiPromise.create({

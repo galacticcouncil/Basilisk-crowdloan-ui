@@ -12,7 +12,7 @@ import {encodeAddress,decodeAddress } from '@polkadot/util-crypto';
 const useContributionsData = () => {
     const chronicle = useChronicle();
     const account = useAccount();
-    const address = account.data.address // ? encodeAddress(decodeAddress(account.data.address), 2) : "";
+    const address = account.data.address;
 
     const [getContributionsByAccountAndParachainId, contributionsByAccountAndParachainId] = useContributionsByAccountAndParachainId(
         address || "",
