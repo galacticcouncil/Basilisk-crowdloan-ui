@@ -468,7 +468,7 @@ export const Dashboard = () => {
                     <div className="bsx-graph-timeline">
                         <div className="row">
                             <div className="col-3">
-                                05.07
+                                06.07
                             </div>
                             <div className="col-6 bsx-legend">
                                 <span className="basilisk">Basilisk</span> / <span className="sibling">Target</span> KSM raised
