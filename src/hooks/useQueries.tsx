@@ -94,11 +94,10 @@ export const getCrowdloanByParachainIdQuery = gql`
 
 // query to fetch aggregated crowdloan balances for the given parachainId
 export const getAggregatedCrowdloanBalancesByParachainIdQuery = gql`
-    query getAggregatedCrowdloanBalances($parachainId: String, $onlySignificant: Boolean, $ownCrowdloanBlockNum: Int) {
+    query getAggregatedCrowdloanBalances($parachainId: String, $ownCrowdloanBlockNum: Int) {
         aggregatedCrowdloanBalances(
             filter: { 
                 parachainId: { equalTo: $parachainId },
-                isSignificant: { equalTo: $onlySignificant }
                 blockNum: {
                     greaterThanOrEqualTo: $ownCrowdloanBlockNum
                 }
@@ -250,7 +249,7 @@ export const useOwnCrowdloanQuery = () => useCrowdloanByParachainIdQuery(config.
 // hook to fetch aggregated crowdloan balances by parachain id
 export const useAggregatedCrowdloanBalancesByParachainIdQuery = (variables: any) => useLazyQuery(getAggregatedCrowdloanBalancesByParachainIdQuery, { 
     variables: {
-        onlySignificant: true,
+        onlySignificant: false,
         // minBlockNum should be since our crowdloan started (crowdloan.blockNum)
         ownCrowdloanBlockNum: ownCrowdloanBlockNum,
         ...variables
@@ -277,13 +276,15 @@ export const useContributionsByAccountAndParachainId = (account: string, paracha
     }
 })
 
-export const useHistoricalSiblingCrowdloanCandidateBalances = (blockNums: number[]) => useLazyQuery(getHistoricalSiblingCrowdloanCandidateBalancesQuery, {
+export const useHistoricalSiblingCrowdloanCandidateBalances = (blockNums: number[]) => {
+    console.log("useHistoricalSiblingCrowdloanCandidateBalances: ", blockNums)
+    return useLazyQuery(getHistoricalSiblingCrowdloanCandidateBalancesQuery, {
     variables: {
         ownParachainId: config.ownParachainId,
         // at what blockNum are we looking for historical crowdloan sibling candidates?
         blockNums
     }
-})
+})}
 
 export const useHistoricalOwnCrowdloanBalances = (blockNums: number[]) => useLazyQuery(getHistoricalOwnCrowdloanBalancesQuery, {
     variables: {

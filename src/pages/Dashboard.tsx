@@ -125,6 +125,8 @@ export const Dashboard = () => {
 
         // if (own.loading || sibling.loading) return emptyLineChartData;
 
+        console.log(own.data)
+
         return ({
             labels,
             datasets: [

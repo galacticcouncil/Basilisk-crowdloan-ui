@@ -238,17 +238,25 @@ export const useHistoricalIncentivesData = () => {
 
         log.debug('useHistoricalIncentivesData', 'calculating historican incentives for each contribution block');
 
+        if(!historicalSiblingCrowdloanCandidateBalances.data.aggregatedCrowdloanBalances.nodes.length) return
+
         // split sibling crowdloan candidates into groups by blockNum
         const candidateCrowdloansHistoricalBalances = groupBy(
             historicalSiblingCrowdloanCandidateBalances.data.aggregatedCrowdloanBalances.nodes,
             'blockNum'
         );
+
+        console.log("candidateCrowdloansHistoricalBalances",candidateCrowdloansHistoricalBalances)
+
+        if(!historicalOwnCrowdloanCandidateBalances.data.aggregatedCrowdloanBalances.nodes.length) return
         
         // split own crowdloan balances by blockNum
         const ownCrowdloansHistoricalBalances = groupBy(
             historicalOwnCrowdloanCandidateBalances.data.aggregatedCrowdloanBalances.nodes,
             'blockNum'
         );
+
+        console.log("ownCrowdloansHistoricalBalances", ownCrowdloansHistoricalBalances)
 
         log.debug('useHistoricalIncentivesData', 'historicalBalances', candidateCrowdloansHistoricalBalances, ownCrowdloansHistoricalBalances);
         
