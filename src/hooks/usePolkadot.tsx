@@ -37,7 +37,9 @@ export const usePolkadot = () => {
     const [accounts, setAccounts] = useState<any[]>([]);
     // current active account persisted at the local storage between reloads
     // allow injecting of a mock account address
-    const [activeAccount, setActiveAccount] = useLocalStorage<string>("bsx-crowdloan-account", mockAccount.address);
+    let [activeAccount, setActiveAccount] = useLocalStorage<string>("bsx-crowdloan-account", mockAccount.address);
+    activeAccount = activeAccount ? encodeAddress(decodeAddress(activeAccount), 2) : "";
+
     const [activeAccountBalance, setActiveAccountBalance] = useState("0");
     const [showAccountSelector, setShowAccountSelector] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -49,7 +51,7 @@ export const usePolkadot = () => {
      * Configure polkadot.js at the start
      */
     useEffect(() => {
-        (async () => {
+        setTimeout(async () => {
             log.debug('usePolkadot', 'loading initial');
             setLoading(true);
             const allInjected = await web3Enable(config.dappName);
@@ -68,7 +70,7 @@ export const usePolkadot = () => {
             setAccounts(allAccounts);
             setApi(api);
             setLoading(false);
-        })()
+        }, 300);
     }, [])
 
     const fetchBalance = async () => {

@@ -24,17 +24,21 @@ export const AccountSelector = ({onAccountSelect}: Props) => {
         <div className="bsx-account-selector-backdrop">
             <div className="bsx-account-selector-modal" ref={ref}>
                 <div className="title">Select an account</div>
+                {
+                    accounts && accounts.length 
+                        ? accounts.map(account => (
+                                <div
+                                    className="account"
+                                    key={account.address}
+                                    onClick={_ => handleAccountOnClick(account.address)}
+                                >
+                                    <p className="name">{account.meta.name}</p>
+                                    <p className="address">{account.address}</p>
+                                </div>
+                            ))
+                        : <div className="bsx-loading-accounts">Loading accounts</div>
+                }
                 <div>
-                    {accounts.map(account => (
-                        <div
-                            className="account"
-                            key={account.address}
-                            onClick={_ => handleAccountOnClick(account.address)}
-                        >
-                            <p className="name">{account.meta.name}</p>
-                            <p className="address">{account.address}</p>
-                        </div>
-                    ))}
                 </div>
             </div>
         </div>
