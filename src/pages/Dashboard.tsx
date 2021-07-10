@@ -474,7 +474,7 @@ export const Dashboard = () => {
                                 <span className="basilisk">Basilisk</span> / <span className="sibling">Target</span> KSM raised
                             </div>
                             <div className="col-3">
-                                13.07
+                                20.07
                             </div>
                         </div>
                         <div className="bsx-progress-bar-container">

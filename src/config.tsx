@@ -29,7 +29,7 @@ const config = {
     // oldest crowdloan blockNum
     // ownCrowdloanBlockNum: 7830323,
     // used to calculated incentives based on curAuctionId
-    targetAuctionId: 4,
+    targetAuctionId: 5,
 
     // value lost by not staking your KSM
     ksmOpportunityCost: '0.1375',
@@ -92,7 +92,13 @@ const config = {
         blockNum: 8224581,
         closingStart: 8251581,
         closingEnd: 8323581
-    }
+      },
+      // TODO: update with real on-chain auction 5 data
+      5: {
+        blockNum: 8324646, 
+        closingStart: 8351646,
+        closingEnd: 8423646
+      }
   }
 };
 
