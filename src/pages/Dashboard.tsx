@@ -514,12 +514,12 @@ export const Dashboard = () => {
     
                                 <div className="bsx-incentive">
                                     <div className="row">
-                                        <div className="col-9 name">
+                                        <div className="col-8 name">
                                             <span>
                                                 bsx multiplier
                                             </span>
                                         </div>
-                                        <div className="col-3 value">
+                                        <div className="col-4 value">
                                             <span>
                                                 ~{incentives.bsxMultiplier
                                                     ? (new BigNumber(incentives.bsxMultiplier).toFixed(2))
