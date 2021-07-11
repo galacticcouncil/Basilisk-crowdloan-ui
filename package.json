@@ -42,7 +42,8 @@
     "eject": "react-scripts eject",
     "commit": "cz",
     "storybook": "start-storybook -p 6006 -s public",
-    "build-storybook": "build-storybook -s public"
+    "build-storybook": "build-storybook -s public",
+    "postbuild": "cp docs/CNAME build/CNAME && rm -rf docs && mv build docs"
   },
   "eslintConfig": {
     "extends": [
