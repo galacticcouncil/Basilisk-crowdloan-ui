@@ -276,18 +276,7 @@ export const Dashboard = () => {
                                 
                             }
                         } : null,
-                        ownRaised: own.data.crowdloan?.raised ? {
-                            type: 'line',
-                            value: fromKsmPrecision(own.data.crowdloan.raised),
-                            borderColor: colors.green,
-                            borderWidth: 1,
-                            borderDash: [3, 3],
-                            scaleID: 'crowdloanCap',
-                            label: {
-                                ...labelOptions,
-                                content: millify(parseFloat(fromKsmPrecision(own.data.crowdloan.raised)), millifyOptions),
-                            }
-                        } : null,
+                        
                         siblingRaised: sibling.data.crowdloan?.raised ? {
                             type: 'line',
                             borderWidth: 1,
@@ -298,10 +287,25 @@ export const Dashboard = () => {
                             borderColor: colors.yellow,
                             label: {
                                 ...labelOptions,
+                                xAdjust: -8,
                                 backgroundColor: colors.yellow,
                                 content: millify(parseFloat(fromKsmPrecision(sibling.data.crowdloan.raised)), millifyOptions),
                             }
-                        } : null
+                        } : null,
+
+                        ownRaised: own.data.crowdloan?.raised ? {
+                            type: 'line',
+                            value: fromKsmPrecision(own.data.crowdloan.raised),
+                            borderColor: colors.green,
+                            borderWidth: 1,
+                            borderDash: [3, 3],
+                            scaleID: 'crowdloanCap',
+                            label: {
+                                ...labelOptions,
+                                xAdjust: -116,
+                                content: millify(parseFloat(fromKsmPrecision(own.data.crowdloan.raised)), millifyOptions),
+                            }
+                        } : null,
                     },
                 },
             }
