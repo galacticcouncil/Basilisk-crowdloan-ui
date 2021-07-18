@@ -75,6 +75,9 @@ export const useDashboardData = () => {
 
 export const Dashboard = () => {
 
+    // 3 days
+    const graphBlocknumOffset = 43200;
+
     const { 
         chronicle, 
         own, 
@@ -89,9 +92,11 @@ export const Dashboard = () => {
     const aggregationCoeficient = 50;
     const targetAuctionId = config.targetAuctionId;
     const targetAuction = (config.historicalAuctionData as any)[targetAuctionId];
+    const graphEndBlockNum = targetAuction.closingEnd + graphBlocknumOffset;
+    console.log('graphEndBlockNum', graphEndBlockNum);
     const labels = range(
         config.ownCrowdloanBlockNum,
-        targetAuction.closingEnd,
+        graphEndBlockNum,
         aggregationCoeficient
     );
     const lineChartBlockNumScale = linearScale(
@@ -108,7 +113,7 @@ export const Dashboard = () => {
     const progressBarScale = linearScale(
         [
             config.ownCrowdloanBlockNum,
-            targetAuction.closingEnd,
+            graphEndBlockNum,
         ],
         [
             0,
@@ -231,7 +236,7 @@ export const Dashboard = () => {
                                 position: 'start',
                                 backgroundColor: colors.orange,                                
                                 content: 'auction starting',
-                                xAdjust: 0,
+                                xAdjust: -10,
                                 yAdjust: 20,
                                 
                             }
@@ -251,7 +256,7 @@ export const Dashboard = () => {
                                 position: 'start',
                                 backgroundColor: colors.red,                                
                                 content: 'auction closing',
-                                xAdjust: 0,
+                                xAdjust: 10,
                                 yAdjust: 20,
                                 
                             }
@@ -478,7 +483,7 @@ export const Dashboard = () => {
                                 <span className="basilisk">Basilisk</span> / <span className="sibling">Target</span> KSM raised
                             </div>
                             <div className="col-3">
-                                20.07
+                                23.07
                             </div>
                         </div>
                         <div className="bsx-progress-bar-container">
