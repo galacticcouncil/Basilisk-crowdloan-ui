@@ -377,7 +377,7 @@ export const Dashboard = () => {
 
         <div className="bsx-disclaimer">
             Basilisk is taking a temporary leave of absence, it shall return for the next batch of parachain slot auctions.
-            If you've made an offering to the snekk during the auctions for slot #1 - #4, your KSM will be returned automatically by the protocol at block 8467200 (2021-07-23 10:35).
+            If you've made an offering to the snekk during the auctions for slot #1 - #5, your KSM will be returned automatically by the protocol at block 8467200 (2021-07-23 10:35).
             <br/><br/> Until then, make sure to follow our <a href="https://basiliskfi.substack.com/" target="_blank">blog</a> for the latest updates regarding Basilisk.
             Stay vigilant.
         </div>
