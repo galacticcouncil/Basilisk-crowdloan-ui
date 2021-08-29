@@ -106,6 +106,7 @@ export const CrowdloanContributeForm = ({totalContributionWeight, connectAccount
                 name="amount"
                 decimalsLimit={12}
                 value={amount}
+                disabled={true}
                 placeholder={"Your sacrifice goes here"}
                 onValueChange={handleContributeChange}
             />
@@ -138,21 +139,29 @@ export const CrowdloanContributeForm = ({totalContributionWeight, connectAccount
                 onValueChange={noop}
             />
 
-            {activeAccount 
+            <button
+                // disabled={(!amount || amount == 0)}
+                disabled={true}
+                onClick={handleContributeClick}
+            >Contribute</button>
+
+            {/* {activeAccount 
                 ? (
                     <button
-                        disabled={(!amount || amount == 0)}
+                        // disabled={(!amount || amount == 0)}
+                        disabled={true}
                         onClick={handleContributeClick}
                     >Contribute</button>
                 )
                 : (
                     <button 
                         onClick={connectAccount}
+                        disabled={true}
                     >
                         Connect Account
                     </button>
                 )
-            }
+            } */}
             
         </div>
 
