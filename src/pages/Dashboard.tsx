@@ -78,10 +78,10 @@ export const Dashboard = () => {
     // 3 days
     const graphBlocknumOffset = 43200;
 
-    const { 
-        chronicle, 
-        // own, 
-        // sibling, 
+    const {
+        chronicle,
+        // own,
+        // sibling,
         // isDashboardEssentialDataLoading,
         // incentives,
         // accountData,
@@ -124,7 +124,7 @@ export const Dashboard = () => {
     // )
 
     // const lineChartData = useMemo(() => {
-        
+
     //     const emptyLineChartData = {
     //         labels,
     //         datasets: []
@@ -236,11 +236,11 @@ export const Dashboard = () => {
     //                         label: {
     //                             ...labelOptions,
     //                             position: 'start',
-    //                             backgroundColor: colors.orange,                                
+    //                             backgroundColor: colors.orange,
     //                             content: 'auction starting',
     //                             xAdjust: -10,
     //                             yAdjust: 20,
-                                
+
     //                         }
     //                     },
     //                     closingStart: {
@@ -256,11 +256,11 @@ export const Dashboard = () => {
     //                         label: {
     //                             ...labelOptions,
     //                             position: 'start',
-    //                             backgroundColor: colors.red,                                
+    //                             backgroundColor: colors.red,
     //                             content: 'auction closing',
     //                             xAdjust: 10,
     //                             yAdjust: 20,
-                                
+
     //                         }
     //                     },
     //                     now: chronicle.data.curBlockNum ? {
@@ -276,14 +276,14 @@ export const Dashboard = () => {
     //                         label: {
     //                             ...labelOptions,
     //                             position: 'start',
-    //                             backgroundColor: colors.white,                                
+    //                             backgroundColor: colors.white,
     //                             content: 'now',
     //                             xAdjust: 0,
     //                             yAdjust: 60,
-                                
+
     //                         }
     //                     } : null,
-                        
+
     //                     siblingRaised: sibling.data.crowdloan?.raised ? {
     //                         type: 'line',
     //                         borderWidth: 1,
@@ -376,30 +376,28 @@ export const Dashboard = () => {
         </div>
 
         <div className="bsx-disclaimer">
-            Basilisk is taking a temporary leave of absence, it shall return for the next batch of parachain slot auctions.
-            If you've made an offering to the snekk during the auctions for slot #1 - #5, your KSM will be returned automatically by the protocol at block 8467200 (2021-07-23 10:35).
-            <br/><br/> Until then, make sure to follow our <a href="https://basiliskfi.substack.com/" target="_blank">blog</a> for the latest updates regarding Basilisk.
-            Stay vigilant.
+            Basilisk is back and ready for a next round of actions! Get your KSM ready for Aug 31.
+            <br/><br/> Read our <a href="https://basiliskfi.substack.com/p/the-snek-is-back" target="_blank">announcement</a> for more info about rewards.
         </div>
 
         <div className="bsx-account">
             <div className="container-xl">
                 <div className="row bsx-account-selector-display">
-                    
+
                     <div className="col-9 bsx-address">
                         <div>
                             <span className="bsx-chronicle">
                                 {/* {`#${chronicle.data.curBlockNum}`}
                                 {accountData.account.data.address ? ` / ` : ''}   */}
                                 {mockValue} / {mockValue}
-                            </span> 
+                            </span>
 
                             {/* {accountData.account.data.address} */}
                         </div>
                     </div>
-                    <div 
+                    <div
                         className="col-3 bsx-select-account"
-                        // onClick={_ => setShowAccountSelector(true)}    
+                        // onClick={_ => setShowAccountSelector(true)}
                     >
                         change your account
                     </div>
@@ -457,12 +455,12 @@ export const Dashboard = () => {
                 </div>
             </div>
         </div>
-    
+
         <div className="container-xl">
             <div className="row">
                 <div className="col-9 bsx-graph">
                     <div className="bsx-graph-wrapper">
-                             
+
                         <div className="bsx-annotation-container"></div>
 
                         <div className="bsx-graph-loader">
@@ -484,7 +482,7 @@ export const Dashboard = () => {
                                 />
                             )
                         } */}
-                        
+
                     </div>
                     <div className="bsx-graph-timeline">
                         <div className="row">
@@ -508,7 +506,7 @@ export const Dashboard = () => {
                 </div>
                 <div className="col-3 bsx-contribute">
                     <div className="bsx-incentives">
-                        
+
                         {/* {isDashboardEssentialDataLoading
                             ? (<>
                                 <div className="bsx-incentives-loader">
@@ -533,7 +531,7 @@ export const Dashboard = () => {
                                         </div>
                                     </div>
                                 </div>
-    
+
                                 <div className="bsx-incentive">
                                     <div className="row">
                                         <div className="col-8 name">
