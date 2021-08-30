@@ -376,7 +376,7 @@ export const Dashboard = () => {
         </div>
 
         <div className="bsx-disclaimer">
-            Basilisk is back and ready for a next round of actions! Get your KSM ready for Aug 31.
+            Basilisk is back and ready for the next round of actions! So get your KSM ready for Aug 31.
             <br/><br/> Read our <a href="https://basiliskfi.substack.com/p/the-snek-is-back" target="_blank">announcement</a> for more info about rewards.
         </div>
 
