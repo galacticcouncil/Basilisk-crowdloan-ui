@@ -352,7 +352,7 @@ export const Graph = () => {
                 <div className="bsx-annotation-container"></div>
 
                 <div className="bsx-graph-loader">
-                    Graph will be available <br/> after the auction starts
+                    Graph will become available <br/> in the next few hours
                 </div>
 
                 {/* {isLineChartDataLoading

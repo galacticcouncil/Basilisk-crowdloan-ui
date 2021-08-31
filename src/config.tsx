@@ -22,7 +22,7 @@ const config = {
     auctionEndingPeriodLength: 72000,
     crowdloanCap: new BigNumber(toKsmPrecision((new BigNumber('222222')))),
     opportunityCost: new BigNumber('0.1375'),
-    ksmToUsd: '311.78',
+    ksmToUsd: '400',
     hdxToUsd: '0.08059',
     
     ksmPrecision,
