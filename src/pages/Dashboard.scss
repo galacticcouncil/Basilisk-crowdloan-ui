@@ -3,34 +3,46 @@
 
 .bsx-dashboard {
     background: $grayDarkest;
+    font-size: 0.9em;
 }
 
 .bsx-navbar {
     width: 100%;
-    height: 36px;
+    height: 4em;
     background-color: $grayDarker;
-    padding: 12px;
-    height: 100%;
+    padding: 1em;
+
+    @media (max-width: 800px) { 
+        height: auto;
+    }
 }
 
 .bsx-logo {
     color: $green;
-    font-size: 32px;
-    line-height: 36px;
+    font-size: 2em;
+    line-height: 1em;
 }
 
 .bsx-menu {
     display: flex;
     justify-content: space-between;
     position: relative;
+
+    @media (max-width: 800px) { 
+        height: auto;
+    }
 }
 
 .bsx-menu-item {
     display: flex;
-    padding-left: 12px;
-    padding-right: 12px;
-    font-size: 20px;
-    line-height: 36px;
+    padding-left: 0.5em;
+    padding-right: 0.5em;
+    font-size: 1.1em;
+    line-height: 2em;
+
+    @media (max-width: 800px) { 
+        padding: 0.4em;
+    }
     
     a {
         color: $white;
@@ -38,37 +50,31 @@
         text-transform: uppercase;
         transition: all 175ms;
         position: relative;
-        top: 1px;
 
         &:hover {
             color: $green;
         }    
     }
-    
-    // &:nth-child(2) {
-    //     a {
-    //         padding-right: 60px;
-    //     }
-    // }
-
-    // &:nth-child(3) {
-    //     a {
-    //         padding-left: 60px;
-    //     }
-    // }
 }
 
 .bsx-menu-col {
     position: relative;
+    @media (max-width: 800px) { 
+        display: block;
+        width: 100%;
+    }
 }
 
 .bsx-eye {
     position: relative;
-    left: -4%;
-    top: -7px;
+    left: 0;
     img {
-        width: 100px;
-        position: absolute
+        width: 6em;
+        position: relative
+    }
+
+    @media (max-width: 800px) { 
+        display: none;
     }
 }
 
@@ -81,8 +87,7 @@ $borderRadius: 8px;
     max-width: 900px;
     margin: 0 auto;
     margin-top: 100px;
-    font-size: 15px;
-    // text-transform: uppercase;
+    font-size: 0.9em;
 
     a, .highlight {
         color: $grayLighter;
@@ -92,13 +97,17 @@ $borderRadius: 8px;
 
 .bsx-account {
 
-    padding-bottom: 32px;
+    padding-bottom: 1.5em;
 
     .container-xl {
-        margin-top: 64px;
+        margin-top: 4em;
         color: $grayLighter;
         border: $borderStyle;
         border-radius: $borderRadius;
+
+        @media (max-width: 800px) { 
+            margin-top: 1.5em;
+        }
     }
 
     .bsx-account-selector-display {
@@ -108,7 +117,6 @@ $borderRadius: 8px;
     .bsx-chronicle {
         text-align: left;
         text-transform: uppercase;
-        font-size: 16px;
         color: $grayLighter;
     }
 
@@ -117,19 +125,15 @@ $borderRadius: 8px;
         border-right: $borderStyle;
         text-align: right;
         color: $green;
-        line-height: 48px;
-        font-size: 16px;
-        padding-top: 2px;
-        padding-right: 32px;
+        padding: 1em;
+        padding-right: 2em;
     }
 
     .bsx-select-account {
         background: $grayDarker;
         color: $white;
         text-align: center;
-        line-height: 48px;
-        padding-top: 2px;
-        font-size: 16px;
+        padding: 1em;
         user-select: none;
         text-transform: uppercase;
         cursor: pointer;
@@ -145,11 +149,11 @@ $borderRadius: 8px;
     .bsx-stats {
 
         .bsx-stat {
-            padding: 8px;
-            padding-top: 12px;
+            padding: 0.5em;
+            padding-top: 0.7em;
             text-align: center;
             text-transform: uppercase;
-            font-size: 14px;
+            font-size: 0.9em;
             border-right: $borderStyle;
 
         }
@@ -169,14 +173,14 @@ $borderRadius: 8px;
 
 .bsx-graph {
     padding-left: 0;
-    padding-right: 48px;
+    padding-right: 2em;
     width: 0px;
     flex: 1 1 auto;
 
     @media (max-width: 800px) { 
         width: 100%;
         padding-right: 0;
-        margin-bottom: 40px;
+        margin-bottom: 2.5em;
     }
     
     .bsx-graph-wrapper {
@@ -187,23 +191,25 @@ $borderRadius: 8px;
         position: relative;
         left: 0;
         width: 100%;
-        height: 590px;
+        height: 500px;
 
         .bsx-annotation-container {
             position: absolute;
             width: 100%;
             height: 0px;
-            // border-bottom: $borderStyle;
         }
 
         .bsx-graph-loader {
             color: $grayDarker;
             width: 100%;
             text-align: center;
-            line-height: 42px;
-            margin-top: 260px;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             text-transform: uppercase;
-            font-size: 32px;
+            font-size: 2em;
+            padding: 2em;
         }
         
     }
@@ -282,31 +288,29 @@ $borderRadius: 8px;
 
     .bsx-incentives {
         background: $black;
-        padding: 18px 24px;
-        // padding-top: 32px;
+        padding: 1em 1.5em;
         border-top-left-radius: $borderRadius * 2;
         border-top-right-radius: $borderRadius * 2;
         border-bottom: 1px solid $green;
         position: relative;
 
         .bsx-incentives-loader {
-            height: 63px;
-            margin: 8px 0px;
+            height: 4em;
+            margin: 0.5em 0em;
             position: relative;
             background: $black;
             text-align: center;
             color: $green;
-            line-height: 32px;
+            line-height: 2em;
             text-transform: uppercase;
-            font-size: 16px;
         }
     }
 
     .bsx-incentive {
-        font-size: 18px;
+        font-size: 1.1em;
         text-transform: uppercase;
-        margin-bottom: 8px;
-        margin-top: 8px;
+        margin-bottom: 0.5em;
+        margin-top: 0.5em;
 
         .value {
             text-align: right;
@@ -315,14 +319,14 @@ $borderRadius: 8px;
 }
 
 .bsx-wallpaper {
-    margin-top: 60px;
+    margin-top: 0;
     width: 100%;
     z-index: -9999;
     
     img {
         width: 100%;
         position: relative;
-        left: -500px;
+        left: -20%;
         max-width: 1500px;
         display: block;
     }
@@ -330,7 +334,7 @@ $borderRadius: 8px;
 
 @media (max-width: 1420px) {
     .bsx-contribute .bsx-incentives .bsx-incentives-loader {
-        line-height: 32px;
+        line-height: 2em;
     }
     
   }
