@@ -137,9 +137,8 @@ $borderRadius: 8px;
         border-top-right-radius: 8px;
 
         &:hover {
-            // background: $green;
-            // color: $grayDarkest;
-            cursor: not-allowed;
+            background: $green;
+            color: $grayDarkest;
         }
     }
 

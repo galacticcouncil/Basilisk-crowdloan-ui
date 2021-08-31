@@ -1,301 +1,165 @@
 import { gql, useLazyQuery } from "@apollo/client";
-import config from '../config';
+import config from './../config';
 
-export type Auction = {
-    blockNum: null | number
-    closingStart: null | number,
-    closingEnd: null | number
-};
+const chronicleId = 'chronicle';
+const chronicleByUniqueInput = `
+    chronicleByUniqueInput(where: {id: "${chronicleId}"}) {
+        lastProcessedBlock
+        mostRecentAuctionClosingStart
+        mostRecentAuctionStart
+    }
+`
+
+const historicalFundsPledgedByParachainIdSinceBlockHeight = (parachainId: string, blockHeight: string) => `
+    historicalParachainFundsPledgeds(where: {parachain: {id_eq: "${parachainId}"}, blockHeight_gte: "${blockHeight}"}) {
+        fundsPledged
+        blockHeight
+    }
+`
+
+const parachainFundsPledgedByParachainId = (parachainId: string) => `
+    parachainByUniqueInput(where: {id: "${parachainId}"}) {
+        fundsPledged
+    }
+`
+
+const incentiveId = 'incentive';
+const incentives = `
+    incentiveByUniqueInput(where: {id: "${incentiveId}"}) {
+        totalContributionWeight
+        leadPercentageRate
+    }
+`
+
+const initialDataQuery = gql`
+    query InitialData {
+        ${chronicleByUniqueInput}
+        ${historicalFundsPledgedByParachainIdSinceBlockHeight(
+            config.ownParachainId,
+            config.ownCrowdloanBlockHeight
+        )}
+        ${parachainFundsPledgedByParachainId(
+            config.ownParachainId
+        )}
+        ${incentives}
+    }
+`
+
+const accountByAccountId = `
+    accountByUniqueInput(where: {id: $accountId}) {
+        totalContributed
+        contributions {
+            crowdloan {
+                id
+            }
+            blockHeight
+            balance
+        }
+    }
+`
+
+const historicalIncentivesByBlockHeights = `
+    historicalIncentives(where: {blockHeight_in: $blockHeights}) {
+        blockHeight
+        leadPercentageRate
+    }
+`
+
+const historicalIncentivesByBlockHeightsDataQuery = gql`
+    query HistoricalIncentives($blockHeights: [BigInt!]) {
+        ${historicalIncentivesByBlockHeights}
+    }
+`
+
+const accountByAccountIdDataQuery = gql`
+    query ContributionsByAccountId($accountId: ID!) {
+        ${accountByAccountId}
+    }
+`
+const chronicleDataQuery = gql`
+    query Chronicle {
+        ${chronicleByUniqueInput}
+    }
+`
+
+const incentivesDataQuery = gql`
+    query Incentives {
+        ${incentives}
+    }
+`
 
 export type Chronicle = {
-    curBlockNum:  number,
-    curAuctionId: null | number,
-    curAuction: Auction
+    lastProcessedBlock: string,
+    mostRecentAuctionStart: string | undefined,
+    mostRecentAuctionClosingStart: string | undefined
+}
+
+export type HistoricalParachainFundsPledged = {
+    fundsPledged: string,
+    blockHeight: string
+}
+
+export type ParachainFundsPledged = {
+    fundsPledged: string
+}
+
+export type Incentives = {
+    leadPercentageRate: string,
+    totalContributionWeight: string,
+}
+
+export type HistoricalIncentive = {
+    blockHeight: string,
+    leadPercentageRate: string,
+}
+
+type InitialDataQueryResponse = {
+    chronicleByUniqueInput: Chronicle,
+    historicalParachainFundsPledgeds: HistoricalParachainFundsPledged[],
+    parachainByUniqueInput: ParachainFundsPledged,
+    incentiveByUniqueInput: Incentives | undefined
 };
+export const useInitialDataQuery = () => useLazyQuery<InitialDataQueryResponse>(initialDataQuery);
 
 export type Contribution = {
-    account: string,
-    amount: string,
-    parachainId: string,
-    blockNum: number
+    blockHeight: string,
+    balance: string,
+    crowdloan: {
+        id: string
+    }
 };
 
-export type Crowdloan = {
-    id: string,
-    // KSM cap
-    cap: number,
-    // KSM raised
-    raised: string,
-    // parachainId which the crowdloan belongs to
-    parachainId: string,
-    // blockNum when the crowdloan was registred, NOT when it was last updated
-    blockNum: number
+export type Account = {
+    totalContributed: string,
+    contributions: Contribution[],
 }
 
-export type AggregatedCrowdloanBalance = {
-    id: string,
-    // blockNum for which the data was aggregated
-    blockNum: number,
-    // snapshot of KSM raised at the given blockNum
-    raised: string,
-    parachainId: string
+export type AccountByAccountIdQueryResponse = {
+    accountByUniqueInput: Account
+};
+
+export const useAccountByAccountIdDataQuery = (accountId: string) => useLazyQuery<AccountByAccountIdQueryResponse>(accountByAccountIdDataQuery, {
+    variables: {
+        accountId
+    }
+});
+
+type ChronicleQueryResponse = {
+    chronicleByUniqueInput: Chronicle
 }
 
-// fetch only data newer than this block in some cases
-// TODO: replace with real blockNum when the BSX crowdloan starts
-const ownCrowdloanBlockNum = config.ownCrowdloanBlockNum;
+export const useChronicleDataQuery = () => useLazyQuery<ChronicleQueryResponse>(chronicleDataQuery);
 
-/**
- * Queries
- */
-// ID of the chronicle in the indexer db
-const chronicleKey = "ChronicleKey"
-const chronicle = `
-    chronicle(id: "${chronicleKey}") {
-        curBlockNum
-        curAuctionId,
-        curAuction {
-            closingStart,
-            closingEnd
-        }
-    }
-`
+type IncentivesQueryResponse = {
+    incentiveByUniqueInput: Incentives | undefined
+}
 
-// query to fetch the chronicle
-export const getChronicleQuery = gql`
-    query chronicle {
-        ${chronicle}
-    }
-`
+export const useIncentivesDataQuery = () => useLazyQuery<IncentivesQueryResponse>(incentivesDataQuery);
 
-// which crowdloan fields to fetch at any query involving a crowdloan
-const crowdloanFields = `
-    nodes{
-        id,
-        cap,
-        raised,
-        parachainId,
-        blockNum
-    }
-`
+type HistoricalIncentivesByBlockHeightsQueryResponse = {
+    historicalIncentives: HistoricalIncentive[]
+}
 
-// query to fetch a crowdloan that matches the ownParachainId
-export const getCrowdloanByParachainIdQuery = gql`
-    query ownCrowdloan($parachainId: String) {
-        crowdloans(filter: {
-            parachainId: {
-                equalTo: $parachainId
-            }
-        }){
-            ${crowdloanFields}
-        }
-    }
-`
-
-// query to fetch aggregated crowdloan balances for the given parachainId
-export const getAggregatedCrowdloanBalancesByParachainIdQuery = gql`
-    query getAggregatedCrowdloanBalances($parachainId: String, $onlySignificant: Boolean, $ownCrowdloanBlockNum: Int) {
-        aggregatedCrowdloanBalances(
-            filter: { 
-                parachainId: { equalTo: $parachainId },
-                isSignificant: { equalTo: $onlySignificant }
-                blockNum: {
-                    greaterThanOrEqualTo: $ownCrowdloanBlockNum
-                }
-            },
-            orderBy: BLOCK_NUM_ASC
-        ) {
-            nodes {
-                id,
-                blockNum,
-                raised,
-                parachainId
-            }
-        }
-    }
-`
-
-/**
- * Query to fetch the sibling crowdloan candidates.
- * Fetching the top two largest crowdloans, that are not ours,
- * allows us to either determine by what margin we are loosing, or winning.
- */
-export const getSiblingCrowdloanCandidatesQuery = gql`
-    query siblingCrowdloanCandidates($ownParachainId: String) {
-        crowdloans(
-            filter: { 
-                parachainId: { notEqualTo: $ownParachainId }
-                isFinished: { notEqualTo: true }
-                # only crowdloans that have not won an auction yet
-                wonAuctionId: { isNull: true }
-            }
-            first: 2
-            orderBy: RAISED_DESC
-        ) {
-            nodes {
-                blockNum
-                id
-                raised
-                parachainId
-            }
-        }
-    }
-`
-
-/**
- * We need to get all historical contributions of a given address
- * to the given parachainId, no matter how old they are.
- */
-export const getContributionsByAccountAndParachainId = gql`
-    query contributionsByAddressAndParachainId($account: String, $parachainId: String, $ownCrowdloanBlockNum: Int) {
-        contributions(
-            filter:{
-                account: {
-                    equalTo: $account
-                },
-                parachainId: {
-                    equalTo: $parachainId
-                },
-                blockNum: {
-                    greaterThan: $ownCrowdloanBlockNum
-                }
-            }
-        ){
-            nodes{
-                amount,
-                account,
-                parachainId,
-                blockNum
-            }
-        }
-    }
-`
-
-export const getHistoricalSiblingCrowdloanCandidateBalancesQuery = gql`
-    query historicalSiblingCrowdloanCandidates($ownParachainId: String, $blockNums: [Int!]) {
-        aggregatedCrowdloanBalances(
-            filter: { 
-                parachainId: { notEqualTo: $ownParachainId }
-                blockNum: { in: $blockNums }
-            }
-            orderBy: RAISED_DESC
-        ) {
-            nodes {
-                blockNum
-                id
-                raised
-                parachainId,
-                fund {
-                    wonAuctionId
-                }
-            }
-        }
-    }
-`;
-
-export const getHistoricalOwnCrowdloanBalancesQuery = gql`
-    query historicalSiblingCrowdloanCandidates($ownParachainId: String, $blockNums: [Int!]) {
-        aggregatedCrowdloanBalances(
-            filter: { 
-                parachainId: { equalTo: $ownParachainId }
-                # only crowdloans that have not won an auction yet
-                # wonAuctionId: { isNull: true }
-                blockNum: { in: $blockNums }
-            }
-        ) {
-            nodes {
-                blockNum
-                id
-                raised
-                parachainId,
-            }
-        }
-    }
-`;
-
-export const getAllContributionsByOwnParachainId = gql`
-    query contributions($ownParachainId: String, $ownCrowdloanBlockNum: Int) {
-        contributions(filter:{
-            parachainId: {
-                equalTo: $ownParachainId
-            },
-            blockNum:{
-                greaterThan: $ownCrowdloanBlockNum
-            },
-        }) {
-            totalCount,
-            nodes{
-                blockNum,
-                amount
-            }
-        }
-    }
-`
-
-/**
- * Hooks
- */
-// hook to fetch the latest indexer chronicle
-export const useChronicleQuery = () => useLazyQuery(getChronicleQuery)
-
-export const useCrowdloanByParachainIdQuery = (parachainId: string) => useLazyQuery(getCrowdloanByParachainIdQuery, {
-    variables: {
-        parachainId
-    }
+export const useHistoricalIncentivesByBlockHeightsDataQuery = (blockHeights: string[]) => useLazyQuery(historicalIncentivesByBlockHeightsDataQuery, {
+    variables: { blockHeights }
 })
-
-// hook to fetch our own crowdloan
-export const useOwnCrowdloanQuery = () => useCrowdloanByParachainIdQuery(config.ownParachainId);
-
-// hook to fetch aggregated crowdloan balances by parachain id
-export const useAggregatedCrowdloanBalancesByParachainIdQuery = (variables: any) => useLazyQuery(getAggregatedCrowdloanBalancesByParachainIdQuery, { 
-    variables: {
-        onlySignificant: true,
-        // minBlockNum should be since our crowdloan started (crowdloan.blockNum)
-        ownCrowdloanBlockNum: ownCrowdloanBlockNum,
-        ...variables
-    }
-});
-
-// hook to fetch aggregated crowdloan balances using ownParachainId
-export const useOwnAggregatedCrowdloanBalancesQuery = (variables: any = {}) => useAggregatedCrowdloanBalancesByParachainIdQuery({
-    parachainId: config.ownParachainId,
-    ...variables
-});
-
-export const useSiblingCrowdloanCandidatesQuery = () => useLazyQuery(getSiblingCrowdloanCandidatesQuery, {
-    variables: {
-        ownParachainId: config.ownParachainId
-    }
-})
-
-export const useContributionsByAccountAndParachainId = (account: string, parachainId: string) => useLazyQuery(getContributionsByAccountAndParachainId, {
-    variables: {
-        account,
-        parachainId,
-        ownCrowdloanBlockNum: config.ownCrowdloanBlockNum
-    }
-})
-
-export const useHistoricalSiblingCrowdloanCandidateBalances = (blockNums: number[]) => useLazyQuery(getHistoricalSiblingCrowdloanCandidateBalancesQuery, {
-    variables: {
-        ownParachainId: config.ownParachainId,
-        // at what blockNum are we looking for historical crowdloan sibling candidates?
-        blockNums
-    }
-})
-
-export const useHistoricalOwnCrowdloanBalances = (blockNums: number[]) => useLazyQuery(getHistoricalOwnCrowdloanBalancesQuery, {
-    variables: {
-        ownParachainId: config.ownParachainId,
-        // at what blockNum are we looking for historical crowdloan sibling candidates?
-        blockNums
-    }
-})
-
-export const useAllOwnContributions = () => useLazyQuery(getAllContributionsByOwnParachainId, {
-    variables: {
-        ownParachainId: config.ownParachainId,
-        ownCrowdloanBlockNum: config.ownCrowdloanBlockNum
-    }
-});

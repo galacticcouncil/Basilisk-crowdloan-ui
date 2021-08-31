@@ -1,58 +1,69 @@
-import { AccountState, HistoricalIncentives, ParachainCrowdloanState } from "./Store";
-import { Chronicle } from './../../hooks/useQueries';
+import { Account, Chronicle, HistoricalIncentive, HistoricalParachainFundsPledged, Incentives, ParachainFundsPledged } from "./../../hooks/useQueries"
 
 export enum ActionType {
-    LoadChronicle = 'LOAD_CHRONICLE',
-    SetChronicle = 'SET_CHRONICLE',
 
-    LoadOwnData = 'LOAD_OWN_DATA',
-    SetOwnData = 'SET_OWN_DATA',
+    LoadInitialData = 'LOAD_INITIAL_DATA',
+    SetInitialData = 'SET_INITIAL_DATA_SUCCESS',
 
-    LoadSiblingData = 'LOAD_SIBLING_DATA',
-    SetSiblingData = 'SET_SIBLING_DATA',
+    LoadChronicleData = 'LOAD_CHRONICLE_DATA',
+    SetChronicleData = 'SET_CHRONICLE_DATA',
 
-    ConnectAccount = 'CONNECT_ACCOUNT',
+    LoadAccountData = 'LOAD_ACCOUNT_DATA',
     SetAccountData = 'SET_ACCOUNT_DATA',
 
-    LoadHistoricalIncentivesData = 'LOAD_HISTORICAL_INCENTIVES_DATA',
-    SetHistoricalIncentivesData = 'SET_HISTORICAL_INCENTIVES_DATA'
-};
+    LoadIncentiveData = 'LOAD_INCENTIVE_DATA',
+    SetIncentiveData = 'SET_INCENTIVE_DATA'
+}
 
-export type ActionWithoutPayload = {
-    type: ActionType
-    payload?: null
-};
+export type LoadInitialData = {
+    type: ActionType.LoadInitialData
+}
 
-export type SetChronicle = {
-    type: ActionType.SetChronicle,
+export type SetInitialData = {
+    type: ActionType.SetInitialData
+    payload: {
+        chronicle: Chronicle,
+        ownHistoricalFundsPledged: HistoricalParachainFundsPledged[],
+        ownParachainFundsPledged: ParachainFundsPledged,
+        incentives: Incentives
+    }
+}
+
+export type LoadChronicleData = {
+    type: ActionType.LoadChronicleData,
+}
+
+export type SetChronicleData = {
+    type: ActionType.SetChronicleData,
     payload: Chronicle
 }
 
-export type SetOwnData = {
-    type: ActionType.SetOwnData,
-    payload: ParachainCrowdloanState
-}
-
-export type SetSiblingData = {
-    type: ActionType.SetSiblingData,
-    payload: ParachainCrowdloanState
+export type LoadAccountData = {
+    type: ActionType.LoadAccountData
 }
 
 export type SetAccountData = {
     type: ActionType.SetAccountData,
-    payload: AccountState
+    payload: Account & {
+        historicalIncentives: HistoricalIncentive[]
+    }
 }
 
-export type SetHistoricalIncentivesData = {
-    type: ActionType.SetHistoricalIncentivesData,
-    payload: HistoricalIncentives
+export type LoadIncentiveData = {
+    type: ActionType.LoadIncentiveData
 }
 
+export type SetIncentiveData = {
+    type: ActionType.SetIncentiveData,
+    payload: Incentives
+}
 
 export type Action = 
-    | ActionWithoutPayload
-    | SetChronicle
-    | SetOwnData
-    | SetSiblingData
+    | LoadInitialData
+    | SetInitialData
+    | LoadChronicleData
+    | SetChronicleData
+    | LoadAccountData
     | SetAccountData
-    | SetHistoricalIncentivesData
+    | LoadIncentiveData
+    | SetIncentiveData

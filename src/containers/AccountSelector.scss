@@ -29,6 +29,14 @@
             padding-bottom: 16px;
         }
 
+        .no-account {
+            text-align: center;
+            padding-top: 24px;
+            .name {
+                font-size: 18px;
+            }
+        }
+
         .account {
             padding: 12px 0px;
             cursor: pointer;

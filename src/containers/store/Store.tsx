@@ -1,258 +1,199 @@
-import { useReducer } from 'react';
 import constate from 'constate';
-import { AggregatedCrowdloanBalance, Crowdloan, Chronicle, Contribution } from 'src/hooks/useQueries';
-import { ActionType, Action, SetChronicle, SetOwnData, SetSiblingData, SetAccountData, SetHistoricalIncentivesData } from './Actions';
-import log from 'loglevel';
+import { initial } from 'lodash';
+import { useReducer } from 'react';
+import { Account, Chronicle, HistoricalIncentive, HistoricalParachainFundsPledged, Incentives, ParachainFundsPledged } from 'src/hooks/useQueries';
+import { Action, ActionType } from './Actions';
 
-export type ParachainCrowdloanState = {
-    crowdloan: null | Crowdloan,
-    aggregatedCrowdloanBalances: null | AggregatedCrowdloanBalance[]
+
+export enum LoadingState { 
+    Initial, 
+    Loading,
+    Loaded 
 };
 
-export type AccountState = {
-    address: null | string,
-    balance: null | string,
-    contributions: Contribution[]
-};
-
-export interface Incentive {
-    hdxBonus: string,
-    blockNum: number,
-    siblingParachainId: string
+type Loadable<T> = {
+    loading: LoadingState,
+    data: T
 }
 
-export interface HistoricalIncentives {
-    [blockNum: number]: Incentive
+type Initial = {
+    initializedAtBlockHeight: string | undefined
 }
 
-export interface Rewards {
-    currentBsxReceived: null | string,
-    minimalBsxReceived: null | string,
-    currentHdxReceived: null | string
-}
-
-export type State = {
-    account: {
-        loading: boolean,
-        data: AccountState
-    },
-    chronicle: {
-        loading: boolean,
-        data: Chronicle
-    },
+type State = {
+    initial: Loadable<Initial>
+    chronicle: Loadable<Chronicle>,
+    incentives: Loadable<Incentives>,
+    // TODO: create a separate time instead of an intersection
+    account: Loadable<Account & {
+        historicalIncentives: HistoricalIncentive[]
+    }>
     own: {
-        loading: boolean,
-        data: ParachainCrowdloanState
-    }
-    sibling: {
-        loading: boolean,
-        data: ParachainCrowdloanState
-    },
-    historicalIncentives: {
-        loading: boolean,
-        data: HistoricalIncentives
+        historicalFundsPledged: Loadable<HistoricalParachainFundsPledged[]>,
+        parachain: Loadable<ParachainFundsPledged>
     }
 };
+
+const loadable = <T extends unknown>(data: T): Loadable<T> => ({
+    loading: LoadingState.Initial,
+    data
+});
+
+const loading = <T extends unknown>(data: T): Loadable<T> => ({
+    loading: LoadingState.Loading,
+    data
+});
+
+const loaded = <T extends unknown>(data: T): Loadable<T> => ({
+    loading: LoadingState.Loaded,
+    data
+});
 
 const initialState: State = {
-    account: {
-        loading: false,
-        data: {
-            address: null,
-            balance: "0",
-            contributions: []
-        }
-    },
-    chronicle: {
-        loading: false,
-        data: {
-            curBlockNum: 0,
-            curAuctionId: 0,
-            curAuction: {
-                closingStart: null,
-                closingEnd: null,
-                blockNum: null
-            }
-        }
-    },
+    initial: loadable({
+        initializedAtBlockHeight: undefined
+    }),
+    chronicle: loadable({
+        lastProcessedBlock: "0",
+        mostRecentAuctionStart: undefined,
+        mostRecentAuctionClosingStart: undefined
+    }),
+    incentives: loadable({
+        leadPercentageRate: '0',
+        totalContributionWeight: '0'
+    }),
+    account: loadable({
+        totalContributed: '0',
+        contributions: [],
+        historicalIncentives: []
+    }),
     own: {
-        loading: false,
-        data: {
-            crowdloan: null,
-            aggregatedCrowdloanBalances: []
-        }
-    },
-    sibling: {
-        loading: false,
-        data: {
-            crowdloan: null,
-            aggregatedCrowdloanBalances: []
-        }
-    },
-    historicalIncentives: {
-        loading: false,
-        data: {}
+        historicalFundsPledged: loadable([]),
+        parachain: loadable({
+            fundsPledged: '0'
+        })
     }
 };
 
 const reducer = (state: State, action: Action) => {
-    log.debug('Store', 'action', action.type, action.payload, state);
-    const newState = (() => {
-        switch (action.type) {
-            /**
-             * Chronicle
-             */
-            case ActionType.LoadChronicle:
-                return {
-                    ...state,
-                    chronicle: {
-                        ...state.chronicle,
-                        loading: true
-                    }
-                }
-            case ActionType.SetChronicle:
-                return {
-                    ...state,
-                    chronicle: {
-                        ...state.chronicle,
-                        loading: false,
-                        // TODO: figure out how to use type union without having to type cast
-                        data: (action as SetChronicle).payload
-                    }
-                }
-    
-            case ActionType.LoadOwnData:
-                return {
-                    ...state,
-                    own: {
-                        ...state.own,
-                        loading: true
-                    }
-                }
-    
-            case ActionType.SetOwnData:
-                return {
-                    ...state,
-                    own: {
-                        ...state.own,
-                        loading: false,
-                        data: (action as SetOwnData).payload
-                    }
-                }
+    switch (action.type) {
+        case ActionType.LoadInitialData:
+            return {
+                ...state,
+                initial: loading(state.initial.data)
+            }
 
-            case ActionType.LoadSiblingData:
-                return {
-                    ...state,
-                    sibling: {
-                        ...state.sibling,
-                        loading: true
-                    }
+        case ActionType.SetInitialData: {
+            return {
+                ...state,
+                initial: loaded({
+                    initializedAtBlockHeight: action.payload.chronicle.lastProcessedBlock
+                }),
+                chronicle: loaded(action.payload.chronicle),
+                incentives: loaded(action.payload.incentives),
+                own: {
+                    historicalFundsPledged: loaded(action.payload.ownHistoricalFundsPledged),
+                    parachain: loaded(action.payload.ownParachainFundsPledged)
                 }
-
-            case ActionType.SetSiblingData:
-                return {
-                    ...state,
-                    sibling: {
-                        loading: false,
-                        data: (action as SetSiblingData).payload,
-                    }
-                }
-
-            case ActionType.ConnectAccount:
-                return {
-                    ...state,
-                    account: {
-                        ...initialState.account,
-                        loading: true,
-                    }
-                }
-                
-
-            case ActionType.SetAccountData:
-                return {
-                    ...state,
-                    account: {
-                        ...state.account,
-                        loading: false,
-                        data: (action as SetAccountData).payload
-                    }
-                }
-
-            case ActionType.LoadHistoricalIncentivesData:
-                return {
-                    ...state,
-                    historicalIncentives: {
-                        ...state.historicalIncentives,
-                        loading: true
-                    }
-                }
-
-            case ActionType.SetHistoricalIncentivesData:
-                return {
-                    ...state,
-                    historicalIncentives: {
-                        ...state.historicalIncentives,
-                        loading: false,
-                        data: (action as unknown as SetHistoricalIncentivesData).payload
-                    }
-                }
-
-            default:
-                return state;
+            }
         }
-    })()
 
-    log.debug('Store', 'newState', newState);
-    return newState;
+        case ActionType.LoadAccountData:
+            return {
+                ...state,
+                account: loading(state.account.data)
+            }
+
+        case ActionType.SetAccountData:
+            return {
+                ...state,
+                account: loaded(action.payload)
+            }
+
+        case ActionType.LoadChronicleData:
+            return {
+                ...state,
+                chronicle: loading(state.chronicle.data)
+            }
+
+        case ActionType.SetChronicleData:
+            return {
+                ...state,
+                chronicle: loaded(action.payload)
+            }
+
+        case ActionType.LoadIncentiveData:
+            return {
+                ...state,
+                incentives: loading(state.incentives.data)
+            }
+        
+        default:
+            return state
+    }
 };
-
-const useStore = () => {
+export const useStore = () => {
     const [state, dispatch] = useReducer(reducer, initialState);
     return { state, dispatch };
 }
 
-const [StoreProvider, useStoreContext] = constate(useStore);
-
-const useChronicle = () => {
-    const { state } = useStoreContext();
-    return state.chronicle;
+export const [StoreProvider, useStoreContext] = constate(useStore);
+export const useDispatch = () => {
+    const { dispatch } = useStoreContext();
+    return dispatch;
 }
 
-const useOwn = () => {
+export const useState = () => {
     const { state } = useStoreContext();
-    return state.own;
+    return state;
 }
 
-const useSibling = () => {
-    const { state } = useStoreContext();
-    return state.sibling;
+export const useIsInitialDataLoading = () => {
+    const state = useState();
+    return state.initial.loading === LoadingState.Loading;
 }
 
-const useAccount = () => {
-    const { state } = useStoreContext();
+export const useIsInitialDataLoaded = () => {
+    const state = useState();
+    return state.initial.loading === LoadingState.Loaded;
+}
+
+export const useInitializedAtBlockHeight = () => {
+    const state = useState();
+    return state.initial.data.initializedAtBlockHeight;
+}
+
+export const useChronicle = () => {
+    const state = useState();
+    return state.chronicle
+}
+
+export const useChronicleLastProcessedBlock = () => {
+    const chronicle = useChronicle();
+    return chronicle.data.lastProcessedBlock;
+}
+
+export const useIncentives = () => {
+    const state = useState();
+    return state.incentives;
+}
+
+export const useIncentivesTotalContributionWeight = () => {
+    const incentives = useIncentives();
+    return incentives.data.totalContributionWeight;
+}
+
+export const useIncentivesLeadPercentageRate = () => {
+    const incentives = useIncentives();
+    return incentives.data.leadPercentageRate;
+}
+
+export const useAccount = () => {
+    const state = useState();
     return state.account;
 }
 
-const useContributions = () => {
-    const account = useAccount();
-    return account.data.contributions;
-}
-
-const useHistoricalIncentives = () => {
-    const { state } = useStoreContext();
-    return state.historicalIncentives;
-}
-
-export {
-    StoreProvider,
-    ActionType,
-
-    useStoreContext,
-
-    useChronicle,
-    useOwn,
-    useSibling,
-    useAccount,
-    useContributions,
-    useHistoricalIncentives
+export const useHistoricalIncentives = () => {
+    const state = useState();
+    return state.account.data.historicalIncentives;
 }

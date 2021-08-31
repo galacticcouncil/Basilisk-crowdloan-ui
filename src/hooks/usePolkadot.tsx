@@ -3,29 +3,18 @@ import {
     web3Accounts,
     web3Enable,
     web3FromAddress,
-    web3ListRpcProviders,
-    web3UseRpcProvider
   } from '@polkadot/extension-dapp';
 import { useEffect, useState } from 'react';
 import { useLocalStorage } from 'react-use';
-import config from './../config';
+import config from '../config';
 import constate from 'constate';
 import log from 'loglevel';
 import { Signer } from '@polkadot/api/types';
 import BigNumber from 'bignumber.js';
-import { useChronicle } from 'src/containers/store/Store';
 import {encodeAddress,decodeAddress } from '@polkadot/util-crypto';
+import { useChronicle } from 'src/containers/store/Store';
 
 const mockAccount = {
-    // 400+ bifrost contributions from this address
-    // address: 'Ge1LJP92bS9wKxKGpkBbu8LcGD5vdfugNyaqxnaZXD9edfT',
-    // one bifrost contribution
-    // address: "DFfX8mydSrTadbXYfLzv1vkR53awtqshNxqpSusAn63t2xe",
-    // several early contribution to 2000-Gq2No2gcF6s4DLfzzuB53G5opWCoCtK9tZeVGRGcmkSDGoK
-    // address: "Em9CzTD4q3zAD5gjAKS5bzUYCDq2jhLXcM66PvJvaFbmTN8",
-    // 
-    // address: 'Ga7qfpHpNWW2jtUCuQawANkjP1xL4dCMDkhpUbH9TgvFUB4',
-    // address: "D5CVLHRhookKgoYLrszyuF4yxNPpHCFBAMZEzL7xUGtwkgG",
     address: (() => {
         let params = (new URL(document.location as unknown as string)).searchParams;
         log.debug('account', params.get('account'));
@@ -45,7 +34,8 @@ export const usePolkadot = () => {
     const [loading, setLoading] = useState(false);
     const [api, setApi] = useState<ApiPromise | undefined>(undefined)
     const [lastContributionStatus, setLastContributionStatus] = useState<boolean | undefined>(undefined);
-    const chronicle = useChronicle();
+
+    const chronicle = useChronicle()
 
     /**
      * Configure polkadot.js at the start
@@ -66,7 +56,7 @@ export const usePolkadot = () => {
                 provider: wsProvider
             });
 
-            log.debug('usePolkadot', 'loaded', allInjected, api);
+            log.debug('usePolkadot', 'loaded', allInjected, api, allAccounts);
             setAccounts(allAccounts);
             setApi(api);
             setLoading(false);
@@ -79,6 +69,7 @@ export const usePolkadot = () => {
         log.debug('usePolkadot', 'balance', balance.free.toString());
         setActiveAccountBalance(balance.free.toString())
     }
+
     useEffect(() => {
         if (!activeAccount) return;
         if (!api) return
@@ -86,7 +77,7 @@ export const usePolkadot = () => {
     }, [
         activeAccount,
         api,
-        chronicle.data.curBlockNum
+        chronicle.data.lastProcessedBlock
     ]);
 
     const contribute = async (amount: string) => {
@@ -95,7 +86,7 @@ export const usePolkadot = () => {
         
         setLoading(true);
 
-        const injector = await web3FromAddress(activeAccount);
+        const { signer } = await web3FromAddress(activeAccount);
 
         (async () => {
             try {
@@ -106,9 +97,7 @@ export const usePolkadot = () => {
                 )
                 .signAndSend(
                     activeAccount,
-                    {
-                        signer: injector.signer
-                    },
+                    { signer },
                     ({ status, events }) => {
                         if (status.isInBlock || status.isFinalized) {
                             events
@@ -134,6 +123,8 @@ export const usePolkadot = () => {
         activeAccount,
         activeAccountBalance,
         lastContributionStatus,
+        showAccountSelector,
+        setShowAccountSelector,
         contribute
     }
 }

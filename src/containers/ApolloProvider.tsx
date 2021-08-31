@@ -7,7 +7,7 @@ import {
 import config from '../config'
 
 const client = new ApolloClient({
-    uri: config.indexerUrl,
+    uri: config.processorUrl,
     cache: new InMemoryCache(),
     defaultOptions: {
         watchQuery: {

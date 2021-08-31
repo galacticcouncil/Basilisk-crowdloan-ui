@@ -1,4 +1,5 @@
 import BigNumber from 'bignumber.js';
+import ksmPrecision from './ksmPrecision';
 import config from './config';
 
 export const toKsmPrecision = (humanAmount: any) => {
@@ -7,7 +8,7 @@ export const toKsmPrecision = (humanAmount: any) => {
                 new BigNumber(10)
                     .exponentiatedBy(12)
             )
-            .toFixed(config.ksmPrecision)
+            .toFixed(ksmPrecision)
 
     return preciseAmount;
 }
@@ -18,7 +19,7 @@ export const fromKsmPrecision = (preciseAmount: any) => {
                 new BigNumber(10)
                     .exponentiatedBy(12)
             )
-            .toFixed(config.ksmPrecision)
+            .toFixed(ksmPrecision)
 
     return humanAmount;
 }
@@ -26,11 +27,11 @@ export const fromKsmPrecision = (preciseAmount: any) => {
 export const ksmToUsd = (amount: any) => {
     return new BigNumber(amount)
         .multipliedBy(config.ksmToUsd)
-        .toFixed(config.ksmPrecision)
+        .toFixed(ksmPrecision)
 }
 
 export const usdToHdx = (amount: any) => {
     return new BigNumber(amount)
         .dividedBy(config.hdxToUsd)
-        .toFixed(config.ksmPrecision)
+        .toFixed(ksmPrecision)
 }

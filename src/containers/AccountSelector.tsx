@@ -1,6 +1,6 @@
 import { useRef } from 'react';
 import { useClickAway } from 'react-use';
-import { usePolkaDotContext } from './../hooks/usePolkadot';
+import { usePolkaDotContext } from '../hooks/usePolkadot';
 import './AccountSelector.scss';
 
 export type Props = {
@@ -20,6 +20,8 @@ export const AccountSelector = ({onAccountSelect}: Props) => {
         onAccountSelect();
     })
 
+    const noAccount = undefined;
+
     return <div className="bsx-account-selector">
         <div className="bsx-account-selector-backdrop">
             <div className="bsx-account-selector-modal" ref={ref}>
@@ -38,6 +40,15 @@ export const AccountSelector = ({onAccountSelect}: Props) => {
                             ))
                         : <div className="bsx-loading-accounts">Loading accounts</div>
                 }
+                
+                {/* <div
+                    className="account no-account"
+                    // please don't hurt me
+                    onClick={_ => handleAccountOnClick(noAccount as unknown as string)}
+                >
+                        <p className="name"> Reset account selection </p>
+                </div> */}
+
                 <div>
                 </div>
             </div>

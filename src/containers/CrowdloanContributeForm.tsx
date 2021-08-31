@@ -1,80 +1,93 @@
-import { usePolkaDotContext } from './../hooks/usePolkadot';
+import { usePolkaDotContext } from '../hooks/usePolkadot';
 import log from 'loglevel';
 import { useEffect, useState } from 'react';
-import { useChronicle, useContributions, useHistoricalIncentives, useOwn } from './store/Store';
-import { calculateBsxRewards, calculateCurrentHdxReward, useIncentives } from './../hooks/useIncentives';
-import config from './../config';
+// import { useChronicle, useContributions, useHistoricalIncentives, useOwn } from './oldStore/Store';
+// import { calculateBsxRewards, calculateCurrentHdxReward, useIncentives } from '../hooks/useIncentives';
+// import config from '../oldConfig';
 import { fromKsmPrecision, ksmToUsd, toKsmPrecision, usdToHdx } from './../utils';
 import CurrencyInput from 'react-currency-input-field';
 import './CrowdloanContributeForm.scss'
 import BigNumber from 'bignumber.js';
+import { useChronicle, useHistoricalIncentives, useIncentives } from './store/Store';
+import { Contribution, HistoricalIncentive } from 'src/hooks/useQueries';
+import config, { ksmPrecisionMultiplierBN, precisionMultiplierBN } from 'src/config';
+import { calculateBsxMultiplier, calculateCurrentBsxReceived, calculateCurrentHdxReceived, calculateMinimumBsxReceived } from 'src/hooks/useCalculateIncentives';
+import ksmPrecision from 'src/ksmPrecision';
 
 type Props = {
     totalContributionWeight: string,
     connectAccount: any
 }
 
-export const CrowdloanContributeForm = ({totalContributionWeight, connectAccount}: Props) => {
-    // reward calculation
-    const own = useOwn();
-    const chronicle = useChronicle()
-    const incentives = useIncentives();
+export const CrowdloanContributeForm = ({connectAccount}: Props) => {
     const { activeAccountBalance, lastContributionStatus, contribute, activeAccount } = usePolkaDotContext();
-
     const [amount, setAmount] = useState<number | undefined>(undefined)
-
-    const [rewardsReceived, setRewardsReceived] = useState({
+    const defaultRewards = {
         minimalBsxReceived: "0",
-        currentBsxReward: "0",
+        currentBsxReceived: "0",
         // TODO: convert KSM amount to HDX
         currentHdxReceived: "0",
-    });
+    };
+    const [rewardsReceived, setRewardsReceived] = useState(defaultRewards);
+
+    const { data: { lastProcessedBlock, mostRecentAuctionClosingStart } } = useChronicle()
+    const { data: { totalContributionWeight, leadPercentageRate } } = useIncentives();
 
     useEffect(() => {
-        log.debug('CrowdloanContributeForm', 'calculating rewards', amount, own, totalContributionWeight);
-        if (!own || !chronicle || !totalContributionWeight) return;
-        if (!own.data.crowdloan) return;
-        if (!chronicle.data.curBlockNum) return;
-
-        const contributions = [
+        const contributions: Contribution[] = [
             {
-                amount: amount ? toKsmPrecision(amount) : "0",
-                blockNum: chronicle.data.curBlockNum
+                blockHeight: lastProcessedBlock,
+                balance: new BigNumber(amount || 0).multipliedBy(ksmPrecisionMultiplierBN).toFixed(0),
+                crowdloan: {
+                    id: config.ownParachainId
+                }
             }
         ];
 
-        const historicalIncentives: any = { data: {} };
-        (historicalIncentives as any).data[chronicle.data.curBlockNum] = {
-            hdxBonus: incentives.hdxBonus
-        };
+        if (!amount) return setRewardsReceived(defaultRewards);
 
-        const bsxRewards = calculateBsxRewards(
-            contributions,
-            chronicle,
-            totalContributionWeight,
-            own,
-            historicalIncentives
+        const minimumBsxReceived = calculateMinimumBsxReceived(contributions, mostRecentAuctionClosingStart);
+
+        const currentContributionWeight = new BigNumber(contributions[0].balance)
+            .multipliedBy(
+                calculateBsxMultiplier(
+                    lastProcessedBlock,
+                    mostRecentAuctionClosingStart
+                )
+            )
+            .multipliedBy(precisionMultiplierBN);
+
+        const totalCurrentContributionWeight = new BigNumber(totalContributionWeight)
+            .plus(currentContributionWeight)
+            .toFixed(0);
+
+        const currentBsxReceived = calculateCurrentBsxReceived(
+            contributions, 
+            mostRecentAuctionClosingStart, 
+            totalCurrentContributionWeight
         );
+        
+        const historicalIncentives: HistoricalIncentive[] = [{
+            blockHeight: lastProcessedBlock,
+            leadPercentageRate
+        }];
 
-        log.debug('CrowdloanContributeForm', 'historicalIncentives', historicalIncentives)
-        const hdxReward = calculateCurrentHdxReward(
-            contributions,
-            historicalIncentives
-        )
-
-        log.debug('CrowdloanContributeForm', bsxRewards, hdxReward);
+        const currentHdxReceived = usdToHdx(ksmToUsd(calculateCurrentHdxReceived(contributions, historicalIncentives)));
+        
         setRewardsReceived({
-            minimalBsxReceived: new BigNumber(fromKsmPrecision(bsxRewards.accountMinimumBsxReward)).toFixed(6),
-            currentBsxReward: new BigNumber(fromKsmPrecision(bsxRewards.accountCurrentBsxReward)).toFixed(6),
-            currentHdxReceived: new BigNumber(usdToHdx(ksmToUsd(fromKsmPrecision(hdxReward)))).toFixed(6)
+            minimalBsxReceived: new BigNumber(fromKsmPrecision(minimumBsxReceived)).toFixed(config.displayPrecision),
+            currentBsxReceived: new BigNumber(fromKsmPrecision(currentBsxReceived)).toFixed(config.displayPrecision),
+            // TODO: convert KSM amount to HDX
+            currentHdxReceived: new BigNumber(fromKsmPrecision(currentHdxReceived)).toFixed(config.displayPrecision),
         })
-
     }, [
-        amount,
-        own,
-        chronicle,
-        totalContributionWeight
+        lastProcessedBlock,
+        leadPercentageRate,
+        mostRecentAuctionClosingStart,
+        totalContributionWeight,
+        amount
     ])
+
 
     const handleContributeClick = () => {
         log.debug('CrowdloanContributeForm', 'handleContributeClick', amount);
@@ -91,10 +104,9 @@ export const CrowdloanContributeForm = ({totalContributionWeight, connectAccount
     const handleContributeChange = (value: any) => {
         log.debug('CrowdloanContributeForm', 'handleContributeChange', value, activeAccountBalance);
         if (value == undefined) return setAmount(undefined);
+        if (config.crowdloanCap.lt(toKsmPrecision(value))) return;
         setAmount(value)
     }
-
-    log.debug('CrowdloanContributeForm', 'rewardsReceived', rewardsReceived)
 
     const noop = () => {}
 
@@ -106,8 +118,9 @@ export const CrowdloanContributeForm = ({totalContributionWeight, connectAccount
                 name="amount"
                 decimalsLimit={12}
                 value={amount}
-                disabled={true}
+                disabled={false}
                 placeholder={"Your sacrifice goes here"}
+                // intlConfig={{ locale: 'en-US' }}
                 onValueChange={handleContributeChange}
             />
 
@@ -115,7 +128,6 @@ export const CrowdloanContributeForm = ({totalContributionWeight, connectAccount
             <label>minimal bsx received</label>
             <CurrencyInput
                 name="minimal bsx received"
-                decimalsLimit={6}
                 disabled={true}
                 value={rewardsReceived.minimalBsxReceived}
                 onValueChange={noop}
@@ -124,44 +136,34 @@ export const CrowdloanContributeForm = ({totalContributionWeight, connectAccount
             <label>current bsx received</label>
             <CurrencyInput
                 name="current bsx received"
-                decimalsLimit={6}
                 disabled={true}
-                value={rewardsReceived.currentBsxReward}
+                value={rewardsReceived.currentBsxReceived}
                 onValueChange={noop}
             />
 
             <label>current hdx received</label>
             <CurrencyInput
                 name="current hdx received"
-                decimalsLimit={6}
                 disabled={true}
                 value={rewardsReceived.currentHdxReceived}
                 onValueChange={noop}
             />
 
-            <button
-                // disabled={(!amount || amount == 0)}
-                disabled={true}
-                onClick={handleContributeClick}
-            >Contribute</button>
-
-            {/* {activeAccount 
+            {activeAccount 
                 ? (
                     <button
-                        // disabled={(!amount || amount == 0)}
-                        disabled={true}
+                        disabled={(!amount || amount == 0)}
                         onClick={handleContributeClick}
                     >Contribute</button>
                 )
                 : (
                     <button 
                         onClick={connectAccount}
-                        disabled={true}
                     >
                         Connect Account
                     </button>
                 )
-            } */}
+            }
             
         </div>
 
