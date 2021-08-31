@@ -16,7 +16,7 @@ const config = {
     // ownParachainId: '2086',
     ownParachainId: '2090',
     // 31.8 - 3 days
-    ownCrowdloanBlockHeight: '9023093',
+    ownCrowdloanBlockHeight: '8979298',
     dappName: 'Basilisk Crowdloan',
     chronicleRefetchTimeout: 6000, // ms
     auctionEndingPeriodLength: 72000,
@@ -24,7 +24,7 @@ const config = {
     opportunityCost: new BigNumber('0.1375'),
     ksmToUsd: '400',
     hdxToUsd: '0.08059',
-    
+
     ksmPrecision,
     displayPrecision: 6,
     chart: {
