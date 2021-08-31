@@ -63,18 +63,18 @@ export const CrowdloanContributeForm = ({connectAccount}: Props) => {
             .toFixed(0);
 
         const currentBsxReceived = calculateCurrentBsxReceived(
-            contributions, 
-            mostRecentAuctionClosingStart, 
+            contributions,
+            mostRecentAuctionClosingStart,
             totalCurrentContributionWeight
         );
-        
+
         const historicalIncentives: HistoricalIncentive[] = [{
             blockHeight: lastProcessedBlock,
             leadPercentageRate
         }];
 
         const currentHdxReceived = usdToHdx(ksmToUsd(calculateCurrentHdxReceived(contributions, historicalIncentives)));
-        
+
         setRewardsReceived({
             minimalBsxReceived: new BigNumber(fromKsmPrecision(minimumBsxReceived)).toFixed(config.displayPrecision),
             currentBsxReceived: new BigNumber(fromKsmPrecision(currentBsxReceived)).toFixed(config.displayPrecision),
@@ -122,7 +122,7 @@ export const CrowdloanContributeForm = ({connectAccount}: Props) => {
                 disabled={false}
                 allowNegativeValue={false}
                 placeholder={"Sacrifice goes here"}
-                // intlConfig={{ locale: 'en-US' }}
+                intlConfig={{ locale: 'en-US' }}
                 onValueChange={handleContributeChange}
             />
 
@@ -151,7 +151,7 @@ export const CrowdloanContributeForm = ({connectAccount}: Props) => {
                 onValueChange={noop}
             />
 
-            {activeAccount 
+            {activeAccount
                 ? (
                     <button
                         disabled={(!amount || amount == 0)}
@@ -159,18 +159,18 @@ export const CrowdloanContributeForm = ({connectAccount}: Props) => {
                     >Contribute</button>
                 )
                 : (
-                    <button 
+                    <button
                         onClick={connectAccount}
                     >
                         Connect Account
                     </button>
                 )
             }
-            
+
         </div>
 
         <div className="contribution-status">
-            {lastContributionStatus 
+            {lastContributionStatus
                 ? "Thanksss for your sacrifice"
                 : (
                     (lastContributionStatus == false)
