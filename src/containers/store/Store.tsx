@@ -197,3 +197,8 @@ export const useHistoricalIncentives = () => {
     const state = useState();
     return state.account.data.historicalIncentives;
 }
+
+export const useOwnFundsPledged = () => {
+    const state = useState();
+    return state.own.parachain.data?.fundsPledged;
+}

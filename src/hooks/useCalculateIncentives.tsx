@@ -105,22 +105,16 @@ export const calculateCurrentBsxReceived = (
     const totalContributionWeightBN = new BigNumber(totalContributionWeight)    
         .dividedBy(precisionMultiplierBN);
 
-    console.log('calculateCurrentBsxReceived', totalContributionWeight, accountContributionsWeight.toString());
-
-
     if (totalContributionWeightBN.isZero()) return new BigNumber(0);
 
     const currentBsxReceived = config.incentives.bsx.allocated
         .dividedBy(totalContributionWeightBN)
         .multipliedBy(accountContributionsWeight);
 
-    console.log('currentBsxReceived', currentBsxReceived);
-
     return currentBsxReceived;
 }
 
 export const calculateCurrentHdxReceived = (contributions: Contribution[], historicalIncentives: HistoricalIncentive[]) => {
-    console.log('calculateCurrentHdxReceived', contributions, historicalIncentives);
     const hdxReceivedInKsm = contributions.reduce((hdxReceivedInKsm, contribution) => {
         const historicalIncentive = find(historicalIncentives, { 
             blockHeight: `${contribution.blockHeight}`
@@ -134,14 +128,6 @@ export const calculateCurrentHdxReceived = (contributions: Contribution[], histo
         // this would be the most gracious way to handle the missing data.
         // It would confuse the users the least.
         const hdxBonus = calculateHdxBonus(leadPercentageRate);
-
-        console.log('hdxBOnus',  {
-            leadPercentageRate: new BigNumber(leadPercentageRate)
-                .dividedBy(100),
-            hdxBonus,
-            historicalIncentive,
-            contribution: contribution.balance.toString()
-        })
 
         const contributionHdxReceivedInKsm = new BigNumber(contribution.balance)
             .multipliedBy(

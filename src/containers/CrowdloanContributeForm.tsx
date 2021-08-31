@@ -8,7 +8,7 @@ import { fromKsmPrecision, ksmToUsd, toKsmPrecision, usdToHdx } from './../utils
 import CurrencyInput from 'react-currency-input-field';
 import './CrowdloanContributeForm.scss'
 import BigNumber from 'bignumber.js';
-import { useChronicle, useHistoricalIncentives, useIncentives } from './store/Store';
+import { useChronicle, useHistoricalIncentives, useIncentives, useOwnFundsPledged } from './store/Store';
 import { Contribution, HistoricalIncentive } from 'src/hooks/useQueries';
 import config, { ksmPrecisionMultiplierBN, precisionMultiplierBN } from 'src/config';
 import { calculateBsxMultiplier, calculateCurrentBsxReceived, calculateCurrentHdxReceived, calculateMinimumBsxReceived } from 'src/hooks/useCalculateIncentives';
@@ -32,6 +32,7 @@ export const CrowdloanContributeForm = ({connectAccount}: Props) => {
 
     const { data: { lastProcessedBlock, mostRecentAuctionClosingStart } } = useChronicle()
     const { data: { totalContributionWeight, leadPercentageRate } } = useIncentives();
+    const ownFundsPledged = useOwnFundsPledged()
 
     useEffect(() => {
         const contributions: Contribution[] = [
@@ -104,7 +105,9 @@ export const CrowdloanContributeForm = ({connectAccount}: Props) => {
     const handleContributeChange = (value: any) => {
         log.debug('CrowdloanContributeForm', 'handleContributeChange', value, activeAccountBalance);
         if (value == undefined) return setAmount(undefined);
-        if (config.crowdloanCap.lt(toKsmPrecision(value))) return;
+        if (config.crowdloanCap.lt(toKsmPrecision(
+            new BigNumber(value).plus(ownFundsPledged)
+        ))) return;
         setAmount(value)
     }
 
