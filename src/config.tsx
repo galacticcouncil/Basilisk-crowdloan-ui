@@ -13,10 +13,10 @@ const config: any = {
     nodeUrl: 'wss://ksm-arch-01.hydration.cloud',
 
     // Kilt
-    ownParachainId: '2086',
-    // ownParachainId: '2090',
+    // ownParachainId: '2086',
+    ownParachainId: '2090',
     // 31.8 - 3 days
-    ownCrowdloanBlockHeight: '8979298',
+    ownCrowdloanBlockHeight: '9023093',
     dappName: 'Basilisk Crowdloan',
     chronicleRefetchTimeout: 6000, // ms
     auctionEndingPeriodLength: 72000,

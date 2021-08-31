@@ -12,16 +12,16 @@ export const useChronicleData = () => {
     const [getChronicleData, chronicleData] = useChronicleDataQuery();
 
     // fetch chronicle every few seconds
-    useEffect(() => {
-        const intervalId = setInterval(() => {
-            log.debug('useChronicleData', 'fetching chronicle')
-            dispatch({
-                type: ActionType.LoadChronicleData
-            })
-        }, config.chronicleRefetchTimeout);
+    // useEffect(() => {
+    //     const intervalId = setInterval(() => {
+    //         log.debug('useChronicleData', 'fetching chronicle')
+    //         dispatch({
+    //             type: ActionType.LoadChronicleData
+    //         })
+    //     }, config.chronicleRefetchTimeout);
 
-        return () => clearInterval(intervalId);
-    }, []);
+    //     return () => clearInterval(intervalId);
+    // }, []);
 
     useEffect(() => {
         if (chronicle.loading != LoadingState.Loading) return;
