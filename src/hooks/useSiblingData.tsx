@@ -72,7 +72,7 @@ export const useSiblingData = () => {
         if (!siblingParachainId) return;
         if (!lastProcessedBlock) return;
         if (sibling.parachain.loading === LoadingState.Loading) return;
-        
+
         dispatch({
             type: ActionType.LoadLatestSiblingFundsPledgedData
         });
@@ -85,7 +85,7 @@ export const useSiblingData = () => {
         if (sibling.parachain.loading !== LoadingState.Loading) return;
         getLatestFundsPledged()
     }, [
-        sibling.parachain.loading 
+        sibling.parachain.loading
     ]);
 
     useEffect(() => {

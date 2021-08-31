@@ -158,7 +158,7 @@ export const Graph = () => {
     }, [
         ownFundsPledged,
         siblingFundsPledged,
-        lastProcessedBlock
+        lastProcessedBlock,
     ])
 
     return <>
