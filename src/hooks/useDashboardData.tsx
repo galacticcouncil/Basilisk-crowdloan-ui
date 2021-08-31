@@ -4,6 +4,7 @@ import { useChronicleData } from "./useChronicleData";
 import { useIncentivesData } from "./useIncentivesData";
 import { useInitialData } from "./useInitialData";
 import { useSiblingData } from "./useSiblingData";
+import { useOwnData } from "./useOwnData";
 
 const useDashboardData = () => {
     // loads a bunch of data only once
@@ -13,6 +14,7 @@ const useDashboardData = () => {
     useChronicleData();
     useIncentivesData();
     useSiblingData();
+    useOwnData();
 }
 
 export const [DashboardDataProvider, useDashboardDataContext] = constate(useDashboardData);
