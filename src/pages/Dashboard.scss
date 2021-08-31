@@ -141,9 +141,8 @@ $borderRadius: 8px;
         text-transform: uppercase;
         cursor: pointer;
 
-        border-top-right-radius: 8px;
-
         &:hover {
+            border-top-right-radius: 8px;
             background: $green;
             color: $grayDarkest;
         }
