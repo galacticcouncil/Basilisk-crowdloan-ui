@@ -6,7 +6,7 @@ export const precisionMultiplierBN = new BigNumber('10').pow('6');
 export const ksmPrecisionMultiplierBN = new BigNumber('10').pow('12');
 
 
-const config: any = {
+const config = {
 
     // processorUrl: 'http://localhost:4000/graphql',
     processorUrl: 'https://api-crowdloan-basilisk.hydradx.io/graphql',

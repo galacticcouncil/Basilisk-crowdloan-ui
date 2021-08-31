@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { ActionType } from "src/containers/store/Actions";
-import { LoadingState, useAccount, useDispatch } from "src/containers/store/Store"
+import { LoadingState, useAccount, useChronicleLastProcessedBlock, useDispatch } from "src/containers/store/Store"
 import { usePolkaDotContext } from "./usePolkadot";
 import { AccountByAccountIdQueryResponse, useAccountByAccountIdDataQuery, useHistoricalIncentivesByBlockHeightsDataQuery } from "./useQueries";
 import { isEqual } from 'lodash';
@@ -24,6 +24,8 @@ export const useAccountData = () => {
                 .map(contribution => contribution.blockHeight)
             : []
     );
+
+    const lastProcessedBlock = useChronicleLastProcessedBlock();
     
     // reload account data when the active account / active account balance changes
     useEffect(() => {
@@ -35,6 +37,7 @@ export const useAccountData = () => {
     }, [
         activeAccount,
         activeAccountBalance,
+        lastProcessedBlock
     ]);
 
     useEffect(() => {
@@ -55,7 +58,7 @@ export const useAccountData = () => {
 
     useEffect(() => {
         if (accountByAccountIdData.loading || !accountByAccountIdData.called) return;
-        if (historicalIncentivesByBlockHeightsData.loading || !historicalIncentivesByBlockHeightsData.called) return;
+        // if (historicalIncentivesByBlockHeightsData.loading || !historicalIncentivesByBlockHeightsData.called) return;
         
         const totalContributed = (() => {
             return accountByAccountIdData.data?.accountByUniqueInput?.totalContributed

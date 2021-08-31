@@ -97,7 +97,6 @@ const reducer = (state: State, action: Action) => {
             }
 
         case ActionType.SetInitialData: {
-            console.log('set initial data', action.payload.ownHistoricalFundsPledged);
             return {
                 ...state,
                 initial: loaded({

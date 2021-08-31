@@ -230,8 +230,40 @@ export const Dashboard = () => {
                 <Graph/>
                 <div className="col-3 bsx-contribute">
                     <div className="bsx-incentives">
-                        
-                        {false
+
+                    <>
+                        <div className="bsx-incentive">
+                            <div className="row">
+                                <div className="col-6 name">
+                                    <span>
+                                        hdx bonus
+                                    </span>
+                                </div>
+                                <div className="col-6 value">
+                                    <span>
+                                    {hdxBonus ? `~${hdxBonus.toFixed(2)}` : '-'}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="bsx-incentive">
+                            <div className="row">
+                                <div className="col-8 name">
+                                    <span>
+                                        bsx multiplier
+                                    </span>
+                                </div>
+                                <div className="col-4 value">
+                                    <span>
+                                        {bsxMultiplier ? `~${bsxMultiplier.toFixed(2) }` : '-'}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </>
+
+                        {/* {false
                             ? (<>
                                 <div className="bsx-incentives-loader">
                                     Caluculating incentives...
@@ -268,7 +300,7 @@ export const Dashboard = () => {
                                     </div>
                                 </div>
                             </>)
-                        }
+                        } */}
 
                     </div>
 

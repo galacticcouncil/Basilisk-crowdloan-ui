@@ -66,9 +66,7 @@ export const useInitialData = () => {
                 leadPercentageRate, 
                 totalContributionWeight,
                 siblingParachain: {
-                    // TODO: remove after testing
                     id: siblingParachain?.id
-                    // id: undefined
                 }
             };
         })();
