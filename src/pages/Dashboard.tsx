@@ -28,7 +28,7 @@ Chart.register(annotationPlugin);
 const millifyOptions = {
     // precision: config.displayPrecision,
     precision: 6,
-    decimalSeparator: ','
+    decimalSeparator: '.'
 }
 
 const useDashboardData = () => {
@@ -42,8 +42,8 @@ const useDashboardData = () => {
     const currentAccountCurrentHdxReceived = useCalculateCurrentAccountHdxReceived()
 
     // TODO: move polkadot-js data to the store
-    const { 
-        showAccountSelector, 
+    const {
+        showAccountSelector,
         setShowAccountSelector,
         activeAccount,
         activeAccountBalance
@@ -97,7 +97,7 @@ export const Dashboard = () => {
         currentAccountCurrentBsxReceived,
         currentAccountCurrentHdxReceived
     } = useDashboardData();
- 
+
     return <div className='bsx-dashboard'>
 
         <div className="bsx-navbar">
@@ -156,19 +156,19 @@ export const Dashboard = () => {
         <div className="bsx-account">
             <div className="container-xl">
                 <div className="row bsx-account-selector-display">
-                    
+
                     <div className="col-9 bsx-address">
                         <div>
                             <span className="bsx-chronicle">
                                 {`#${lastProcessedBlock}`}
-                                {activeAccount ? ` / ` : ' / No account connected'} 
-                            </span> 
+                                {activeAccount ? ` / ` : ' / No account connected'}
+                            </span>
                             {activeAccount}
                         </div>
                     </div>
-                    <div 
+                    <div
                         className="col-3 bsx-select-account"
-                        onClick={_ => setShowAccountSelector(true)}    
+                        onClick={_ => setShowAccountSelector(true)}
                     >
                         { activeAccount ? "change your account" : "connect account" }
                     </div>
@@ -181,7 +181,7 @@ export const Dashboard = () => {
                                     total ksm contributed
                                 </span>
                                 <span className="bsx-stat-value">
-                                    ~{millify(parseFloat(fromKsmPrecision(totalContributed)), millifyOptions)}
+                                    {millify(parseFloat(fromKsmPrecision(totalContributed)), millifyOptions)}
                                 </span>
                             </div>
                             <div className="col-3 bsx-stat">
@@ -189,7 +189,7 @@ export const Dashboard = () => {
                                     minimal bsx received
                                 </span>
                                 <span className="bsx-stat-value">
-                                    ~{millify(parseFloat(fromKsmPrecision(currentAccountMinimumBsxReceived)), millifyOptions)}
+                                    {millify(parseFloat(fromKsmPrecision(currentAccountMinimumBsxReceived)), millifyOptions)}
                                 </span>
                             </div>
                             <div className="col-3 bsx-stat">
@@ -198,7 +198,7 @@ export const Dashboard = () => {
                                 </span>
                                 <span className="bsx-stat-value">
                                     {currentAccountCurrentBsxReceived
-                                        ? `~${millify(parseFloat(fromKsmPrecision(currentAccountCurrentBsxReceived)), millifyOptions)}`
+                                        ? millify(parseFloat(fromKsmPrecision(currentAccountCurrentBsxReceived)), millifyOptions)
                                         : '-'
                                     }
                                 </span>
@@ -208,23 +208,23 @@ export const Dashboard = () => {
                                     current hdx reward
                                 </span>
                                 <span className="bsx-stat-value">
-                                    ~{millify(parseFloat(usdToHdx(ksmToUsd(fromKsmPrecision(currentAccountCurrentHdxReceived)))), millifyOptions)}
+                                    {millify(parseFloat(usdToHdx(ksmToUsd(fromKsmPrecision(currentAccountCurrentHdxReceived)))), millifyOptions)}
                                 </span>
                             </div>
                         </div>
                     </div>
                     <div className="col-3 bsx-stat bsx-stat-balance">
                         <span className="bsx-stat-title">
-                            balance
+                            free balance
                         </span>
                         <span className="bsx-stat-value">
-                            ~{millify(parseFloat(fromKsmPrecision(activeAccountBalance)), millifyOptions)}
+                            {millify(parseFloat(fromKsmPrecision(activeAccountBalance)), millifyOptions)}
                         </span>
                     </div>
                 </div>
             </div>
         </div>
-    
+
         <div className="container-xl">
             <div className="row">
                 <Graph/>
@@ -284,7 +284,7 @@ export const Dashboard = () => {
                                         </div>
                                     </div>
                                 </div>
-    
+
                                 <div className="bsx-incentive">
                                     <div className="row">
                                         <div className="col-8 name">
