@@ -200,5 +200,5 @@ export const useHistoricalIncentives = () => {
 
 export const useOwnFundsPledged = () => {
     const state = useState();
-    return state.own.parachain.data?.fundsPledged;
+    return state.own.parachain.data?.fundsPledged || '222000000000000';
 }

@@ -105,9 +105,8 @@ export const CrowdloanContributeForm = ({connectAccount}: Props) => {
     const handleContributeChange = (value: any) => {
         log.debug('CrowdloanContributeForm', 'handleContributeChange', value, activeAccountBalance);
         if (value == undefined) return setAmount(undefined);
-        if (config.crowdloanCap.lt(toKsmPrecision(
-            new BigNumber(value).plus(ownFundsPledged)
-        ))) return;
+        console.log('should return', config.crowdloanCap, ownFundsPledged, toKsmPrecision(value));
+        if (config.crowdloanCap.minus(ownFundsPledged).lt(toKsmPrecision(value))) return;
         setAmount(value)
     }
 
@@ -122,7 +121,8 @@ export const CrowdloanContributeForm = ({connectAccount}: Props) => {
                 decimalsLimit={12}
                 value={amount}
                 disabled={false}
-                placeholder={"Your sacrifice goes here"}
+                allowNegativeValue={false}
+                placeholder={"Sacrifice goes here"}
                 // intlConfig={{ locale: 'en-US' }}
                 onValueChange={handleContributeChange}
             />
