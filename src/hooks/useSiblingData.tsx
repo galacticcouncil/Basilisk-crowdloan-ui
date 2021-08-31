@@ -83,19 +83,15 @@ export const useSiblingData = () => {
 
     useEffect(() => {
         if (sibling.parachain.loading !== LoadingState.Loading) return;
-        console.log('loading latest sibling every block');
         getLatestFundsPledged()
     }, [
         sibling.parachain.loading 
     ]);
 
     useEffect(() => {
-        console.log('fetched latest sibling', latestFundsPledged.data);
         if (latestFundsPledged.loading || !latestFundsPledged.called) return;
         // if (sibling.parachain.loading !== LoadingState.Loading) return;
         if (!latestFundsPledged.data) return;
-
-        console.log('fetched latest sibling', latestFundsPledged.data);
 
         const fundsPledged = (() => {
             return latestFundsPledged.data.parachainByUniqueInput?.fundsPledged

@@ -45,8 +45,6 @@ export const useIncentivesData = () => {
                 totalContributionWeight: '0',
             };
 
-            console.log('sibling id', siblingParachain?.id);
-
             return { 
                 leadPercentageRate, 
                 totalContributionWeight,
