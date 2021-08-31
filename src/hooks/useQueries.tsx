@@ -19,7 +19,7 @@ const historicalFundsPledgedByParachainIdSinceBlockHeight = (parachainId: string
 
 // duplicate but parametrized via the query instead
 const _historicalFundsPledgedByParachainIdSinceBlockHeight = `
-    historicalParachainFundsPledgeds(where: {parachain: {id_eq: $parachainId}, blockHeight_gte: $blockHeight}) {
+    historicalParachainFundsPledgeds(where: {parachain: {id_eq: $parachainId}, blockHeight_gte: $blockHeight}, limit: 1000) {
         fundsPledged
         blockHeight
     }

@@ -12,7 +12,7 @@ const useDashboardData = () => {
     useAccountData();
     useChronicleData();
     useIncentivesData();
-    // useSiblingData();
+    useSiblingData();
 }
 
 export const [DashboardDataProvider, useDashboardDataContext] = constate(useDashboardData);
