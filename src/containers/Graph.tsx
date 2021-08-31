@@ -53,9 +53,6 @@ export const Graph = () => {
 
     const isLineChartDataLoading = false;
 
-    console.log('own data', ownFundsPledged, ownHistoricalFundsPledged);
-    console.log('sibling data', siblingFundsPledged, siblingHistoricalFundsPledged);
-
     const createDataset = (historicalData: any[]) => historicalData
         ?.map(({blockHeight, fundsPledged}) => ({x: blockHeight, y: fromKsmPrecision(fundsPledged)}));
 
@@ -63,9 +60,6 @@ export const Graph = () => {
     const siblingsDataset = createDataset(siblingHistoricalFundsPledged);
 
     const labels = siblingsDataset.map(({x}: any) => x);
-
-    console.log('LINECHART DATA', ownDataset)
-    console.log('sib DATA', siblingsDataset)
 
     const lineChartData = {
         labels,
