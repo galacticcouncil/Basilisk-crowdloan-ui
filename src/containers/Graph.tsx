@@ -108,7 +108,7 @@ export const Graph = () => {
                     type: 'linear',
                     position: 'left',
                     display: false,
-                    max: 200000,
+                    max: 220000,
                     min: 0
                 },
             },
