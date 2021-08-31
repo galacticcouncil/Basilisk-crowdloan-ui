@@ -8,8 +8,8 @@ export const ksmPrecisionMultiplierBN = new BigNumber('10').pow('12');
 
 const config: any = {
 
-    processorUrl: 'http://localhost:4000/graphql',
-    // processorUrl: 'https://api-crowdloan-basilisk.hydradx.io/graphql',
+    // processorUrl: 'http://localhost:4000/graphql',
+    processorUrl: 'https://api-crowdloan-basilisk.hydradx.io/graphql',
     nodeUrl: 'wss://ksm-arch-01.hydration.cloud',
 
     // Kilt
