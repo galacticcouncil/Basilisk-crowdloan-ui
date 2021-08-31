@@ -32,6 +32,7 @@ export const useInitialData = () => {
     useEffect(() => {
         if (initialData.loading || !initialData.called) return;
         if (!initialData.data) return;
+        if (!isInitialDataLoading) return;
 
         const chronicle = (() => {
             const { 
@@ -56,11 +57,20 @@ export const useInitialData = () => {
         const ownParachainFundsPledged = (() => initialData.data.parachainByUniqueInput)();
 
         const incentives = (() => {
-            const { leadPercentageRate, totalContributionWeight } = initialData.data?.incentiveByUniqueInput || {
+            const { leadPercentageRate, totalContributionWeight, siblingParachain } = initialData.data?.incentiveByUniqueInput || {
                 leadPercentageRate: '0',
                 totalContributionWeight: '0'
             };
-            return { leadPercentageRate, totalContributionWeight };
+
+            return { 
+                leadPercentageRate, 
+                totalContributionWeight,
+                siblingParachain: {
+                    // TODO: remove after testing
+                    id: siblingParachain?.id
+                    // id: undefined
+                }
+            };
         })();
 
         log.debug('useInitialData', 'done loading', { 
@@ -80,6 +90,7 @@ export const useInitialData = () => {
             }
         });
     }, [
-        initialData.data
+        initialData.data,
+        isInitialDataLoading
     ])
 }

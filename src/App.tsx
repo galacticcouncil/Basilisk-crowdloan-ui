@@ -4,12 +4,16 @@ import ConfiguredApolloProvider from './containers/ApolloProvider'
 import { StoreProvider } from './containers/store/Store';
 import { PolkadotProvider } from './hooks/usePolkadot';
 import { Dashboard } from './pages/Dashboard';
+import { DashboardDataProvider } from './hooks/useDashboardData';
+
 function App() {
   return (
     <ConfiguredApolloProvider>
       <StoreProvider>
         <PolkadotProvider>
-          <Dashboard/>
+          <DashboardDataProvider>
+              <Dashboard/>
+          </DashboardDataProvider>
         </PolkadotProvider>
       </StoreProvider>
     </ConfiguredApolloProvider>

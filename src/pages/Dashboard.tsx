@@ -10,7 +10,7 @@ import annotationPlugin from 'chartjs-plugin-annotation';
 import { AccountSelector } from 'src/containers/AccountSelector';
 import { usePolkaDotContext } from 'src/hooks/usePolkadot';
 import { useInitialData } from 'src/hooks/useInitialData';
-import { useAccount, useChronicleLastProcessedBlock, useIncentives } from 'src/containers/store/Store';
+import { useAccount, useChronicleLastProcessedBlock, useIncentives, useSibling } from 'src/containers/store/Store';
 import { fromKsmPrecision, ksmToUsd, usdToHdx } from 'src/utils';
 import millify from 'millify';
 import { useAccountData } from 'src/hooks/useAccountData';
@@ -19,6 +19,10 @@ import { useIncentivesData } from 'src/hooks/useIncentivesData';
 import { useCalculateCurrentAccountCurrentBsxReceived, useCalculateCurrentAccountMinimumBsxReceived, useCalculateCurrentAccountHdxReceived, useGlobalIncentives } from 'src/hooks/useCalculateIncentives';
 import BigNumber from 'bignumber.js';
 import config from 'src/config';
+import { useSiblingData } from 'src/hooks/useSiblingData';
+
+import { Graph } from './../containers/Graph';
+
 Chart.register(annotationPlugin);
 
 const millifyOptions = {
@@ -27,27 +31,9 @@ const millifyOptions = {
     decimalSeparator: ','
 }
 
-defaults.animation = false;
-
-const colors = {
-    yellow: '#ffe733',
-    red: '#ff5033',
-    orange: '#ff8133',
-    green: '#90ff33',
-    black: '#171b22',
-    white: '#ebebeb',
-    faintGray: 'rgba(181, 149, 114, .1)',
-    transparent: 'transparent',
-}
-
 const useDashboardData = () => {
     const lastProcessedBlock = useChronicleLastProcessedBlock();
-    
-    // loads a bunch of data only once
-    useInitialData();
-    useAccountData();
-    useChronicleData();
-    useIncentivesData();
+
 
     // incentives
     const { bsxMultiplier, hdxBonus } = useGlobalIncentives();
@@ -241,52 +227,7 @@ export const Dashboard = () => {
     
         <div className="container-xl">
             <div className="row">
-                <div className="col-9 bsx-graph">
-                    <div className="bsx-graph-wrapper">
-                             
-                        <div className="bsx-annotation-container"></div>
-
-                        <div className="bsx-graph-loader">
-                            Snek is sleeping, for now.
-                        </div>
-
-                        {/* {isLineChartDataLoading
-                            ? (
-                                <div className="bsx-graph-loader">
-                                    Fetching graph data...
-                                </div>
-                            )
-                            : (
-                                <Line
-                                    id="1"
-                                    type="line"
-                                    data={lineChartData}
-                                    options={lineChartOptions}
-                                />
-                            )
-                        } */}
-                        
-                    </div>
-                    <div className="bsx-graph-timeline">
-                        <div className="row">
-                            <div className="col-3">
-                                06.07
-                            </div>
-                            <div className="col-6 bsx-legend">
-                                <span className="basilisk">Basilisk</span> / <span className="sibling">Target</span> KSM raised
-                            </div>
-                            <div className="col-3">
-                                23.07
-                            </div>
-                        </div>
-                        <div className="bsx-progress-bar-container">
-                            <div className="bsx-progress-bar" style={{
-                                // width: `${progressBarScale(chronicle.data.curBlockNum)}%`
-                                width: '0%'
-                            }}></div>
-                        </div>
-                    </div>
-                </div>
+                <Graph/>
                 <div className="col-3 bsx-contribute">
                     <div className="bsx-incentives">
                         

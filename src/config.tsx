@@ -15,7 +15,8 @@ const config: any = {
     // Kilt
     ownParachainId: '2086',
     // ownParachainId: '2090',
-    ownCrowdloanBlockHeight: '8857942',
+    // 31.8 - 3 days
+    ownCrowdloanBlockHeight: '8979298',
     dappName: 'Basilisk Crowdloan',
     chronicleRefetchTimeout: 6000, // ms
     auctionEndingPeriodLength: 72000,
@@ -23,8 +24,14 @@ const config: any = {
     opportunityCost: new BigNumber('0.1375'),
     ksmToUsd: '311.78',
     hdxToUsd: '0.08059',
+    
     ksmPrecision,
     displayPrecision: 6,
+    chart: {
+        historicalDataSpan: 600,
+        blocksPerDay: 14400,
+        auctionClosingStart: 9035066
+    },
 
     incentives: {
         hdx: {

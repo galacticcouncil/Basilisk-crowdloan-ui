@@ -31,6 +31,10 @@ type State = {
     own: {
         historicalFundsPledged: Loadable<HistoricalParachainFundsPledged[]>,
         parachain: Loadable<ParachainFundsPledged>
+    },
+    sibling: {
+        historicalFundsPledged: Loadable<HistoricalParachainFundsPledged[]>,
+        parachain: Loadable<ParachainFundsPledged>
     }
 };
 
@@ -60,7 +64,10 @@ const initialState: State = {
     }),
     incentives: loadable({
         leadPercentageRate: '0',
-        totalContributionWeight: '0'
+        totalContributionWeight: '0',
+        siblingParachain: {
+            id: undefined
+        }
     }),
     account: loadable({
         totalContributed: '0',
@@ -72,7 +79,13 @@ const initialState: State = {
         parachain: loadable({
             fundsPledged: '0'
         })
-    }
+    },
+    sibling: {
+        historicalFundsPledged: loadable([]),
+        parachain: loadable({
+            fundsPledged: '0'
+        })
+    },
 };
 
 const reducer = (state: State, action: Action) => {
@@ -84,6 +97,7 @@ const reducer = (state: State, action: Action) => {
             }
 
         case ActionType.SetInitialData: {
+            console.log('set initial data', action.payload.ownHistoricalFundsPledged);
             return {
                 ...state,
                 initial: loaded({
@@ -126,6 +140,68 @@ const reducer = (state: State, action: Action) => {
             return {
                 ...state,
                 incentives: loading(state.incentives.data)
+            }
+
+        case ActionType.SetIncentiveData: 
+            return {
+                ...state,
+                incentives: loaded(action.payload)
+            }
+
+        case ActionType.LoadHistoricalSiblingFundsPledgedData:
+            return {
+                ...state,
+                sibling: {
+                    ...state.sibling,
+                    historicalFundsPledged: loading(state.sibling.historicalFundsPledged.data)
+                }
+            }
+
+        case ActionType.SetHistoricalSiblingFundsPledgedData:
+            return {
+                ...state,
+                sibling: {
+                    ...state.sibling,
+                    historicalFundsPledged: loaded(
+                        action.payload
+                    )
+                }
+            }
+
+        case ActionType.LoadLatestSiblingFundsPledgedData:
+            return {
+                ...state,
+                sibling: {
+                    ...state.sibling,
+                    parachain: loading(state.sibling.parachain.data)
+                }
+            }
+
+        case ActionType.SetLatestSiblingFundsPledgedData:
+            return {
+                ...state,
+                sibling: {
+                    ...state.sibling,
+                    parachain: loaded(action.payload)
+                }
+            }
+
+        case ActionType.LoadLatestOwnFundsPledgedData:
+            return {
+                ...state,
+                own: {
+                    ...state.own,
+                    parachain: loading(state.own.parachain.data)
+                }
+            }
+
+        case ActionType.SetLatestOwnFundsPledgedData:
+            return {
+                ...state,
+                own: {
+                    ...state.own,
+                    parachain: loaded(action.payload)
+                }
             }
         
         default:
@@ -201,4 +277,19 @@ export const useHistoricalIncentives = () => {
 export const useOwnFundsPledged = () => {
     const state = useState();
     return state.own.parachain.data?.fundsPledged || '222000000000000';
+}
+
+export const useSiblingParachainId = () => {
+    const incentives = useIncentives();
+    return incentives.data.siblingParachain.id;
+}
+
+export const useOwn = () => {
+    const state = useState();
+    return state.own;
+}
+
+export const useSibling = () => {
+    const state = useState();
+    return state.sibling;
 }

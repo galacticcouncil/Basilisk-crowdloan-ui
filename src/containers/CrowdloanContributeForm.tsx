@@ -105,7 +105,6 @@ export const CrowdloanContributeForm = ({connectAccount}: Props) => {
     const handleContributeChange = (value: any) => {
         log.debug('CrowdloanContributeForm', 'handleContributeChange', value, activeAccountBalance);
         if (value == undefined) return setAmount(undefined);
-        console.log('should return', config.crowdloanCap, ownFundsPledged, toKsmPrecision(value));
         if (config.crowdloanCap.minus(ownFundsPledged).lt(toKsmPrecision(value))) return;
         setAmount(value)
     }

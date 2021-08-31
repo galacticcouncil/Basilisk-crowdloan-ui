@@ -17,6 +17,38 @@ const historicalFundsPledgedByParachainIdSinceBlockHeight = (parachainId: string
     }
 `
 
+// duplicate but parametrized via the query instead
+const _historicalFundsPledgedByParachainIdSinceBlockHeight = `
+    historicalParachainFundsPledgeds(where: {parachain: {id_eq: $parachainId}, blockHeight_gte: $blockHeight}) {
+        fundsPledged
+        blockHeight
+    }
+`
+
+const fundsPledgedByParachainId = `
+    parachainByUniqueInput(where: {id: $parachainId}) {
+        fundsPledged
+    }
+`
+
+// query MyQuery($parachainId: ID!, $blockHeight: BigInt!) {
+//     historicalParachainFundsPledgeds(where: {parachain: {id_eq: $parachainId}, blockHeight_gte: $blockHeight}) {
+//        fundsPledged
+//        blockHeight
+//    }
+// }
+const historicalFundsPledgedByParachainIdSinceBlockHeightDataQuery = gql`
+    query HistoricalFundsPledged($parachainId: ID!, $blockHeight: BigInt!) {
+        ${_historicalFundsPledgedByParachainIdSinceBlockHeight}
+    }
+`
+
+const fundsPledgedByParachainIdDataQuery = gql`
+    query FundsPledged($parachainId: ID!) {
+        ${fundsPledgedByParachainId}
+    }
+`
+
 const parachainFundsPledgedByParachainId = (parachainId: string) => `
     parachainByUniqueInput(where: {id: "${parachainId}"}) {
         fundsPledged
@@ -27,7 +59,10 @@ const incentiveId = 'incentive';
 const incentives = `
     incentiveByUniqueInput(where: {id: "${incentiveId}"}) {
         totalContributionWeight
-        leadPercentageRate
+        leadPercentageRate,
+        siblingParachain {
+            id
+        }
     }
 `
 
@@ -106,6 +141,9 @@ export type ParachainFundsPledged = {
 export type Incentives = {
     leadPercentageRate: string,
     totalContributionWeight: string,
+    siblingParachain: {
+        id: string | undefined
+    }
 }
 
 export type HistoricalIncentive = {
@@ -160,6 +198,22 @@ type HistoricalIncentivesByBlockHeightsQueryResponse = {
     historicalIncentives: HistoricalIncentive[]
 }
 
-export const useHistoricalIncentivesByBlockHeightsDataQuery = (blockHeights: string[]) => useLazyQuery(historicalIncentivesByBlockHeightsDataQuery, {
+export const useHistoricalIncentivesByBlockHeightsDataQuery = (blockHeights: string[]) => useLazyQuery<HistoricalIncentivesByBlockHeightsQueryResponse>(historicalIncentivesByBlockHeightsDataQuery, {
     variables: { blockHeights }
+})
+
+type HistoricalFundsPledgedByParachainIdQueryResponse = {
+    historicalParachainFundsPledgeds: HistoricalParachainFundsPledged[]
+}
+
+export const useHistoricalFundsPledgedByParachainIdDataQuery = (parachainId: string, blockHeight: string) => useLazyQuery<HistoricalFundsPledgedByParachainIdQueryResponse>(historicalFundsPledgedByParachainIdSinceBlockHeightDataQuery, {
+    variables: { parachainId, blockHeight }
+})
+
+type FundsPledgedByParachainIdQueryResponse = {
+    parachainByUniqueInput: ParachainFundsPledged
+}
+
+export const useFundsPledgedByParachainIdDataQuery = (parachainId: string) => useLazyQuery<FundsPledgedByParachainIdQueryResponse>(fundsPledgedByParachainIdDataQuery, {
+    variables: { parachainId }
 })

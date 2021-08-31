@@ -40,15 +40,20 @@ export const useIncentivesData = () => {
         if (!incentivesData.data) return;
         // TODO: query response parsers are duplicate with initial data, needs to be unified
         const incentives = (() => {
-            const { leadPercentageRate, totalContributionWeight } = incentivesData.data?.incentiveByUniqueInput || {
+            const { leadPercentageRate, totalContributionWeight, siblingParachain } = incentivesData.data?.incentiveByUniqueInput || {
                 leadPercentageRate: '0',
                 totalContributionWeight: '0',
             };
-            return { leadPercentageRate, totalContributionWeight };
+
+            console.log('sibling id', siblingParachain?.id);
+
+            return { 
+                leadPercentageRate, 
+                totalContributionWeight,
+                siblingParachain: { id: siblingParachain?.id }
+            };
         })();
         
-        log.debug('useIncentivesData', 'loaded', incentives);
-
         dispatch({
             type: ActionType.SetIncentiveData,
             payload: incentives

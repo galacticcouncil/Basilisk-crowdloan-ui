@@ -12,7 +12,16 @@ export enum ActionType {
     SetAccountData = 'SET_ACCOUNT_DATA',
 
     LoadIncentiveData = 'LOAD_INCENTIVE_DATA',
-    SetIncentiveData = 'SET_INCENTIVE_DATA'
+    SetIncentiveData = 'SET_INCENTIVE_DATA',
+
+    LoadHistoricalSiblingFundsPledgedData = 'LOAD_HISTORICAL_SIBLING_FUNDS_PLEDGED_DATA',
+    SetHistoricalSiblingFundsPledgedData = 'SET_HISTORICAL_SIBLING_FUNDS_PLEDGED_DATA',
+
+    LoadLatestOwnFundsPledgedData = 'LOAD_LATEST_OWN_FUNDS_PLEDGED_DATA',
+    SetLatestOwnFundsPledgedData = 'SET_LATEST_OWN_FUNDS_PLEDGED_DATA',
+
+    LoadLatestSiblingFundsPledgedData = 'LOAD_LATEST_SIBLING_FUNDS_PLEDGED_DATA',
+    SetLatestSiblingFundsPledgedData = 'SET_LATEST_SIBLING_FUNDS_PLEDGED_DATA'
 }
 
 export type LoadInitialData = {
@@ -58,6 +67,33 @@ export type SetIncentiveData = {
     payload: Incentives
 }
 
+export type LoadHistoricalSiblingData = {
+    type: ActionType.LoadHistoricalSiblingFundsPledgedData
+}
+
+export type SetHistoricalSiblingData = {
+    type: ActionType.SetHistoricalSiblingFundsPledgedData,
+    payload: HistoricalParachainFundsPledged[]
+}
+
+export type LoadLatestSiblingFundsPledgedData = {
+    type: ActionType.LoadLatestSiblingFundsPledgedData
+}
+
+export type SetLatestSiblingFundsPledgedData = {
+    type: ActionType.SetLatestSiblingFundsPledgedData,
+    payload: ParachainFundsPledged
+}
+
+export type LoadLatestOwnFundsPledgedData = {
+    type: ActionType.LoadLatestOwnFundsPledgedData
+}
+
+export type SetLatestOwnFundsPledgedData = {
+    type: ActionType.SetLatestOwnFundsPledgedData,
+    payload: ParachainFundsPledged
+}
+
 export type Action = 
     | LoadInitialData
     | SetInitialData
@@ -67,3 +103,9 @@ export type Action =
     | SetAccountData
     | LoadIncentiveData
     | SetIncentiveData
+    | LoadHistoricalSiblingData
+    | SetHistoricalSiblingData
+    | LoadLatestSiblingFundsPledgedData
+    | SetLatestSiblingFundsPledgedData
+    | LoadLatestOwnFundsPledgedData
+    | SetLatestOwnFundsPledgedData
