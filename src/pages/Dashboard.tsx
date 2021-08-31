@@ -241,7 +241,7 @@ export const Dashboard = () => {
                                 </div>
                                 <div className="col-6 value">
                                     <span>
-                                    {hdxBonus ? `~${hdxBonus.toFixed(2)}` : '-'}
+                                    {hdxBonus ? hdxBonus.toFixed(2) : '-'}
                                     </span>
                                 </div>
                             </div>
@@ -256,7 +256,7 @@ export const Dashboard = () => {
                                 </div>
                                 <div className="col-4 value">
                                     <span>
-                                        {bsxMultiplier ? `~${bsxMultiplier.toFixed(2) }` : '-'}
+                                        {bsxMultiplier ? bsxMultiplier.toFixed(2) : '-'}
                                     </span>
                                 </div>
                             </div>
