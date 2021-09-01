@@ -109,7 +109,7 @@ export const Graph = () => {
                     type: 'linear',
                     position: 'left',
                     display: false,
-                    max: fromKsmPrecision(config.crowdloanCap),
+                    max: 230000,
                     min: 0
                 },
             },
