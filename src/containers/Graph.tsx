@@ -7,6 +7,7 @@ import { Chart } from 'chart.js';
 import annotationPlugin from 'chartjs-plugin-annotation';
 import millify from 'millify';
 import { defaults } from 'react-chartjs-2';
+import config from "../config";
 
 
 Chart.register(annotationPlugin);
@@ -108,7 +109,7 @@ export const Graph = () => {
                     type: 'linear',
                     position: 'left',
                     display: false,
-                    max: 200000,
+                    max: 230000,
                     min: 0
                 },
             },
