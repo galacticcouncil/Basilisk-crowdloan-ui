@@ -11,7 +11,7 @@ const chronicleByUniqueInput = `
 `
 
 const historicalFundsPledgedByParachainIdSinceBlockHeight = (parachainId: string, blockHeight: string) => `
-    historicalParachainFundsPledgeds(where: {parachain: {id_eq: "${parachainId}"}, blockHeight_gte: "${blockHeight}"}) {
+    historicalParachainFundsPledgeds(where: {parachain: {id_eq: "${parachainId}"}, blockHeight_gte: "${blockHeight}"}, limit: 1000) {
         fundsPledged
         blockHeight
     }
