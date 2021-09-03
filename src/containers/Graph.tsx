@@ -8,6 +8,7 @@ import annotationPlugin from 'chartjs-plugin-annotation';
 import millify from 'millify';
 import { defaults } from 'react-chartjs-2';
 import config from "../config";
+import simpleLinearScale from "simple-linear-scale";
 
 
 Chart.register(annotationPlugin);
@@ -50,17 +51,17 @@ export const Graph = () => {
         }
     })();
 
-    const { data: { lastProcessedBlock } } = useChronicle();
+    const { data: { lastProcessedBlock, mostRecentAuctionClosingStart, mostRecentAuctionStart } } = useChronicle();
 
     const isLineChartDataLoading = false;
 
     const createDataset = (historicalData: any[]) => historicalData
-        ?.map(({blockHeight, fundsPledged}) => ({x: blockHeight, y: fromKsmPrecision(fundsPledged)}));
+        ?.map(({blockHeight, fundsPledged}) => ({x: parseInt(blockHeight), y: fromKsmPrecision(fundsPledged)}));
 
     const ownDataset = createDataset(ownHistoricalFundsPledged);
     const siblingsDataset = createDataset(siblingHistoricalFundsPledged);
 
-    const labels = siblingsDataset.map(({x}: any) => x);
+    const labels = siblingsDataset.map(({x}: any) => parseInt(x));
 
     const lineChartData = {
         labels,
@@ -94,7 +95,18 @@ export const Graph = () => {
         cornerRadius: 0,
     }
 
-
+    // x axis seems to be scaled using the count of labels, instead of blockHeights
+    // TODO: figure out how to scale blockheight directly in the graph
+    const xAnnotationScale = simpleLinearScale(
+        [
+            labels[0],
+            labels[labels.length - 1],
+        ],
+        [
+            0,
+            labels.length
+        ]
+    );
 
     const lineChartOptions = useMemo(() => {
         return {
@@ -103,13 +115,13 @@ export const Graph = () => {
             maintainAspectRatio: false,
             scales: {
                 x: {
-                  display: false
+                  display: false,
                 },
                 crowdloanCap: {
                     type: 'linear',
                     position: 'left',
                     display: false,
-                    max: 230000,
+                    max: 270000,
                     min: 0
                 },
             },
@@ -152,6 +164,42 @@ export const Graph = () => {
                                 content: millify(parseFloat(fromKsmPrecision(ownFundsPledged)), millifyOptions),
                             }
                         } : null,
+
+                        closingStart: mostRecentAuctionClosingStart ? {
+                            type: 'line',
+                            scaleID: 'x',
+                            value: xAnnotationScale(mostRecentAuctionClosingStart),
+                            borderColor: colors.red,
+                            borderWidth: 3,
+                            borderDash: [3, 3],
+                            label: {
+                                ...labelOptions,
+                                position: 'start',
+                                backgroundColor: colors.red,                                
+                                content: 'auction closing',
+                                xAdjust: 0,
+                                yAdjust: 20,
+                                
+                            }
+                        } : null,
+
+                        auctionStart: mostRecentAuctionStart ? {
+                            type: 'line',
+                            value: xAnnotationScale(mostRecentAuctionStart),
+                            borderColor: colors.orange,
+                            borderWidth: 3,
+                            borderDash: [3, 3],
+                            scaleID: 'x',
+                            label: {
+                                ...labelOptions,
+                                position: 'start',
+                                backgroundColor: colors.orange,                                
+                                content: 'auction starting',
+                                xAdjust: -10,
+                                yAdjust: 20,
+                                
+                            }
+                        } : null
                     },
                 },
             }
@@ -160,6 +208,8 @@ export const Graph = () => {
         ownFundsPledged,
         siblingFundsPledged,
         lastProcessedBlock,
+        mostRecentAuctionClosingStart,
+        labels
     ])
 
     return <>
