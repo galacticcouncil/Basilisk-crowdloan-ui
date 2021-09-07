@@ -51,7 +51,8 @@ const fundsPledgedByParachainIdDataQuery = gql`
 
 const parachainFundsPledgedByParachainId = (parachainId: string) => `
     parachainByUniqueInput(where: {id: "${parachainId}"}) {
-        fundsPledged
+        fundsPledged,
+        hasWonAnAuction
     }
 `
 
@@ -134,8 +135,9 @@ export type HistoricalParachainFundsPledged = {
     blockHeight: string
 }
 
-export type ParachainFundsPledged = {
-    fundsPledged: string
+export type ParachainDetails = {
+    fundsPledged: string,
+    hasWonAnAuction: boolean
 }
 
 export type Incentives = {
@@ -154,7 +156,7 @@ export type HistoricalIncentive = {
 type InitialDataQueryResponse = {
     chronicleByUniqueInput: Chronicle,
     historicalParachainFundsPledgeds: HistoricalParachainFundsPledged[],
-    parachainByUniqueInput: ParachainFundsPledged,
+    parachainByUniqueInput: ParachainDetails,
     incentiveByUniqueInput: Incentives | undefined
 };
 export const useInitialDataQuery = () => useLazyQuery<InitialDataQueryResponse>(initialDataQuery);
@@ -211,7 +213,7 @@ export const useHistoricalFundsPledgedByParachainIdDataQuery = (parachainId: str
 })
 
 type FundsPledgedByParachainIdQueryResponse = {
-    parachainByUniqueInput: ParachainFundsPledged
+    parachainByUniqueInput: ParachainDetails
 }
 
 export const useFundsPledgedByParachainIdDataQuery = (parachainId: string) => useLazyQuery<FundsPledgedByParachainIdQueryResponse>(fundsPledgedByParachainIdDataQuery, {

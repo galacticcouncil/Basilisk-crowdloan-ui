@@ -54,7 +54,7 @@ export const useInitialData = () => {
             .map(({ fundsPledged, blockHeight }: { [key: string]: string }) => ({ fundsPledged, blockHeight }))
         )();
 
-        const ownParachainFundsPledged = (() => initialData.data.parachainByUniqueInput)();
+        const ownParachain= (() => initialData.data.parachainByUniqueInput)();
 
         const incentives = (() => {
             const { leadPercentageRate, totalContributionWeight, siblingParachain } = initialData.data?.incentiveByUniqueInput || {
@@ -74,7 +74,7 @@ export const useInitialData = () => {
         log.debug('useInitialData', 'done loading', { 
             chronicle, 
             ownHistoricalFundsPledged, 
-            ownParachainFundsPledged,
+            ownParachain,
             incentives
         });
 
@@ -83,7 +83,7 @@ export const useInitialData = () => {
             payload: { 
                 chronicle, 
                 ownHistoricalFundsPledged, 
-                ownParachainFundsPledged,
+                ownParachain,
                 incentives
             }
         });

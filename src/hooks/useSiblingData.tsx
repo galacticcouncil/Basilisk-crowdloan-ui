@@ -97,10 +97,15 @@ export const useSiblingData = () => {
             return latestFundsPledged.data.parachainByUniqueInput?.fundsPledged
         })()
 
+        const hasWonAnAuction = (() => {
+            return latestFundsPledged.data.parachainByUniqueInput?.hasWonAnAuction
+        })()
+
         dispatch({
             type: ActionType.SetLatestSiblingFundsPledgedData,
             payload: {
-                fundsPledged
+                fundsPledged,
+                hasWonAnAuction
             }
         });
     }, [

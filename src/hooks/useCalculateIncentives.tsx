@@ -1,12 +1,14 @@
 import BigNumber from "bignumber.js";
-import { LoadingState, useAccount, useChronicle, useChronicleLastProcessedBlock, useIncentives } from "src/containers/store/Store"
+import { LoadingState, useAccount, useChronicle, useChronicleLastProcessedBlock, useIncentives, useOwnHasWonAnAuction } from "src/containers/store/Store"
 import linearScale from 'simple-linear-scale';
 import config, { precisionMultiplierBN } from "src/config";
 import { Contribution, HistoricalIncentive } from "./useQueries";
 import { fromKsmPrecision } from "src/utils";
 import { find } from "lodash";
 
-export const calculateHdxBonus = (leadPercentageRate: string) => {
+export const calculateHdxBonus = (
+    leadPercentageRate: string,
+) => {    
     const leadPercentageRateBN = new BigNumber(leadPercentageRate);
     const cliffStart = config.incentives.hdx.leadPercentageRateCliffRange[0];
     const cliffEnd = config.incentives.hdx.leadPercentageRateCliffRange[1]
@@ -31,8 +33,10 @@ export const calculateHdxBonus = (leadPercentageRate: string) => {
     return hdxBonusScale(leadPercentageRate);
 }
 
-export const calculateBsxMultiplier = (blockHeight: string, mostRecentAuctionClosingStart: string | undefined) => {
-
+export const calculateBsxMultiplier = (
+    blockHeight: string, 
+    mostRecentAuctionClosingStart: string | undefined,
+) => {
     // there is no recent auction, return the full bsx multiplier
     if (!mostRecentAuctionClosingStart) return config.incentives.bsx.scale.max;
 
@@ -41,12 +45,10 @@ export const calculateBsxMultiplier = (blockHeight: string, mostRecentAuctionClo
         .toNumber();
 
     const blockHeightBN = new BigNumber(blockHeight);
-    // before closing starts, return the full bsx multiplier
-    if (blockHeightBN.lt(mostRecentAuctionClosingStart)) return config.incentives.bsx.scale.max;
-    // after closing ends, return the minimal bsx multiplier
-    if (blockHeightBN.gt(mostRecentAuctionClosingEnd)) return config.incentives.bsx.scale.min;
 
     const bsxMultiplierScale = linearScale(
+        // TODO: when we are about to win an auction, replace the following ranges
+        // with real auction ranges instead and skip any other logic
         [
             parseInt(mostRecentAuctionClosingStart),
             mostRecentAuctionClosingEnd
@@ -57,10 +59,20 @@ export const calculateBsxMultiplier = (blockHeight: string, mostRecentAuctionClo
         ]
     )
 
+    // if the current blockHeight is out of bounds for the most recent auction, return the full bsx multiplier
+    // this also means the contribution was not for the winning auction since it was
+    // accepted after the auction ended
+    if (blockHeightBN.lt(mostRecentAuctionClosingStart) || blockHeightBN.gt(mostRecentAuctionClosingEnd)) {
+        return config.incentives.bsx.scale.max;
+    }
+
     return bsxMultiplierScale(blockHeight)
 }
 
-export const calculateContributionsWeight = (contributions: Contribution[], mostRecentAuctionClosingStart: string | undefined) => {
+export const calculateContributionsWeight = (
+    contributions: Contribution[], 
+    mostRecentAuctionClosingStart: string | undefined,
+) => {
     const accountContributionsWeight = contributions
         .reduce((weight, contribution) => {
             const bsxMultiplier = calculateBsxMultiplier(
@@ -81,9 +93,12 @@ export const calculateContributionsWeight = (contributions: Contribution[], most
 
 export const calculateMinimumBsxReceived = (
     contributions: Contribution[] = [], 
-    mostRecentAuctionClosingStart: string | undefined
+    mostRecentAuctionClosingStart: string | undefined,
 ): BigNumber => {
-    const accountContributionsWeight = calculateContributionsWeight(contributions, mostRecentAuctionClosingStart);
+    const accountContributionsWeight = calculateContributionsWeight(
+        contributions,
+        mostRecentAuctionClosingStart,
+    );
     const minimumBsxReceived = config.incentives.bsx.allocated
         .dividedBy(
             config.crowdloanCap
@@ -101,7 +116,10 @@ export const calculateCurrentBsxReceived = (
     mostRecentAuctionClosingStart: string | undefined,
     totalContributionWeight: string,
 ) => {
-    const accountContributionsWeight = calculateContributionsWeight(contributions, mostRecentAuctionClosingStart);
+    const accountContributionsWeight = calculateContributionsWeight(
+        contributions, 
+        mostRecentAuctionClosingStart,
+    );
     const totalContributionWeightBN = new BigNumber(totalContributionWeight)    
         .dividedBy(precisionMultiplierBN);
 
@@ -114,7 +132,10 @@ export const calculateCurrentBsxReceived = (
     return currentBsxReceived;
 }
 
-export const calculateCurrentHdxReceived = (contributions: Contribution[], historicalIncentives: HistoricalIncentive[]) => {
+export const calculateCurrentHdxReceived = (
+    contributions: Contribution[], 
+    historicalIncentives: HistoricalIncentive[],
+) => {
     const hdxReceivedInKsm = contributions.reduce((hdxReceivedInKsm, contribution) => {
         const historicalIncentive = find(historicalIncentives, { 
             blockHeight: `${contribution.blockHeight}`
@@ -152,14 +173,20 @@ export const calculateCurrentHdxReceived = (contributions: Contribution[], histo
 
 export const useCalculateCurrentAccountHdxReceived = () => {
     const { data: { contributions, historicalIncentives } } = useAccount();
-    return calculateCurrentHdxReceived(contributions, historicalIncentives)
+    return calculateCurrentHdxReceived(
+        contributions, 
+        historicalIncentives
+    );
 }
 
 export const useCalculateCurrentAccountMinimumBsxReceived = () => {
     const { data: { contributions } } = useAccount();
     const { data: { mostRecentAuctionClosingStart } } = useChronicle();
 
-    return calculateMinimumBsxReceived(contributions, mostRecentAuctionClosingStart);
+    return calculateMinimumBsxReceived(
+        contributions, 
+        mostRecentAuctionClosingStart
+    );
 }
 
 export const useCalculateCurrentAccountCurrentBsxReceived = () => {
@@ -194,7 +221,10 @@ export const useGlobalIncentives = () => {
     );
 
     const bsxMultiplier = new BigNumber(
-        calculateBsxMultiplier(lastProcessedBlock, mostRecentAuctionClosingStart)
+        calculateBsxMultiplier(
+            lastProcessedBlock, 
+            mostRecentAuctionClosingStart
+        )
     );
 
     return {

@@ -1,4 +1,4 @@
-import { Account, Chronicle, HistoricalIncentive, HistoricalParachainFundsPledged, Incentives, ParachainFundsPledged } from "./../../hooks/useQueries"
+import { Account, Chronicle, HistoricalIncentive, HistoricalParachainFundsPledged, Incentives, ParachainDetails } from "./../../hooks/useQueries"
 
 export enum ActionType {
 
@@ -33,7 +33,7 @@ export type SetInitialData = {
     payload: {
         chronicle: Chronicle,
         ownHistoricalFundsPledged: HistoricalParachainFundsPledged[],
-        ownParachainFundsPledged: ParachainFundsPledged,
+        ownParachain: ParachainDetails,
         incentives: Incentives
     }
 }
@@ -82,7 +82,7 @@ export type LoadLatestSiblingFundsPledgedData = {
 
 export type SetLatestSiblingFundsPledgedData = {
     type: ActionType.SetLatestSiblingFundsPledgedData,
-    payload: ParachainFundsPledged
+    payload: ParachainDetails
 }
 
 export type LoadLatestOwnFundsPledgedData = {
@@ -91,7 +91,7 @@ export type LoadLatestOwnFundsPledgedData = {
 
 export type SetLatestOwnFundsPledgedData = {
     type: ActionType.SetLatestOwnFundsPledgedData,
-    payload: ParachainFundsPledged
+    payload: ParachainDetails
 }
 
 export type Action = 

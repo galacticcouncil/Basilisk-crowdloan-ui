@@ -10,7 +10,7 @@ import annotationPlugin from 'chartjs-plugin-annotation';
 import { AccountSelector } from 'src/containers/AccountSelector';
 import { usePolkaDotContext } from 'src/hooks/usePolkadot';
 import { useInitialData } from 'src/hooks/useInitialData';
-import { useAccount, useChronicleLastProcessedBlock, useIncentives, useSibling } from 'src/containers/store/Store';
+import { useAccount, useChronicleLastProcessedBlock, useIncentives, useOwnHasWonAnAuction, useSibling } from 'src/containers/store/Store';
 import { fromKsmPrecision, ksmToUsd, usdToHdx } from 'src/utils';
 import millify from 'millify';
 import { useAccountData } from 'src/hooks/useAccountData';
@@ -40,6 +40,7 @@ const useDashboardData = () => {
     const currentAccountMinimumBsxReceived = useCalculateCurrentAccountMinimumBsxReceived();
     const currentAccountCurrentBsxReceived = useCalculateCurrentAccountCurrentBsxReceived();
     const currentAccountCurrentHdxReceived = useCalculateCurrentAccountHdxReceived()
+    const ownHasWonAnAuction = useOwnHasWonAnAuction();
 
     // TODO: move polkadot-js data to the store
     const {
@@ -71,7 +72,8 @@ const useDashboardData = () => {
         hdxBonus,
         currentAccountMinimumBsxReceived,
         currentAccountCurrentBsxReceived,
-        currentAccountCurrentHdxReceived
+        currentAccountCurrentHdxReceived,
+        ownHasWonAnAuction
     }
 }
 
@@ -95,7 +97,8 @@ export const Dashboard = () => {
         hdxBonus,
         currentAccountMinimumBsxReceived,
         currentAccountCurrentBsxReceived,
-        currentAccountCurrentHdxReceived
+        currentAccountCurrentHdxReceived,
+        ownHasWonAnAuction
     } = useDashboardData();
 
     return <div className='bsx-dashboard'>
@@ -241,7 +244,9 @@ export const Dashboard = () => {
                                 </div>
                                 <div className="col-6 value">
                                     <span>
-                                    {hdxBonus ? hdxBonus.toFixed(2) : '-'}
+                                    {ownHasWonAnAuction 
+                                        ? '-'
+                                        : hdxBonus ? hdxBonus.toFixed(2) : '-'}
                                     </span>
                                 </div>
                             </div>
@@ -256,7 +261,10 @@ export const Dashboard = () => {
                                 </div>
                                 <div className="col-4 value">
                                     <span>
-                                        {bsxMultiplier ? bsxMultiplier.toFixed(2) : '-'}
+                                        {ownHasWonAnAuction
+                                            ? '-'
+                                            : bsxMultiplier ? bsxMultiplier.toFixed(2) : '-'
+                                        }
                                     </span>
                                 </div>
                             </div>

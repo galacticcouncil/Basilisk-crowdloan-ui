@@ -89,7 +89,6 @@ export const usePolkadot = () => {
         const { signer } = await web3FromAddress(activeAccount);
 
         (async () => {
-            console.log('amount', new BigNumber(amount).toFixed(0));
             try {
                 api.tx.crowdloan.contribute(
                     config.ownParachainId,
@@ -100,7 +99,6 @@ export const usePolkadot = () => {
                     activeAccount,
                     { signer },
                     ({ status, events }) => {
-                        console.log('status', status, status.toHuman());
                         if (status.isInBlock || status.isFinalized) {
                             events
                                 .filter(({ event }) => api.events.system.ExtrinsicFailed.is(event))

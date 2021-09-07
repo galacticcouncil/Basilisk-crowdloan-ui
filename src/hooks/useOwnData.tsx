@@ -48,10 +48,15 @@ export const useOwnData = () => {
       return latestFundsPledged.data.parachainByUniqueInput?.fundsPledged
     })()
 
+    const hasWonAnAuction = (() => {
+      return latestFundsPledged.data.parachainByUniqueInput?.hasWonAnAuction
+    })()
+
     dispatch({
       type: ActionType.SetLatestOwnFundsPledgedData,
       payload: {
-        fundsPledged
+        fundsPledged,
+        hasWonAnAuction
       }
     });
   }, [

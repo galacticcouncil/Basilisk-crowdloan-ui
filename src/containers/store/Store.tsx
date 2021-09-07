@@ -1,7 +1,7 @@
 import constate from 'constate';
 import { initial } from 'lodash';
 import { useReducer } from 'react';
-import { Account, Chronicle, HistoricalIncentive, HistoricalParachainFundsPledged, Incentives, ParachainFundsPledged } from 'src/hooks/useQueries';
+import { Account, Chronicle, HistoricalIncentive, HistoricalParachainFundsPledged, Incentives, ParachainDetails } from 'src/hooks/useQueries';
 import { Action, ActionType } from './Actions';
 
 
@@ -30,11 +30,11 @@ type State = {
     }>
     own: {
         historicalFundsPledged: Loadable<HistoricalParachainFundsPledged[]>,
-        parachain: Loadable<ParachainFundsPledged>
+        parachain: Loadable<ParachainDetails>
     },
     sibling: {
         historicalFundsPledged: Loadable<HistoricalParachainFundsPledged[]>,
-        parachain: Loadable<ParachainFundsPledged>
+        parachain: Loadable<ParachainDetails>
     }
 };
 
@@ -77,13 +77,15 @@ const initialState: State = {
     own: {
         historicalFundsPledged: loadable([]),
         parachain: loadable({
-            fundsPledged: '0'
+            fundsPledged: '0',
+            hasWonAnAuction: false
         })
     },
     sibling: {
         historicalFundsPledged: loadable([]),
         parachain: loadable({
-            fundsPledged: '0'
+            fundsPledged: '0',
+            hasWonAnAuction: false
         })
     },
 };
@@ -106,7 +108,7 @@ const reducer = (state: State, action: Action) => {
                 incentives: loaded(action.payload.incentives),
                 own: {
                     historicalFundsPledged: loaded(action.payload.ownHistoricalFundsPledged),
-                    parachain: loaded(action.payload.ownParachainFundsPledged)
+                    parachain: loaded(action.payload.ownParachain)
                 }
             }
         }
@@ -276,6 +278,11 @@ export const useHistoricalIncentives = () => {
 export const useOwnFundsPledged = () => {
     const state = useState();
     return state.own.parachain.data?.fundsPledged || '222000000000000';
+}
+
+export const useOwnHasWonAnAuction = () => {
+    const state = useState();
+    return state.own.parachain.data?.hasWonAnAuction || false;
 }
 
 export const useSiblingParachainId = () => {

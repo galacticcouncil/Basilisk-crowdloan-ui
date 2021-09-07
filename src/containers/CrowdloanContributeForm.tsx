@@ -8,7 +8,7 @@ import { fromKsmPrecision, ksmToUsd, toKsmPrecision, usdToHdx } from './../utils
 import CurrencyInput from 'react-currency-input-field';
 import './CrowdloanContributeForm.scss'
 import BigNumber from 'bignumber.js';
-import { useChronicle, useHistoricalIncentives, useIncentives, useOwnFundsPledged } from './store/Store';
+import { useChronicle, useHistoricalIncentives, useIncentives, useOwnFundsPledged, useOwnHasWonAnAuction } from './store/Store';
 import { Contribution, HistoricalIncentive } from 'src/hooks/useQueries';
 import config, { ksmPrecisionMultiplierBN, precisionMultiplierBN } from 'src/config';
 import { calculateBsxMultiplier, calculateCurrentBsxReceived, calculateCurrentHdxReceived, calculateMinimumBsxReceived } from 'src/hooks/useCalculateIncentives';
@@ -33,6 +33,7 @@ export const CrowdloanContributeForm = ({connectAccount}: Props) => {
     const { data: { lastProcessedBlock, mostRecentAuctionClosingStart } } = useChronicle()
     const { data: { totalContributionWeight, leadPercentageRate } } = useIncentives();
     const ownFundsPledged = useOwnFundsPledged()
+    const ownHasWonAnAuction = useOwnHasWonAnAuction();
 
     useEffect(() => {
         const contributions: Contribution[] = [
@@ -47,13 +48,16 @@ export const CrowdloanContributeForm = ({connectAccount}: Props) => {
 
         if (!amount) return setRewardsReceived(defaultRewards);
 
-        const minimumBsxReceived = calculateMinimumBsxReceived(contributions, mostRecentAuctionClosingStart);
+        const minimumBsxReceived = calculateMinimumBsxReceived(
+            contributions, 
+            mostRecentAuctionClosingStart
+        );
 
         const currentContributionWeight = new BigNumber(contributions[0].balance)
             .multipliedBy(
                 calculateBsxMultiplier(
                     lastProcessedBlock,
-                    mostRecentAuctionClosingStart
+                    mostRecentAuctionClosingStart,
                 )
             )
             .multipliedBy(precisionMultiplierBN);
@@ -73,7 +77,10 @@ export const CrowdloanContributeForm = ({connectAccount}: Props) => {
             leadPercentageRate
         }];
 
-        const currentHdxReceived = usdToHdx(ksmToUsd(calculateCurrentHdxReceived(contributions, historicalIncentives)));
+        const currentHdxReceived = usdToHdx(ksmToUsd(calculateCurrentHdxReceived(
+            contributions, 
+            historicalIncentives
+        )));
 
         setRewardsReceived({
             minimalBsxReceived: new BigNumber(fromKsmPrecision(minimumBsxReceived)).toFixed(config.displayPrecision),
@@ -119,9 +126,9 @@ export const CrowdloanContributeForm = ({connectAccount}: Props) => {
                 name="amount"
                 decimalsLimit={12}
                 value={amount}
-                disabled={false}
+                disabled={ownHasWonAnAuction}
                 allowNegativeValue={false}
-                placeholder={"Sacrifice goes here"}
+                placeholder={ownHasWonAnAuction ? "Sacrifice not required" : "Sacrifice goes here"}
                 intlConfig={{ locale: 'en-US' }}
                 onValueChange={handleContributeChange}
             />
@@ -151,19 +158,29 @@ export const CrowdloanContributeForm = ({connectAccount}: Props) => {
                 onValueChange={noop}
             />
 
-            {activeAccount
+            {ownHasWonAnAuction 
                 ? (
                     <button
-                        disabled={(!amount || amount == 0)}
-                        onClick={handleContributeClick}
-                    >Contribute</button>
+                        disabled={true}
+                    >
+                        Slot Ssss...ssecured
+                    </button>
                 )
                 : (
-                    <button
-                        onClick={connectAccount}
-                    >
-                        Connect Account
-                    </button>
+                    activeAccount
+                        ? (
+                            <button
+                                disabled={(!amount || amount == 0)}
+                                onClick={handleContributeClick}
+                            >Contribute</button>
+                        )
+                        : (
+                            <button
+                                onClick={connectAccount}
+                            >
+                                Connect Account
+                            </button>
+                        )
                 )
             }
 

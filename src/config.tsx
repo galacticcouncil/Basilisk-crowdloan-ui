@@ -45,14 +45,16 @@ const config = {
             ],
             scale: {
                 max: 30,
-                min: 5
+                min: 5,
+                none: 0,
             }
         },
         bsx: {
             allocated: new BigNumber(toKsmPrecision(new BigNumber('15000000000'))),
             scale: {
                 max: 1,
-                min: 0
+                min: 0,
+                none: 0
             }
         }
     }
