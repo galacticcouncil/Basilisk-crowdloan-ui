@@ -183,23 +183,23 @@ export const Graph = () => {
                             }
                         } : null,
 
-                        closingEnd: mostRecentAuctionClosingStart ? {
-                            type: 'line',
-                            scaleID: 'x',
-                            value: xAnnotationScale(parseInt(mostRecentAuctionClosingStart) + 72000),
-                            borderColor: colors.white,
-                            borderWidth: 3,
-                            borderDash: [3, 3],
-                            label: {
-                                ...labelOptions,
-                                position: 'start',
-                                backgroundColor: colors.white,                                
-                                content: 'auction end',
-                                xAdjust: 0,
-                                yAdjust: 20,
+                        // closingEnd: mostRecentAuctionClosingStart ? {
+                        //     type: 'line',
+                        //     scaleID: 'x',
+                        //     value: xAnnotationScale(parseInt(mostRecentAuctionClosingStart) + 72000),
+                        //     borderColor: colors.white,
+                        //     borderWidth: 3,
+                        //     borderDash: [3, 3],
+                        //     label: {
+                        //         ...labelOptions,
+                        //         position: 'start',
+                        //         backgroundColor: colors.white,                                
+                        //         content: 'auction end',
+                        //         xAdjust: 0,
+                        //         yAdjust: 20,
                                 
-                            }
-                        } : null,
+                        //     }
+                        // } : null,
 
                         auctionStart: mostRecentAuctionStart ? {
                             type: 'line',
