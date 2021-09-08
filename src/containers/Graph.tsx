@@ -222,7 +222,7 @@ export const Graph = () => {
 
     const renderGraph = () => {
         if (snek) {
-            return <iframe src="snek/game.html" id="gameIframe" className="gameIframe" width="800" height="498"></iframe>;
+            return <iframe src="snek/game.html" id="gameIframe" className="gameIframe" width="100%" height="100%"></iframe>;
         } else {
             return isLineChartDataLoading
                 ? (

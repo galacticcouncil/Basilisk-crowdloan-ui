@@ -108,7 +108,7 @@ SnakeGame.Snake.prototype.init = function () {
     this.snline = new PIXI.Graphics();
     this.game.app.stage.addChild(this.snline);
 
-    this.x = 400;
+    this.x = this.game.app.renderer.view.width - 180;
     this.y = 498;
 };
 
@@ -397,7 +397,7 @@ var Game = function (parameters) {
         fontSize: 20,
         fill: '#90ff33'
     });
-    pointsText.x = 500;
+    pointsText.x = 20;
     pointsText.y = 20;
 
     t_Game.app.stage.addChild(pointsText);
