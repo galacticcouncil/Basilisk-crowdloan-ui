@@ -1,5 +1,5 @@
 
-import { useMemo } from "react";
+import {useMemo, useState} from "react";
 import { Line } from "react-chartjs-2";
 import { fromKsmPrecision } from "src/utils";
 import { useChronicle, useOwn, useSibling } from "./store/Store";
@@ -9,6 +9,7 @@ import millify from 'millify';
 import { defaults } from 'react-chartjs-2';
 import config from "../config";
 import simpleLinearScale from "simple-linear-scale";
+import {useKeyPress} from "react-use";
 
 
 Chart.register(annotationPlugin);
@@ -54,6 +55,13 @@ export const Graph = () => {
     const { data: { lastProcessedBlock, mostRecentAuctionClosingStart, mostRecentAuctionStart } } = useChronicle();
 
     const isLineChartDataLoading = false;
+
+    const [snek, setSnek] = useState<boolean | undefined>(undefined);
+    const up = (event: any) => event.keyCode === 38;
+    const [snakeTime] = useKeyPress(up)
+    if (snakeTime && !snek) {
+        setSnek(true);
+    }
 
     const createDataset = (historicalData: any[]) => historicalData
         ?.map(({blockHeight, fundsPledged}) => ({x: parseInt(blockHeight), y: fromKsmPrecision(fundsPledged)}));
@@ -175,11 +183,11 @@ export const Graph = () => {
                             label: {
                                 ...labelOptions,
                                 position: 'start',
-                                backgroundColor: colors.red,                                
+                                backgroundColor: colors.red,
                                 content: 'auction closing',
                                 xAdjust: 0,
                                 yAdjust: 20,
-                                
+
                             }
                         } : null,
 
@@ -193,11 +201,11 @@ export const Graph = () => {
                             label: {
                                 ...labelOptions,
                                 position: 'start',
-                                backgroundColor: colors.orange,                                
+                                backgroundColor: colors.orange,
                                 content: 'auction starting',
                                 xAdjust: -10,
                                 yAdjust: 20,
-                                
+
                             }
                         } : null
                     },
@@ -212,31 +220,32 @@ export const Graph = () => {
         labels
     ])
 
+    const renderGraph = () => {
+        if (snek) {
+            return <iframe src="snek/game.html" id="gameIframe" className="gameIframe" width="800" height="498"></iframe>;
+        } else {
+            return isLineChartDataLoading
+                ? (
+                    <div className="bsx-graph-loader">
+                        Fetching graph data...
+                    </div>
+                )
+                : (
+                    <Line
+                        id="1"
+                        type="line"
+                        data={lineChartData}
+                        options={lineChartOptions}
+                    />
+                )
+        }
+    };
+
     return <>
         <div className="col-9 bsx-graph">
             <div className="bsx-graph-wrapper">
 
-                <div className="bsx-annotation-container"></div>
-{/*
-                <div className="bsx-graph-loader">
-                    Snek is sleeping, for now.
-                </div> */}
-
-                {isLineChartDataLoading
-                    ? (
-                        <div className="bsx-graph-loader">
-                            Fetching graph data...
-                        </div>
-                    )
-                    : (
-                        <Line
-                            id="1"
-                            type="line"
-                            data={lineChartData}
-                            options={lineChartOptions}
-                        />
-                    )
-                }
+                {renderGraph()}
 
             </div>
             <div className="bsx-graph-timeline">

@@ -21,8 +21,8 @@ SnakeGame.Game = function (parameters) {
 
     this.meal_color = {
         r: 255,
-        g: 255,
-        b: 255
+        g: 231,
+        b: 51
     };
 
     this.snake = null;
@@ -38,9 +38,9 @@ SnakeGame.Game.prototype.setSnake = function (snake) {
 SnakeGame.Game.prototype.step = function (parameters) {
     var t_Game = this;
 
-    this.meal_color.r = parseInt(((Math.sin(Math.PI * 2 * (new Date).getTime() / 1000) + 1) / 2) * 255);
-    this.meal_color.g = parseInt(((Math.cos(Math.PI * 2 * (new Date).getTime() / 1000) + 1) / 2) * 255);
-    this.meal_color.b = parseInt((Math.cos(Math.PI * 2 * (new Date).getTime() / 1000) + 0.5) * 255);
+    // this.meal_color.r = parseInt(((Math.sin(Math.PI * 2 * (new Date).getTime() / 1000) + 1) / 2) * 255);
+    // this.meal_color.g = parseInt(((Math.cos(Math.PI * 2 * (new Date).getTime() / 1000) + 1) / 2) * 255);
+    // this.meal_color.b = parseInt((Math.cos(Math.PI * 2 * (new Date).getTime() / 1000) + 0.5) * 255);
 
     t_Game.meals.forEach(function (m, mi) {
         m.meal.clear();
@@ -68,8 +68,8 @@ SnakeGame.Snake = function () {
     t_Snake.x = 0;
     t_Snake.y = 0;
     t_Snake.length = 10;
+    t_Snake.width = 4
     t_Snake.game = null;
-    t_Snake.piece_size = 20;
     t_Snake.ep = null;
     t_Snake.addition = 0.2;
     t_Snake.wa = 0;
@@ -81,22 +81,21 @@ SnakeGame.Snake = function () {
         'u': 'd'
     };
     t_Snake.ss = [
-        ['r', 5],
-        ['d', 8],
-        ['l', 3],
-        ['d', 4],
-        ['r', 8]
+        ['u', 2],
+        ['r', 6],
+        ['u', 4],
+        ['r', 7],
+        ['u', 4],
+        ['r', 2],
+        ['u', 3]
     ];
     t_Snake.points_factor = 10;
     t_Snake.points = 0;
-    t_Snake.ss.forEach(function (s, i) {
-        t_Snake.points += s[1]*t_Snake.points_factor;
-    });
 
     this.default_color = {
-        r: 55,
-        g: 130,
-        b: 57
+        r: 144,
+        g: 255,
+        b: 51
     };
     this.color = {
         r: this.default_color.r,
@@ -109,8 +108,8 @@ SnakeGame.Snake.prototype.init = function () {
     this.snline = new PIXI.Graphics();
     this.game.app.stage.addChild(this.snline);
 
-    this.x = 50;
-    this.y = 50;
+    this.x = 400;
+    this.y = 498;
 };
 
 SnakeGame.Snake.prototype.rotate = function (rotation) {
@@ -273,7 +272,7 @@ SnakeGame.Snake.prototype.step = function (parameters) {
     t_Snake.snline.y = t_Snake.y;
 
     t_Snake.snline.moveTo(0, 0);
-    t_Snake.snline.lineStyle(t_Snake.length, rgbToHex(t_Snake.color.r, t_Snake.color.g, t_Snake.color.b), 1);
+    t_Snake.snline.lineStyle(t_Snake.width, rgbToHex(t_Snake.color.r, t_Snake.color.g, t_Snake.color.b), 1);
 
     var rx = 0;
     var ry = 0;
@@ -342,7 +341,7 @@ SnakeGame.Snake.prototype.step = function (parameters) {
         } else if (t_Snake.ss[i][0] == 'd') {
             t_Snake.y += cd;
         }
-        
+
         if (t_Snake.ss[i][1] <= 0)  {
             t_Snake.ss.splice(i, 1);
         }
@@ -371,8 +370,11 @@ var Game = function (parameters) {
     t_Game.playing = false;
 
     t_Game.app = new PIXI.Application(800, 600, {
-        view: t_Game.parameters.view
+        view: t_Game.parameters.view,
+        transparent: true
     });
+
+    //t_Game.app.options.backgroundAlpha = 0;
 
     t_Game.app.renderer.view.style.position = "fixed";
     t_Game.app.renderer.view.style.display = "block";
@@ -390,69 +392,15 @@ var Game = function (parameters) {
     t_Game.app.renderer.autoResize = true;
     t_Game.app.renderer.resize(window.innerWidth, window.innerHeight);
 
-    var bg_texture = PIXI.Texture.fromImage('images/bg.png');
-    var bg_sprite = new PIXI.TilingSprite(bg_texture, t_Game.app.renderer.width, t_Game.app.renderer.height);
-
-    var bgLayer = new PIXI.Graphics();
-    bgLayer.beginFill(0x000000, 0.75);
-    bgLayer.drawRect(0, 0, t_Game.app.renderer.width, t_Game.app.renderer.height);
-
-    t_Game.app.stage.addChild(bg_sprite);
-    t_Game.app.stage.addChild(bgLayer);
-
-    var style = new PIXI.TextStyle({
-        fontFamily: 'Arial',
-        fontSize: 36,
-        fill: '#157518',
-        wordWrap: true,
-        wordWrapWidth: 200
+    var pointsText = new PIXI.Text('0 KSM', {
+        fontFamily: 'Pexico',
+        fontSize: 20,
+        fill: '#90ff33'
     });
-
-    var snakeText = new PIXI.Text('snake', style);
-    snakeText.x = 20;
-    snakeText.y = 20;
-
-    t_Game.app.stage.addChild(snakeText);
-
-    var pointsText = new PIXI.Text('Points: 0', {
-        fontFamily: 'Arial',
-        fontSize: 13,
-        fill: '#ffffff'
-    });
-    pointsText.x = 20;
-    pointsText.y = 60;
+    pointsText.x = 500;
+    pointsText.y = 20;
 
     t_Game.app.stage.addChild(pointsText);
-
-    var fpsText = new PIXI.Text('FPS: 0', {
-        fontFamily: 'Arial',
-        fontSize: 13,
-        fill: '#ffffff'
-    });
-    fpsText.x = 20;
-    fpsText.y = 80;
-
-    t_Game.app.stage.addChild(fpsText);
-
-    var infoText = new PIXI.Text('Shortcuts:\np: pause\nn: new game', {
-        fontFamily: 'Arial',
-        fontSize: 13,
-        fill: '#ffffff'
-    });
-    infoText.x = 20;
-    infoText.y = 100;
-
-    t_Game.app.stage.addChild(infoText);
-
-    var oguzhan = new PIXI.Text('by Oğuzhan Eroğlu', {
-        fontFamily: 'Arial',
-        fontSize: 13,
-        fill: '#ffffff'
-    });
-    oguzhan.x = 125;
-    oguzhan.y = 38;
-
-    t_Game.app.stage.addChild(oguzhan);
 
     t_Game.newGame = function () {
         if (t_Game.game !== undefined) {
@@ -470,16 +418,10 @@ var Game = function (parameters) {
         t_Game.game.setSnake(t_Game.snake);
         t_Game.snake.init();
 
-        var time = 0;
-
         t_Game.ticker = new PIXI.ticker.Ticker();
 
-        var then = Date.now;
-        var now;
-
         t_Game.ticker.add(function (delta) {
-            fpsText.setText('FPS: ' + parseInt(t_Game.ticker.FPS));
-            pointsText.setText('Points: ' + parseInt(t_Game.snake.points));
+            pointsText.setText(parseInt(t_Game.snake.points) + ' KSM');
 
             t_Game.game.placeMeals();
             t_Game.game.step({delta: delta});

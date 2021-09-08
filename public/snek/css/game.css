@@ -8,6 +8,8 @@
  * Licensed under MIT
  */
 
+@font-face{font-family:"Pexico";src:url(/static/media/Pexico-Regular.902d312d.woff2) format("woff2");src:url(/static/media/Pexico-Regular.84019905.woff) format("woff");font-weight:100;font-style:normal;font-display:swap}
+
 * {
     margin: 0px;
     padding: 0px;
@@ -19,7 +21,7 @@ body {
     line-height: 100%;
     /*background-image: url('../images/bg.png');
     background-repeat: repeat;*/
-    font-family: 'Arial';
+    font-family: 'Pexico';
     position: relative;
 }
 
@@ -118,7 +120,7 @@ img {
 }
 
 .gameMenu_box_title {
-    font-family: 'Arial';
+    font-family: 'Pexico';
     font-weight: bold;
     font-size: 20px;
 }
@@ -143,7 +145,7 @@ img {
 }
 
 .gameMenu_box_points_number {
-    
+
 }
 
 .btn {
