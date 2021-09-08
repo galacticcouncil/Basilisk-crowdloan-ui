@@ -89,7 +89,6 @@ SnakeGame.Snake = function () {
         ['r', 2],
         ['u', 3]
     ];
-    t_Snake.points_factor = 10;
     t_Snake.points = 0;
 
     this.default_color = {
@@ -253,7 +252,7 @@ SnakeGame.Snake.prototype.mealCollision = function (parameters) {
 
             t_Snake.wa += 5;
 
-            t_Snake.points += t_Snake.length*5;
+            t_Snake.points += 421;
 
             collision = true;
             return false;
