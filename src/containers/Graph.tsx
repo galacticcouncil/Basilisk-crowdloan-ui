@@ -173,23 +173,23 @@ export const Graph = () => {
                             }
                         } : null,
 
-                        closingStart: mostRecentAuctionClosingStart ? {
-                            type: 'line',
-                            scaleID: 'x',
-                            value: xAnnotationScale(mostRecentAuctionClosingStart),
-                            borderColor: colors.red,
-                            borderWidth: 3,
-                            borderDash: [3, 3],
-                            label: {
-                                ...labelOptions,
-                                position: 'start',
-                                backgroundColor: colors.red,
-                                content: 'auction closing',
-                                xAdjust: 0,
-                                yAdjust: 20,
+                        // closingStart: mostRecentAuctionClosingStart ? {
+                        //     type: 'line',
+                        //     scaleID: 'x',
+                        //     value: xAnnotationScale(mostRecentAuctionClosingStart),
+                        //     borderColor: colors.red,
+                        //     borderWidth: 3,
+                        //     borderDash: [3, 3],
+                        //     label: {
+                        //         ...labelOptions,
+                        //         position: 'start',
+                        //         backgroundColor: colors.red,
+                        //         content: 'auction closing',
+                        //         xAdjust: 0,
+                        //         yAdjust: 20,
 
-                            }
-                        } : null,
+                        //     }
+                        // } : null,
 
                         // closingEnd: mostRecentAuctionClosingStart ? {
                         //     type: 'line',
@@ -209,23 +209,23 @@ export const Graph = () => {
                         //     }
                         // } : null,
 
-                        auctionStart: mostRecentAuctionStart ? {
-                            type: 'line',
-                            value: xAnnotationScale(mostRecentAuctionStart),
-                            borderColor: colors.orange,
-                            borderWidth: 3,
-                            borderDash: [3, 3],
-                            scaleID: 'x',
-                            label: {
-                                ...labelOptions,
-                                position: 'start',
-                                backgroundColor: colors.orange,
-                                content: 'auction starting',
-                                xAdjust: -10,
-                                yAdjust: 20,
+                        // auctionStart: mostRecentAuctionStart ? {
+                        //     type: 'line',
+                        //     value: xAnnotationScale(mostRecentAuctionStart),
+                        //     borderColor: colors.orange,
+                        //     borderWidth: 3,
+                        //     borderDash: [3, 3],
+                        //     scaleID: 'x',
+                        //     label: {
+                        //         ...labelOptions,
+                        //         position: 'start',
+                        //         backgroundColor: colors.orange,
+                        //         content: 'auction starting',
+                        //         xAdjust: -10,
+                        //         yAdjust: 20,
 
-                            }
-                        } : null
+                        //     }
+                        // } : null
                     },
                 },
             }
