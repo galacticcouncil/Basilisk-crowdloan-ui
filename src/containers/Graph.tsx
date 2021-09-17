@@ -242,28 +242,28 @@ export const Graph = () => {
         if (snek) {
             return <iframe src="snek/game.html" id="gameIframe" className="gameIframe" width="100%" height="100%"></iframe>;
         } else {
-            return isLineChartDataLoading
-                ? (
+            return (
+                <>
                     <div className="bsx-graph-loader">
-                        Fetching graph data...
+                        Crowdloan cap has been reached, <br/> brace for impact.
                     </div>
-                )
-                : (
+                    
                     <Line
                         id="1"
                         type="line"
                         data={lineChartData}
                         options={lineChartOptions}
                     />
-                )
+                </>
+            );
         }
     };
 
     return <>
         <div className="col-9 bsx-graph">
             <div className="bsx-graph-wrapper">
-
                 {renderGraph()}
+                
 
             </div>
             <div className="bsx-graph-timeline">
