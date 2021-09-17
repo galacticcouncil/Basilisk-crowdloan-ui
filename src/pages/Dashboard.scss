@@ -199,6 +199,7 @@ $borderRadius: 8px;
 
         canvas {
             opacity: 0.7;
+            z-index: -1
         }
 
         .bsx-annotation-container {
@@ -218,6 +219,7 @@ $borderRadius: 8px;
             text-transform: uppercase;
             font-size: 2em;
             padding: 2em;
+            z-index: 1;
 
             position: absolute;
             color: $white;
