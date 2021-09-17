@@ -252,7 +252,7 @@ SnakeGame.Snake.prototype.mealCollision = function (parameters) {
 
             t_Snake.wa += 5;
 
-            t_Snake.points += 421;
+            t_Snake.points += 481;
 
             collision = true;
             return false;
