@@ -74,13 +74,13 @@ export const Graph = () => {
     const lineChartData = {
         labels,
         datasets: [
-                {
-                    labels,
-                    label: 'Sibling', // todo replace with real sibling name from mapping or at least paraId
-                    borderColor: colors.yellow,
-                    yAxisID: 'crowdloanCap',
-                    data: siblingsDataset,
-                },
+                // {
+                //     labels,
+                //     label: 'Sibling', // todo replace with real sibling name from mapping or at least paraId
+                //     borderColor: colors.yellow,
+                //     yAxisID: 'crowdloanCap',
+                //     data: siblingsDataset,
+                // },
                 {
                     label: 'Basilisk',
                     borderColor: colors.green,
@@ -143,21 +143,21 @@ export const Graph = () => {
                 autocolors: false,
                 annotation: {
                     annotations: {
-                        siblingRaised: siblingFundsPledged ? {
-                            type: 'line',
-                            borderWidth: 1,
-                            borderDash: [3, 3],
-                            scaleID: 'crowdloanCap',
-                            // TODO: .toFixed(0) first
-                            value: fromKsmPrecision(siblingFundsPledged),
-                            borderColor: colors.yellow,
-                            label: {
-                                ...labelOptions,
-                                xAdjust: -8,
-                                backgroundColor: colors.yellow,
-                                content: millify(parseFloat(fromKsmPrecision(siblingFundsPledged)), millifyOptions),
-                            }
-                        } : null,
+                        // siblingRaised: siblingFundsPledged ? {
+                        //     type: 'line',
+                        //     borderWidth: 1,
+                        //     borderDash: [3, 3],
+                        //     scaleID: 'crowdloanCap',
+                        //     // TODO: .toFixed(0) first
+                        //     value: fromKsmPrecision(siblingFundsPledged),
+                        //     borderColor: colors.yellow,
+                        //     label: {
+                        //         ...labelOptions,
+                        //         xAdjust: -8,
+                        //         backgroundColor: colors.yellow,
+                        //         content: millify(parseFloat(fromKsmPrecision(siblingFundsPledged)), millifyOptions),
+                        //     }
+                        // } : null,
 
                         ownRaised: ownFundsPledged ? {
                             type: 'line',
@@ -272,10 +272,12 @@ export const Graph = () => {
                         28.8
                     </div>
                     <div className="col-6 bsx-legend">
-                        <span className="basilisk">Basilisk</span> / <span className="sibling">Target</span> KSM raised
+                        <span className="basilisk">Basilisk</span> 
+                        {/* / <span className="sibling">Target</span> */}
+                        <span> KSM raised</span>
                     </div>
                     <div className="col-3">
-                        NOW
+                        22.9
                     </div>
                 </div>
                 <div className="bsx-progress-bar-container">
