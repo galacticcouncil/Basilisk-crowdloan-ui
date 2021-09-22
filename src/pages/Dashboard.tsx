@@ -163,8 +163,8 @@ export const Dashboard = () => {
                     <div className="col-9 bsx-address">
                         <div>
                             <span className="bsx-chronicle">
-                                {`#${lastProcessedBlock}`}
-                                {activeAccount ? ` / ` : ' / No account connected'}
+                                {/* {`#${lastProcessedBlock}`} */}
+                                {activeAccount ? '' : 'No account connected'}
                             </span>
                             {activeAccount}
                         </div>
