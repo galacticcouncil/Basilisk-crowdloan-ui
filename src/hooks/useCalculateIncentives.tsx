@@ -1,5 +1,5 @@
 import BigNumber from "bignumber.js";
-import { LoadingState, useAccount, useChronicle, useChronicleLastProcessedBlock, useIncentives, useOwnHasWonAnAuction } from "src/containers/store/Store"
+import { LoadingState, useAccount, useChronicle, useChronicleLastProcessedBlock, useIncentives, useOwnHasWonAnAuction, useOwn } from "src/containers/store/Store"
 import linearScale from 'simple-linear-scale';
 import config, { precisionMultiplierBN } from "src/config";
 import { Contribution, HistoricalIncentive } from "./useQueries";
@@ -121,7 +121,6 @@ export const calculateCurrentBsxReceived = (
         mostRecentAuctionClosingStart,
     );
     const totalContributionWeightBN = new BigNumber(totalContributionWeight)    
-        .dividedBy(precisionMultiplierBN);
 
     if (totalContributionWeightBN.isZero()) return new BigNumber(0);
 
@@ -192,12 +191,12 @@ export const useCalculateCurrentAccountMinimumBsxReceived = () => {
 export const useCalculateCurrentAccountCurrentBsxReceived = () => {
     const { data: { contributions } } = useAccount();
     const { data: { mostRecentAuctionClosingStart } } = useChronicle();
-    const { data: { totalContributionWeight } } = useIncentives();
+    const { parachain: { data: { fundsPledged: contributionWeightOfAllContributors } } } = useOwn();
 
     return calculateCurrentBsxReceived(
         contributions, 
         mostRecentAuctionClosingStart,
-        totalContributionWeight
+        String(contributionWeightOfAllContributors)
     );
 }
 
