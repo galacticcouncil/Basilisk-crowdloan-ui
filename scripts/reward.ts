@@ -34,6 +34,7 @@ type Contribution = {
     createdAt: string,
 };
 
+const fixedKsmPrice = '400'
 const ksmPrecision = 12;
 const ksmPrecisionMultiplierBN = new BigNumber('10').pow('12');
 
@@ -95,8 +96,8 @@ const calculateCurrentHdxReceived = (
             .dividedBy(
                 new BigNumber(100)
             )
-
-        let inReward  = usdToHdx(ksmToUsd(contributionHdxReceivedInKsm, contribution.ksmPrice));
+        
+        let inReward  = usdToHdx(ksmToUsd(contributionHdxReceivedInKsm, fixedKsmPrice)); 
 
         hdxReceivedInKsm = hdxReceivedInKsm
                 .plus(inReward);
@@ -176,21 +177,21 @@ data.forEach(function (x) {
             balance: c.balance,
             blockHeight: c.blockHeight,
             hdxBonus: getHdxBonus(parseInt(c.blockHeight)).toString(),
-            ksmPrice: c.ksmPrice,
+            ksmPrice: fixedKsmPrice,
             multiplier: getBsxMultiplier().toString(),
             createdAt: c.createdAt,
         }
     })
 
-  let record: Reward  = {address: c[0].account.accountId,
-    totalBsxReward: bsx_reward.toFixed(0),
-    totalHdxReward: hdx_reward.toFixed(0),
-    totalContribution: total_contribution.toString(),
-    totalContributionWeight: weight.toString(),
-    contributions: contributions,
-    };
+    let record: Reward  = {address: c[0].account.accountId,
+        totalBsxReward: bsx_reward.toFixed(0),
+        totalHdxReward: hdx_reward.toFixed(0),
+        totalContribution: total_contribution.toString(),
+        totalContributionWeight: weight.toString(),
+        contributions: contributions,
+        };
 
-  records.push(record);
+    records.push(record);
 })
 
 let remaining = config.incentives.bsx.allocated.minus(total_bsx)
