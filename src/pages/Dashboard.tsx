@@ -37,7 +37,6 @@ const useDashboardData = () => {
 
     // incentives
     const { bsxMultiplier, hdxBonus } = useGlobalIncentives();
-    const currentAccountMinimumBsxReceived = useCalculateCurrentAccountMinimumBsxReceived();
     const currentAccountCurrentBsxReceived = useCalculateCurrentAccountCurrentBsxReceived();
     const currentAccountCurrentHdxReceived = useCalculateCurrentAccountHdxReceived()
     const ownHasWonAnAuction = useOwnHasWonAnAuction();
@@ -70,7 +69,6 @@ const useDashboardData = () => {
         // incentives
         bsxMultiplier,
         hdxBonus,
-        currentAccountMinimumBsxReceived,
         currentAccountCurrentBsxReceived,
         currentAccountCurrentHdxReceived,
         ownHasWonAnAuction
@@ -95,7 +93,6 @@ export const Dashboard = () => {
         // incentives
         bsxMultiplier,
         hdxBonus,
-        currentAccountMinimumBsxReceived,
         currentAccountCurrentBsxReceived,
         currentAccountCurrentHdxReceived,
         ownHasWonAnAuction
@@ -177,9 +174,9 @@ export const Dashboard = () => {
                     </div>
                 </div>
                 <div className="row bsx-stats">
-                    <div className="col-9">
+                    <div className="col-12">
                         <div className="row">
-                            <div className="col-3 bsx-stat">
+                            <div className="col-4 bsx-stat">
                                 <span className="bsx-stat-title">
                                     total ksm contributed
                                 </span>
@@ -187,17 +184,9 @@ export const Dashboard = () => {
                                     {millify(parseFloat(fromKsmPrecision(totalContributed)), millifyOptions)}
                                 </span>
                             </div>
-                            <div className="col-3 bsx-stat">
+                            <div className="col-4 bsx-stat">
                                 <span className="bsx-stat-title">
-                                    minimal bsx received
-                                </span>
-                                <span className="bsx-stat-value">
-                                    {millify(parseFloat(fromKsmPrecision(currentAccountMinimumBsxReceived)), millifyOptions)}
-                                </span>
-                            </div>
-                            <div className="col-3 bsx-stat">
-                                <span className="bsx-stat-title">
-                                    current bsx received
+                                    bsx reward
                                 </span>
                                 <span className="bsx-stat-value">
                                     {currentAccountCurrentBsxReceived
@@ -206,23 +195,15 @@ export const Dashboard = () => {
                                     }
                                 </span>
                             </div>
-                            <div className="col-3 bsx-stat">
+                            <div className="col-4 bsx-stat bsx-stat-border-right-none">
                                 <span className="bsx-stat-title">
-                                    current hdx reward
+                                    hdx reward
                                 </span>
                                 <span className="bsx-stat-value">
                                     {millify(parseFloat(usdToHdx(ksmToUsd(fromKsmPrecision(currentAccountCurrentHdxReceived)))), millifyOptions)}
                                 </span>
-                            </div>
+                            </div>   
                         </div>
-                    </div>
-                    <div className="col-3 bsx-stat bsx-stat-balance">
-                        <span className="bsx-stat-title">
-                            free balance
-                        </span>
-                        <span className="bsx-stat-value">
-                            {millify(parseFloat(fromKsmPrecision(activeAccountBalance)), millifyOptions)}
-                        </span>
                     </div>
                 </div>
             </div>
