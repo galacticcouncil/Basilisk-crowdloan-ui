@@ -37,36 +37,37 @@ export const calculateBsxMultiplier = (
     blockHeight: string, 
     mostRecentAuctionClosingStart: string | undefined,
 ) => {
+    return config.incentives.bsx.scale.max;
     // there is no recent auction, return the full bsx multiplier
-    if (!mostRecentAuctionClosingStart) return config.incentives.bsx.scale.max;
+    // if (!mostRecentAuctionClosingStart) return config.incentives.bsx.scale.max;
 
-    const mostRecentAuctionClosingEnd = new BigNumber(mostRecentAuctionClosingStart)
-        .plus(config.auctionEndingPeriodLength)
-        .toNumber();
+    // const mostRecentAuctionClosingEnd = new BigNumber(mostRecentAuctionClosingStart)
+    //     .plus(config.auctionEndingPeriodLength)
+    //     .toNumber();
 
-    const blockHeightBN = new BigNumber(blockHeight);
+    // const blockHeightBN = new BigNumber(blockHeight);
 
-    const bsxMultiplierScale = linearScale(
-        // TODO: when we are about to win an auction, replace the following ranges
-        // with real auction ranges instead and skip any other logic
-        [
-            parseInt(mostRecentAuctionClosingStart),
-            mostRecentAuctionClosingEnd
-        ],
-        [
-            config.incentives.bsx.scale.max,
-            config.incentives.bsx.scale.min
-        ]
-    )
+    // const bsxMultiplierScale = linearScale(
+    //     // TODO: when we are about to win an auction, replace the following ranges
+    //     // with real auction ranges instead and skip any other logic
+    //     [
+    //         parseInt(mostRecentAuctionClosingStart),
+    //         mostRecentAuctionClosingEnd
+    //     ],
+    //     [
+    //         config.incentives.bsx.scale.max,
+    //         config.incentives.bsx.scale.min
+    //     ]
+    // )
 
-    // if the current blockHeight is out of bounds for the most recent auction, return the full bsx multiplier
-    // this also means the contribution was not for the winning auction since it was
-    // accepted after the auction ended
-    if (blockHeightBN.lt(mostRecentAuctionClosingStart) || blockHeightBN.gt(mostRecentAuctionClosingEnd)) {
-        return config.incentives.bsx.scale.max;
-    }
+    // // if the current blockHeight is out of bounds for the most recent auction, return the full bsx multiplier
+    // // this also means the contribution was not for the winning auction since it was
+    // // accepted after the auction ended
+    // if (blockHeightBN.lt(mostRecentAuctionClosingStart) || blockHeightBN.gt(mostRecentAuctionClosingEnd)) {
+    //     return config.incentives.bsx.scale.max;
+    // }
 
-    return bsxMultiplierScale(blockHeight)
+    // return bsxMultiplierScale(blockHeight)
 }
 
 export const calculateContributionsWeight = (
@@ -131,6 +132,14 @@ export const calculateCurrentBsxReceived = (
     return currentBsxReceived;
 }
 
+const getHdxBonus = (blockHeight: Number) => {
+    if (blockHeight > 9233727) {
+        return 5;
+    }else{
+        return 30
+    }
+}
+
 export const calculateCurrentHdxReceived = (
     contributions: Contribution[], 
     historicalIncentives: HistoricalIncentive[],
@@ -147,7 +156,8 @@ export const calculateCurrentHdxReceived = (
         // NOTE: could use a medium hdxBonus in case the historical data is missing
         // this would be the most gracious way to handle the missing data.
         // It would confuse the users the least.
-        const hdxBonus = calculateHdxBonus(leadPercentageRate);
+        // const hdxBonus = calculateHdxBonus(leadPercentageRate);
+        const hdxBonus = getHdxBonus(parseInt(contribution.blockHeight));
 
         const contributionHdxReceivedInKsm = new BigNumber(contribution.balance)
             .multipliedBy(
