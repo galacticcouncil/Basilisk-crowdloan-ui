@@ -19,12 +19,12 @@ async function main() {
   const keyring = new Keyring({ type: "sr25519" })
   const api = await ApiPromise.create({
     provider: provider,
-    // types: types,
-    // typesAlias: {
-    //   tokens: {
-    //     AccountData: "OrmlAccountData",
-    //   },
-    // },
+    types: types,
+    typesAlias: {
+      tokens: {
+        AccountData: "OrmlAccountData",
+      },
+    },
   })
 
   const [chain, nodeVersion] = await Promise.all([
@@ -41,7 +41,7 @@ async function main() {
   const TREASURY = bsxAddress(treasuryPubKey)
   console.log("treasury account:", TREASURY)
 
-  console.log("treasury vestedTransfer:", JSON.stringify(api, null, 4))
+  console.log("where are tx ?: ", JSON.stringify(api.tx, null, 4))
 
   process.exit()
 
