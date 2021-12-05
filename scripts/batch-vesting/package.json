@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node batchVestingCall.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node batchVestingCall.js test"
   },
   "author": "",
   "license": "ISC",
