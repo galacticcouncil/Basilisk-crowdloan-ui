@@ -2,7 +2,7 @@ require("dotenv").config()
 const BN = require("bn.js")
 const { ApiPromise, WsProvider, Keyring } = require("@polkadot/api")
 const { encodeAddress, cryptoWaitReady } = require("@polkadot/util-crypto")
-const types = require("./types.js")
+const types = require("../types.js")
 const { stringToU8a } = require("@polkadot/util")
 
 const vestings = require("./data/vestings.json")
@@ -36,55 +36,49 @@ async function main() {
   const from = keyring.addFromUri(ACCOUNT_SECRET)
   console.log("sudo account:", bsxAddress(from.addressRaw))
 
-  
+
   const treasuryPubKey = stringToU8a("modlpy/trsry".padEnd(32, "\0"))
   const TREASURY = bsxAddress(treasuryPubKey)
-  console.log("treasury account:", TREASURY)
+  console.log("treasury account:", TREASURY);
 
-  console.log("where are tx ?: ", JSON.stringify(api.tx, null, 4))
-
-  process.exit()
-
-  const vestingSchedules = [
-    vestings.map(({destination, schedule}) =>
-      api.tx.vesting.vestedTransfer(destination, schedule)
-    )
-  ]
+  const vestingSchedules = vestings.map(({destination, schedule}) =>
+    api.tx.vesting.vestedTransfer(destination, schedule)
+  );
 
   console.log("vestingSchedules generated:", vestingSchedules.length)
 
-  
 
-  // const batch = api.tx.utility.batch(vestingSchedules)
-  // const sudo = api.tx.sudo.sudo(batch)
 
-  // if (process.argv[2] === "test") {
-  //   console.log('run "npm start" to send tx')
-  //   process.exit()
-  // }
+  const batch = api.tx.utility.batch(vestingSchedules)
+  const sudo = api.tx.sudo.sudoAs(TREASURY,batch)
 
-  // console.log("sending tx")
-  // await sudo.signAndSend(from, ({ events = [], status }) => {
-  //   if (status.isInBlock) {
-  //     console.log("included in block")
-  //     console.log(
-  //       "vestingSchedules executed:",
-  //       events.filter(({ event: { method } }) => method === "Transfer").length
-  //     )
-  //   } else {
-  //     console.log("tx: " + status.type)
-  //   }
-  //   if (status.type === "Finalized") {
-  //     process.exit()
-  //   }
-  //   events
-  //     .filter(({ event: { section } }) =>
-  //       ["system", "utility", "sudo"].includes(section)
-  //     )
-  //     .forEach(({ event: { data, method, section } }) =>
-  //       console.log(`event: ${section}.${method} ${data.toString()}`)
-  //     )
-  // })
+  if (process.argv[2] === "test") {
+    console.log('run "npm start" to send tx')
+    process.exit()
+  }
+
+  console.log("sending tx")
+  await sudo.signAndSend(from, ({ events = [], status }) => {
+    if (status.isInBlock) {
+      console.log("included in block")
+      console.log(
+        "vestingSchedules executed:",
+        events.filter(({ event: { method } }) => method === "Transfer").length
+      )
+    } else {
+      console.log("tx: " + status.type)
+    }
+    if (status.type === "Finalized") {
+      process.exit()
+    }
+    events
+      .filter(({ event: { section } }) =>
+        ["system", "utility", "sudo"].includes(section)
+      )
+      .forEach(({ event: { data, method, section } }) =>
+        console.log(`event: ${section}.${method} ${data.toString()}`)
+      )
+  })
 }
 
 main().catch((e) => {
