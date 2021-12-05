@@ -1,15 +1,16 @@
 {
-  "name": "batch-vesting",
+  "name": "scripts",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node batchVestingCall.js",
-    "test": "node batchVestingCall.js test"
+    "rewards": "ts-node reward.ts",
+    "vesting": "ts-node vesting.ts",
+    "batchVesting": "ts-node batchVestingCall.js"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@polkadot/api": "^6.3.1"
+    "ts-node": "^10.4.0"
   }
 }

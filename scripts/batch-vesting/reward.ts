@@ -209,7 +209,7 @@ let report: Report = {
 }
 
 const fs =require('fs');
-fs.writeFile ("rewards.json", JSON.stringify(report, null, 4), function(err: any) {
+fs.writeFile ("./data/rewards.json", JSON.stringify(report, null, 4), { flag: 'wx' }, function(err: any) {
     if (err) throw err;
     console.log('complete');
     }

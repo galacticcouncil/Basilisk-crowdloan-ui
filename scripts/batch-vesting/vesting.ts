@@ -87,7 +87,7 @@ let vestings: DynamicVestingInfo[] = (data as any).rewards.flatMap(reward => {
 const vestingBatch: VestingBatch = vestings
 
 const fs = require('fs')
-fs.writeFile ("vestings.json", JSON.stringify(vestingBatch, null, 4), function(err) {
+fs.writeFile ("./data/vestings.json", JSON.stringify(vestingBatch, null, 4), { flag: 'wx' }, function(err) {
         if (err) throw err
         console.log('complete')
     }
