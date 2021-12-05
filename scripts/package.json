@@ -1,0 +1,14 @@
+{
+  "name": "scripts",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "generate-rewards": "ts-node ./reward.ts",
+    "generate-vestings": "ts-node ./vesting.ts",
+    "execute-vestings": "ts-node ./batch-vesting/batchVestingCall.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {}
+}

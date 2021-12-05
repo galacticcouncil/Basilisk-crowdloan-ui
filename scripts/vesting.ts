@@ -1,5 +1,6 @@
 import BigNumber from "bignumber.js"
-import * as data from './data/rewards.json'
+import data from './data/rewards.json'
+import {Report} from './reward'
 
 
 type DynamicVestingInfo = {
@@ -25,9 +26,8 @@ const vestScheduleEndBlock = new BigNumber('13834719')
 const vestDurationInBlocks = 
     vestScheduleEndBlock
     .minus(leaseStartBlock)
-
-let vestings: DynamicVestingInfo[] = data.rewards.flatMap(reward => {
-      
+    
+    let vestings: DynamicVestingInfo[] = (data as Report).rewards.flatMap(reward => {
     const thirtyPercent = 
         new BigNumber(reward.totalBsxReward)
         .multipliedBy(new BigNumber(0.3))
@@ -78,7 +78,7 @@ let vestings: DynamicVestingInfo[] = data.rewards.flatMap(reward => {
                 amountToBeVested: seventyPercentMinusAllDecimalAmounts,
                 start: leaseStartBlock.toString(),
                 period: '1',
-                per_period: tidyPerBlockBsx,
+                per_period: tidyPerBlockBsx.toString(),
                 period_count: vestDurationInBlocks.toString()
             }
         }
@@ -88,7 +88,7 @@ let vestings: DynamicVestingInfo[] = data.rewards.flatMap(reward => {
 const vestingBatch: VestingBatch = vestings
 
 const fs = require('fs')
-fs.writeFile ("vestings.json", JSON.stringify(vestingBatch, null, 4), function(err) {
+fs.writeFile ("data/vestings.json", JSON.stringify(vestingBatch, null, 4), function(err) {
         if (err) throw err
         console.log('complete')
     }
