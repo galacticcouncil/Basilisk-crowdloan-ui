@@ -1,7 +1,6 @@
 import BigNumber from "bignumber.js"
 import * as data from './data/rewards.json'
 
-
 type DynamicVestingInfo = {
     destination: string,
     schedule: {
@@ -26,7 +25,7 @@ const vestDurationInBlocks =
     vestScheduleEndBlock
     .minus(leaseStartBlock)
 
-let vestings: DynamicVestingInfo[] = data.rewards.flatMap(reward => {
+let vestings: DynamicVestingInfo[] = (data as any).rewards.flatMap(reward => {
       
     const thirtyPercent = 
         new BigNumber(reward.totalBsxReward)
