@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "rewards": "ts-node ./batch-vesting/reward.ts"
+    "rewards": "ts-node ./batch-vesting/reward.ts",
+    "batchVesting": "ts-node ./batch-vesting/batchVestingCall.js"
   },
   "author": "",
   "license": "ISC",
