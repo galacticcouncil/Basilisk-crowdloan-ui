@@ -14,6 +14,7 @@ const bsxAddress = (pubKey) => encodeAddress(pubKey, 10041) // https://wiki.polk
 const chunkify = (a, size) => Array(Math.ceil(a.length / size))
   .fill()
   .map((_, i) => a.slice(i * size, i * size + size));
+const filterEventsByName = (name, events) => events.filter(({event: {section, method}}) => name === `${section}.${method}`)
 const sendAndWaitFinalization = ({from, tx, printEvents = []}) => new Promise(resolve =>
   tx.signAndSend(from, (receipt) => {
     let {status, events = []} = receipt;
@@ -86,6 +87,7 @@ async function main() {
   const startFrom = Number(process.argv[2]) || 0;
 
   console.log("sending txs");
+  let totalEndowed = new BN(0);
   for (let i = startFrom; i < chunks.length; i++) {
     console.log('batch', i);
     const {events} = await sendAndWaitFinalization({
@@ -96,8 +98,12 @@ async function main() {
       console.log(e);
       process.exit(1);
     });
-    const vestingsAdded = events.filter(({event: {section, method}}) => 'vesting.VestingScheduleAdded' === `${section}.${method}`).length;
+    const vestingsAdded = filterEventsByName('vesting.VestingScheduleAdded', events).length;
     assert.strictEqual(vestingsAdded, chunks[i].args[0].length, 'not all vestings added');
+    const balancesEndowed = filterEventsByName('balances.Endowed', events)
+      .reduce((sum, {event: {data: [_, balance]}}) => sum.add(balance), new BN(0));
+    totalEndowed = totalEndowed.add(balancesEndowed);
+    console.log('total vested', totalEndowed.toString());
   }
 
   process.exit(0);
