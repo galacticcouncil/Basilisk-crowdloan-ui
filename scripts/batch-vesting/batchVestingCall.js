@@ -4,7 +4,7 @@ const {ApiPromise, WsProvider, Keyring} = require("@polkadot/api")
 const {encodeAddress, cryptoWaitReady} = require("@polkadot/util-crypto")
 const {stringToU8a} = require("@polkadot/util")
 
-const vestings = require("./data/vestings.json")
+const vestings = require("../data/vestings.json")
 const assert = require("assert");
 
 const ACCOUNT_SECRET = process.env.ACCOUNT_SECRET || "//Alice"
