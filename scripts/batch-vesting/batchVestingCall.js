@@ -15,7 +15,8 @@ const chunkify = (a, size) => Array(Math.ceil(a.length / size))
   .fill()
   .map((_, i) => a.slice(i * size, i * size + size));
 const sendAndWaitFinalization = ({from, tx, printEvents = []}) => new Promise(resolve =>
-  tx.signAndSend(from, ({status, events = []}) => {
+  tx.signAndSend(from, (receipt) => {
+    let {status, events = []} = receipt;
     if (status.isInBlock) {
       console.log('included in', status.asInBlock.toHex());
       events.filter(({event: {section}}) => printEvents.includes(section))
@@ -24,7 +25,7 @@ const sendAndWaitFinalization = ({from, tx, printEvents = []}) => new Promise(re
     }
     if (status.isFinalized) {
       console.log('finalized', status.asFinalized.toHex());
-      resolve();
+      resolve(receipt);
     }
   }));
 
@@ -87,14 +88,16 @@ async function main() {
   console.log("sending txs");
   for (let i = startFrom; i < chunks.length; i++) {
     console.log('batch', i);
-    await sendAndWaitFinalization({
+    const {events} = await sendAndWaitFinalization({
       from,
       tx: chunks[i],
-      //printEvents: ["utility", "sudo"]
+      //printEvents: ["utility", "sudo", "vesting"]
     }).catch(e => {
       console.log(e);
       process.exit(1);
     });
+    const vestingsAdded = events.filter(({event: {section, method}}) => 'vesting.VestingScheduleAdded' === `${section}.${method}`).length;
+    assert.strictEqual(vestingsAdded, chunks[i].args[0].length, 'not all vestings added');
   }
 
   process.exit(0);
