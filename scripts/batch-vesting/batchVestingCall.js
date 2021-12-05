@@ -14,7 +14,7 @@ const bsxAddress = (pubKey) => encodeAddress(pubKey, 10041) // https://wiki.polk
 const chunkify = (a, size) => Array(Math.ceil(a.length / size))
   .fill()
   .map((_, i) => a.slice(i * size, i * size + size));
-const sendAndWaitFinalization = ({from, tx, printEvents = []}) => new Promise(resolve =>
+const sendAndWait = ({from, tx, printEvents = []}) => new Promise(resolve =>
   tx.signAndSend(from, (receipt) => {
     let {status, events = []} = receipt;
     if (status.isInBlock) {
@@ -22,9 +22,6 @@ const sendAndWaitFinalization = ({from, tx, printEvents = []}) => new Promise(re
       events.filter(({event: {section}}) => printEvents.includes(section))
         .forEach(({ event: { data, method, section } }) =>
           console.log(`${section}.${method}`, JSON.stringify(data)));
-    }
-    if (status.isFinalized) {
-      console.log('finalized', status.asFinalized.toHex());
       resolve(receipt);
     }
   }));
@@ -88,7 +85,7 @@ async function main() {
   console.log("sending txs");
   for (let i = startFrom; i < chunks.length; i++) {
     console.log('batch', i);
-    const {events} = await sendAndWaitFinalization({
+    const {events} = await sendAndWait({
       from,
       tx: chunks[i],
       //printEvents: ["utility", "sudo", "vesting"]
