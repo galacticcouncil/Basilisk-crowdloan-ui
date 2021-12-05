@@ -20,7 +20,7 @@ const sendAndWaitFinalization = ({from, tx, printEvents = []}) => new Promise(re
       console.log('included in', status.asInBlock.toHex());
       events.filter(({event: {section}}) => printEvents.includes(section))
         .forEach(({ event: { data, method, section } }) =>
-          console.log(`${section}.${method}`, data.toHuman()));
+          console.log(`${section}.${method}`, JSON.stringify(data)));
     }
     if (status.isFinalized) {
       console.log('finalized', status.asFinalized.toHex());
@@ -48,16 +48,15 @@ async function main() {
   console.log("treasury account:", TREASURY);
 
   const vestingSchedules = vestings.map(({destination, schedule}) =>
-    api.tx.vesting.vestedTransfer(destination, schedule)
+    api.tx.sudo.sudoAs(TREASURY, api.tx.vesting.vestedTransfer(destination, schedule))
   );
 
   console.log("vestingSchedules generated:", vestingSchedules.length)
 
-  const batch = api.tx.utility.batch(vestingSchedules)
-  const sudo = api.tx.sudo.sudoAs(TREASURY, batch)
+  const batch = api.tx.utility.batch(vestingSchedules);
 
   let {maxExtrinsic: weightLimit} = api.consts.system.blockWeights.perClass.normal;
-  const {weight} = await sudo.paymentInfo(from);
+  const {weight} = await batch.paymentInfo(from);
   console.log('weight of the whole batch', weight.toHuman());
   console.log('weight limit', weightLimit.toHuman());
   weightLimit = new BN(weightLimit.toString());
@@ -67,7 +66,7 @@ async function main() {
 
   const vestingsPerBlock = Math.ceil(vestingSchedules.length / blocks);
   const chunks = chunkify(vestingSchedules, vestingsPerBlock)
-    .map(vestings => api.tx.sudo.sudoAs(TREASURY, api.tx.utility.batch(vestings)));
+    .map(vestings => api.tx.utility.batch(vestings));
 
   const weights = await Promise.all(
     chunks.map(async chunk => {
@@ -91,7 +90,7 @@ async function main() {
     await sendAndWaitFinalization({
       from,
       tx: chunks[i],
-      printEvents: ["utility", "sudo"]
+      //printEvents: ["utility", "sudo"]
     }).catch(e => {
       console.log(e);
       process.exit(1);
