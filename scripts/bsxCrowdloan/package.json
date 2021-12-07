@@ -4,9 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "rewards": "ts-node reward.ts",
-    "vesting": "ts-node vesting.ts",
-    "batchVesting": "ts-node batchVestingCall.js"
+    "getBsxCrowdloanRewards": "ts-node getRewards.ts",
+    "getBsxVestingSchedules": "ts-node getVestingSchedules.ts",
+    "bsxCrowdLoanVestingCall": "ts-node vestingCall.js"
   },
   "author": "",
   "license": "ISC",

@@ -1,0 +1,16 @@
+{
+  "name": "scripts",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "getHdxAirdropAccounts": "ts-node getAccounts.ts",
+    "airdropBsxToHdxVestingCall": "ts-node vestingCall.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "global": "^4.4.0",
+    "ts-node": "^10.4.0"
+  }
+}

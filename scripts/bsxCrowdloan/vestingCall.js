@@ -46,7 +46,7 @@ async function main() {
   const treasuryPubKey = stringToU8a("modlpy/trsry".padEnd(32, "\0"))
   const TREASURY = bsxAddress(treasuryPubKey)
   console.log("treasury account:", TREASURY);
-
+  
   const vestingSchedules = vestings.map(({destination, schedule}) =>
     api.tx.sudo.sudoAs(TREASURY, api.tx.vesting.vestedTransfer(destination, schedule))
   );
