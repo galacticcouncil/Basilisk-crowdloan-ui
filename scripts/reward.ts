@@ -123,7 +123,7 @@ export const calculateCurrentBsxReceived = (
 }
 
 
-type Reward = {
+export type Reward = {
     address: string,
     totalBsxReward: string,
     totalHdxReward: string,
@@ -132,7 +132,7 @@ type Reward = {
     contributions: OutputContribution[],
 };
 
-type OutputContribution = {
+export type OutputContribution = {
     blockHeight: string,
     balance: string,
     hdxBonus: string,
@@ -141,7 +141,7 @@ type OutputContribution = {
     createdAt: string,
 };
 
-type Report = {
+export type Report = {
     stats: {
         totalKsmRaised: string,
         totalBsxRewarded: string,
@@ -158,7 +158,7 @@ let total_hdx  = new BigNumber(0)
 let tw = new BigNumber(0)
 
 let records: Reward[] = [];
-data.forEach(function (x) {
+(data as []).forEach(function (x) {
   let c: Contribution[] = x;
   const total_contribution = c.reduce((total_contribution, contribution) => {
       total_contribution = total_contribution.plus(new BigNumber(contribution.balance));
@@ -208,8 +208,9 @@ let report: Report = {
     rewards: records
 }
 
-const fs =require('fs');
-fs.writeFile ("rewards.json", JSON.stringify(report, null, 4), function(err) {
+const fs=require('fs');
+
+fs.writeFile("data/rewards.json", JSON.stringify(report, null, 4), function(err) {
     if (err) throw err;
     console.log('complete');
     }
