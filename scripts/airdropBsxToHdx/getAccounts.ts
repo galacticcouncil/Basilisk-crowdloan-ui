@@ -13,7 +13,7 @@
 const { ApiPromise, WsProvider, Keyring } = require("@polkadot/api")
 const { deriveAddress, encodeAddress, cryptoWaitReady } = require("@polkadot/util-crypto")
 const { stringToU8a } = require("@polkadot/util")
-const BN = require("bignumber.js")
+const BN = require("BN.js")
 
 interface AirdropBsxToHdxVestingData {
     totalAllOgBalances: string
@@ -68,15 +68,15 @@ async function main() {
                     return acctsWeWant // we return the accounts we want _without_ adding treasury or founders/investors
                 } else {
                     const balanceTotal = new BN(data.free.toString())
-                                                .plus( new BN(data.reserved.toString()))
+                                            .add( new BN(data.reserved.toString())).toString()
+                                            // ^^^ Note:  free balance includes frozen balance
+                                            // https://wiki.polkadot.network/docs/learn-accounts#balance-types
 
-                    totalAllOgBalances = totalAllOgBalances.plus( new BN( balanceTotal ) )
+                    totalAllOgBalances = totalAllOgBalances.add( new BN( balanceTotal ) )
 
                     acctsWeWant.push({
                         address,
                         balanceTotal,
-                            // ^^^ Note:  free balance includes frozen balance
-                            // https://wiki.polkadot.network/docs/learn-accounts#balance-types
                     })
                     return acctsWeWant
                 }
@@ -84,7 +84,7 @@ async function main() {
 
 
     const airdropBsxToHdxVestingData: AirdropBsxToHdxVestingData = {
-        totalAllOgBalances,
+        totalAllOgBalances: totalAllOgBalances.toString(),
         OgAccounts: ogHdxAccts
     }
 
