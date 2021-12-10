@@ -1,5 +1,4 @@
-// get shedules from .json of getVestingSchedules.ts
+const vestings = require("./data/vestings.json")
+const batchVest = require('../batch-vesting/batchVestingCall')
 
-// mimick bsxCrowdloan/vestingCall
-// connect to HDX rpc
-// use HDX formattings of stuff..
+batchVest(vestings)

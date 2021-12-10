@@ -15,8 +15,8 @@ const { deriveAddress, encodeAddress, cryptoWaitReady } = require("@polkadot/uti
 const { stringToU8a } = require("@polkadot/util")
 const BN = require("BN.js")
 
-interface AirdropBsxToHdxVestingData {
-    totalAllOgBalances: string
+interface AirdropBsxToHdxData {
+    totalAllOgHdxBalances: string
     OgAccounts: OgAccount[]
 }
 
@@ -48,7 +48,7 @@ async function main() {
         `
     )
 
-    let totalAllOgBalances = new BN('0')
+    let totalAllOgHdxBalances = new BN('0')
     const blockHeight = '1999999'
     //   ^^^  block height at which to get orignial HDX accounts
     //   link or explanation for this blockheight ?
@@ -67,31 +67,31 @@ async function main() {
                     console.log('no airdrop for: ', address)
                     return acctsWeWant // we return the accounts we want _without_ adding treasury or founders/investors
                 } else {
-                    const balanceTotal = new BN(data.free.toString())
+                    const hdxBalanceTotal = new BN(data.free.toString())
                                             .add( new BN(data.reserved.toString())).toString()
                                             // ^^^ Note:  free balance includes frozen balance
                                             // https://wiki.polkadot.network/docs/learn-accounts#balance-types
 
-                    totalAllOgBalances = totalAllOgBalances.add( new BN( balanceTotal ) )
+                    totalAllOgHdxBalances = totalAllOgHdxBalances.add( new BN( hdxBalanceTotal ) )
 
                     acctsWeWant.push({
                         address,
-                        balanceTotal,
+                        hdxBalanceTotal,
                     })
                     return acctsWeWant
                 }
             }, [] ) )
 
 
-    const airdropBsxToHdxVestingData: AirdropBsxToHdxVestingData = {
-        totalAllOgBalances: totalAllOgBalances.toString(),
+    const airdropBsxToHdxData: AirdropBsxToHdxData = {
+        totalAllOgHdxBalances: totalAllOgHdxBalances.toString(),
         OgAccounts: ogHdxAccts
     }
 
     const fs = require('fs');
     fs.writeFile(
-        "./data/ogHdxHodlers.json",
-        JSON.stringify(airdropBsxToHdxVestingData, null, 4),
+        "./data/airdropData.json",
+        JSON.stringify(airdropBsxToHdxData, null, 4),
         { flag: 'wx' },
         function(err: any) {
             if (err) {

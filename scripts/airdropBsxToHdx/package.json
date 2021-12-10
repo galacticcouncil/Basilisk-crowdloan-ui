@@ -4,14 +4,14 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "getHdxAirdropAccounts": "ts-node getAccounts.ts",
-    "airdropBsxToHdxVestingCall": "ts-node vestingCall.js"
+    "getHdxAirdropData": "ts-node getData.ts",
+    "getHdxAirdropVestSchedules": "ts-node getVestingSchedules.ts",
+    "airdropBsxToHdxVestingCall": "node vestingCall.js"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "@polkadot/api": "^6.11.1",
-    "global": "^4.4.0",
     "ts-node": "^10.4.0"
   }
 }
