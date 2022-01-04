@@ -1,11 +1,12 @@
 // ✅  -> calculate BSX reward for accounts from .json of getData
 
 // ✅ -> calulate 5 000 000 000 proportional to holdings at the time for each holder
-//  ->  output a .json schedule
+//  ->  output a .json file of all schedules
 
-// ✅  -> use same schedule as we used for 70% of each contributor's BSX crowdloan rewards
+// ✅  -> start vesting at 9 334 719, Crowd Loan BSX vest
+// ✅  -> end vesting ~22 months after start
 
-const BN = require("BN.js")
+const bignumber = require("bignumber.js")
 const airdropData = require("./data/airdropData.json")
 
 type DynamicVestingInfo = {
@@ -21,57 +22,92 @@ type DynamicVestingInfo = {
 
 type VestingBatch = DynamicVestingInfo[]
 
-const airdropBsxAllocation = new BN('5000000000000000000000')
-// https://basiliskfi.substack.com/p/introducing-basilisk 
-// ^^^ 25% of HDX holders ( HDX LBP participants, team and investors ) allocation
-const sumHdxBalances = new BN(airdropData.totalAllOgHdxBalances) 
+const tenTo12Power = new bignumber('10').pow('12');
+
+const airdropBsxAllocation = 
+    new bignumber('100000000000') // 100b -> total supply of BSX
+    .multipliedBy(new bignumber('0.05'))
+    .multipliedBy(tenTo12Power).toFixed(0)
+// ^^^ 5% of total supply
+
+console.log(
+    '\n total allocation to non-investor, non-founder accounts: ', 
+    new bignumber(airdropBsxAllocation).div(tenTo12Power).toString() + '\n'
+)
+
+const sumHdxBalances = new bignumber(airdropData.totalAllOgHdxBalances)
+
 const bsxAirdroppedPerOneHdx = 
-    airdropBsxAllocation
-    .div(sumHdxBalances)
-    .toString()
+    new bignumber(airdropBsxAllocation).div(sumHdxBalances)
 
-console.log('\n amount of BSX tokens you get per one HDX token: ', bsxAirdroppedPerOneHdx + '\n') // --> 10
+console.log(
+    '\n amount of BSX tokens you get per one HDX token: ', 
+    bsxAirdroppedPerOneHdx.toString() + '\n'
+)
 
-const leaseStartBlock = new BN('9334719').toString()
-    // our auction ended on this block 
+const leaseStartBlock = '9334719'
+    // the auction we won ended on this block 
     // ^^^ _9 334 719_ https://kusama.subscan.io/auction/8
 
-const vestScheduleEndBlock = new BN('13834719')
-//  ^^^ this is a block that will occur ~week before our lease ends, 
-//  and ensures a good buffer for all vests to happen
+const twentyTwoMonthsInBlocks = (
+    60/    // seconds in minute
+    6.5*   // seconds to produce a block -> https://polkadot.js.org/apps/?rpc=wss%3A%2F%2Fkusama-rpc.polkadot.io#/explorer
+    60*    // minutes in an hour
+    24*    // hours in a day
+    30*    // days in a month
+    22     // months
+).toFixed(0)
 
-const vestDurationInBlocks = 
-    vestScheduleEndBlock
-    .sub( new BN( leaseStartBlock )).toString()
+console.log(
+    '\n ~twentyTwoMonthsInBlocks: ', 
+    twentyTwoMonthsInBlocks.toString() + '\n'
+)
 
 const vestingBatch: VestingBatch = 
     airdropData.OgAccounts
-        .filter( acct =>  new BN(acct.hdxBalanceTotal).gt(new BN('0')))
+        .filter( acct =>  new bignumber(acct.hdxBalanceTotal).gt(new bignumber('0')))
             // filter for and use accounts that have any HDX
         .map( acct => {
 
-        const amountToBeVested = new BN(acct.hdxBalanceTotal)
-            .mul(new BN(bsxAirdroppedPerOneHdx))
-            .toString()
+            const amountToBeVested = 
+                new bignumber(acct.hdxBalanceTotal)
+                .multipliedBy(bsxAirdroppedPerOneHdx)
+                .toFixed(0)
 
-        const perBlockBsx = 
-            new BN(amountToBeVested)
-            .div( new BN( vestDurationInBlocks )).toString()
-        
-        const destination = acct.address
+            const perBlockBsx = 
+                new bignumber(amountToBeVested)
+                .div(new bignumber(twentyTwoMonthsInBlocks))
+                .toFixed(0)
+            
+            const destination = acct.address
 
-        return {
-                destination,
-                schedule: {
-                    amountToBeVested,
-                    start: leaseStartBlock,
-                    period: '1',
-                    per_period: perBlockBsx,
-                    period_count: vestDurationInBlocks
+            return {
+                    destination,
+                    schedule: {
+                        amountToBeVested: amountToBeVested,
+                        start: leaseStartBlock,
+                        period: '1',
+                        per_period: perBlockBsx,
+                        period_count: twentyTwoMonthsInBlocks.toString()
+                    }
                 }
-            }
-        
-    } )
+            
+        } )
+
+console.log(
+    '\n funds dispersed; sum total all amounts to be vested: ',
+    new bignumber(
+        vestingBatch.reduce(
+            (acc, el) => 
+                new bignumber(acc)
+                .plus(new bignumber(el.schedule.amountToBeVested))
+            , new bignumber('0'))
+        )
+        .div(tenTo12Power)
+        .toString()
+    ,
+    '\n'
+)
 
 const fs = require('fs')
 fs.writeFile (
