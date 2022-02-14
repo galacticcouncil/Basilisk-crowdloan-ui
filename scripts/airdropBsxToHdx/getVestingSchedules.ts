@@ -22,6 +22,7 @@ type DynamicVestingInfo = {
 
 type VestingBatch = DynamicVestingInfo[]
 
+const MinVesting = new bignumber('100000')
 const tenTo12Power = new bignumber('10').pow('12');
 
 const airdropBsxAllocation = 
@@ -50,12 +51,12 @@ const leaseStartBlock = '9334719'
     // ^^^ _9 334 719_ https://kusama.subscan.io/auction/8
 
 const twentyTwoMonthsInBlocks = (
-    60/    // seconds in minute
-    6.5*   // seconds to produce a block -> https://polkadot.js.org/apps/?rpc=wss%3A%2F%2Fkusama-rpc.polkadot.io#/explorer
+    60*    // seconds in minute
     60*    // minutes in an hour
     24*    // hours in a day
     30*    // days in a month
-    22     // months
+    22/    // months
+    6      // seconds to produce a block -> https://polkadot.js.org/apps/?rpc=wss%3A%2F%2Fkusama-rpc.polkadot.io#/explorer
 ).toFixed(0)
 
 console.log(
@@ -67,6 +68,11 @@ const vestingBatch: VestingBatch =
     airdropData.OgAccounts
         .filter( acct =>  new bignumber(acct.hdxBalanceTotal).gt(new bignumber('0')))
             // filter for and use accounts that have any HDX
+        .filter( acct =>  {
+            new bignumber(acct.hdxBalanceTotal).gte(MinVesting))
+            console.log(`no airdrop for ${acct.address}. The minimum vesting amount has not been reached.`)
+            // filter accounts that have less than the minimum HDX
+            }
         .map( acct => {
 
             const amountToBeVested = 
