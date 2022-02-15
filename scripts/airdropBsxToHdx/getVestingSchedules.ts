@@ -69,10 +69,12 @@ const vestingBatch: VestingBatch =
         .filter( acct =>  new bignumber(acct.hdxBalanceTotal).gt(new bignumber('0')))
             // filter for and use accounts that have any HDX
         .filter( acct =>  {
-            new bignumber(acct.hdxBalanceTotal).gte(MinVesting))
-            console.log(`no airdrop for ${acct.address}. The minimum vesting amount has not been reached.`)
+            const result = new bignumber(acct.hdxBalanceTotal).gte(MinVesting);
+            if (!result) console.log(`no airdrop for ${acct.address}. The minimum vesting amount has not been reached.`);
             // filter accounts that have less than the minimum HDX
+            return result;
             }
+        )
         .map( acct => {
 
             const amountToBeVested = 
