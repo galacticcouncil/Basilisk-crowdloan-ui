@@ -39,6 +39,7 @@
         const assert = require("assert");
 
         const ACCOUNT_SECRET = process.env.ACCOUNT_SECRET || "//Alice"
+        const ACCOUNT_PWD = process.env.ACCOUNT_PWD || ""
         const RPC = process.env.RPC_SERVER || "ws://127.0.0.1:9988"
 
         const bsxAddress = (pubKey) => encodeAddress(pubKey, 10041) // https://wiki.polkadot.network/docs/build-ss58-registry
@@ -73,7 +74,8 @@
             ])
             console.log(`connected to ${RPC} (${chain} ${nodeVersion})`)
 
-            const from = keyring.addFromUri(ACCOUNT_SECRET)
+            const from = keyring.addFromJson(ACCOUNT_SECRET)
+            from.unlock(ACCOUNT_PWD)
             console.log("sudo account:", bsxAddress(from.addressRaw))
 
             const treasuryPubKey = stringToU8a("modlpy/trsry".padEnd(32, "\0"))
@@ -86,7 +88,7 @@
 
             console.log("vestingSchedules generated:", vestingSchedules.length)
 
-            const batch = api.tx.utility.batch(vestingSchedules);
+            const batch = api.tx.utility.batchAll(vestingSchedules);
 
             let { maxExtrinsic: weightLimit } = api.consts.system.blockWeights.perClass.normal;
             const { weight } = await batch.paymentInfo(from);
@@ -99,7 +101,7 @@
 
             const vestingsPerBlock = Math.ceil(vestingSchedules.length / blocks);
             const chunks = chunkify(vestingSchedules, vestingsPerBlock)
-                .map(vestings => api.tx.utility.batch(vestings));
+                .map(vestings => api.tx.utility.batchAll(vestings));
 
             const weights = await Promise.all(
                 chunks.map(async chunk => {
