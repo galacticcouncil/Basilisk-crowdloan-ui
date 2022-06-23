@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "performBatchClaim": "ts-node batchClaim.ts",
     "getHdxAirdropData": "ts-node getData.ts",
     "getHdxAirdropVestSchedules": "ts-node getVestingSchedules.ts",
     "airdropBsxToHdxVestingCall": "node vestingCall.js"
