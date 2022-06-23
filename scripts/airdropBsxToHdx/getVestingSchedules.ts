@@ -9,7 +9,7 @@
 const bignumber = require("bignumber.js")
 const airdropData = require("./data/airdropData.json")
 
-type DynamicVestingInfo = {
+export type DynamicVestingInfo = {
     destination: string,
     schedule: {
         amountToBeVested: string,
